@@ -324,8 +324,7 @@ p { margin-bottom: 0; }
 }
 .service-card:hover .service-card__bg { transform: scale(1.05); }
 .service-card--peche .service-card__bg {
-  background-image: url("../images/bord%20de%20l'eau.jpg");
-  background-size: cover; background-position: center;
+  background: linear-gradient(160deg, #1a4f4a 0%, #3d8a80 50%, #6aab9c 100%);
 }
 .service-card--bateau .service-card__bg {
   background: linear-gradient(160deg, #0d1f1d 0%, #c47800 50%, #e8951e 100%);
