@@ -188,7 +188,7 @@ p { margin-bottom: 0; }
 }
 .hero__bg {
   position: absolute; inset: 0; z-index: 0;
-  background: linear-gradient(135deg, #0d2e2b 0%, #2a6059 40%, #3d8a80 70%, #6aab9c 100%);
+  background: url('../images/cover_facebook.jpg') center 60% / cover no-repeat;
 }
 .hero__waves {
   position: absolute; bottom: -2px; left: 0; right: 0; z-index: 1;
@@ -324,7 +324,7 @@ p { margin-bottom: 0; }
 }
 .service-card:hover .service-card__bg { transform: scale(1.05); }
 .service-card--peche .service-card__bg {
-  background: linear-gradient(160deg, #1a4f4a 0%, #3d8a80 50%, #6aab9c 100%);
+  background: url('../images/cover_facebook.jpg') center 55% / cover no-repeat;
 }
 .service-card--bateau .service-card__bg {
   background: linear-gradient(160deg, #0d1f1d 0%, #c47800 50%, #e8951e 100%);
@@ -554,7 +554,7 @@ p { margin-bottom: 0; }
    ================================================================ */
 .page-hero {
   padding: 140px 0 80px;
-  background: linear-gradient(135deg, var(--water-3) 0%, var(--primary) 60%, var(--primary-light) 100%);
+  background: linear-gradient(rgba(5,20,18,0.62),rgba(5,20,18,0.62)), url('../images/cover_facebook.jpg') center 50% / cover no-repeat;
   position: relative; overflow: hidden; text-align: center;
 }
 .page-hero__title { color: var(--white); margin-bottom: 16px; }
