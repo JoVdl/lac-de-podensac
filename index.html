@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lac de Podensac — Pêche & Bateaux Barbecue | Loisirs au bord de l'eau</title>
+  <meta name="description" content="Réservez votre poste de pêche ou votre bateau barbecue sur le magnifique Lac de Podensac, au sud de Bordeaux. Expérience unique, disponibilité en temps réel.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎣</text></svg>">
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">
+        <div class="nav__logo-icon">🎣</div>
+        <div class="nav__logo-text">
+          <strong>Lac de Podensac</strong>
+          <span>Pêche & Loisirs</span>
+        </div>
+      </a>
+      <div class="nav__menu">
+        <a href="peche.html" class="nav__link">Postes de Pêche</a>
+        <a href="bateau.html" class="nav__link">Bateaux Barbecue</a>
+        <a href="galerie.html" class="nav__link">Galerie</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="peche.html#reservation" class="btn btn--primary btn--sm nav__cta">Réserver</a>
+      </div>
+      <button class="nav__hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav__mobile" id="mobile-menu">
+    <a href="peche.html" class="nav__link">🎣 Postes de Pêche</a>
+    <a href="bateau.html" class="nav__link">🔥 Bateaux Barbecue</a>
+    <a href="galerie.html" class="nav__link">📸 Galerie</a>
+    <a href="contact.html" class="nav__link">📍 Contact</a>
+    <a href="peche.html#reservation" class="btn btn--primary" style="margin-top:8px;">Réserver maintenant</a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero__bg"></div>
+    <div class="hero__particles" id="particles"></div>
+    <div class="water-rings">
+      <div class="water-ring"></div>
+      <div class="water-ring"></div>
+      <div class="water-ring"></div>
+    </div>
+    <div class="hero__overlay"></div>
+    <div class="container">
+      <div class="grid-2" style="align-items:center; gap:60px; padding: 140px 0 100px;">
+        <div class="hero__content">
+          <div class="hero__badge">
+            <span>⚡</span> Disponibilité en temps réel
+          </div>
+          <h1 class="hero__title">
+            Votre paradis de<br>
+            <span>pêche & loisirs</span><br>
+            au bord du lac
+          </h1>
+          <p class="hero__subtitle">
+            Réservez votre poste de pêche parmi les 12 emplacements premium du Lac de Podensac,
+            ou vivez une expérience unique à bord de nos bateaux barbecue flottants.
+          </p>
+          <div class="hero__actions">
+            <a href="peche.html" class="btn btn--primary btn--lg">
+              🎣 Explorer les postes
+            </a>
+            <a href="bateau.html" class="btn btn--outline btn--lg">
+              🔥 Bateau Barbecue
+            </a>
+          </div>
+          <div class="hero__stats">
+            <div>
+              <div class="hero__stat-value" data-count="12">12</div>
+              <div class="hero__stat-label">Postes de pêche</div>
+            </div>
+            <div>
+              <div class="hero__stat-value" data-count="3">3</div>
+              <div class="hero__stat-label">Bateaux BBQ</div>
+            </div>
+            <div>
+              <div class="hero__stat-value" data-count="98">98%</div>
+              <div class="hero__stat-label">Satisfaction</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero__visual">
+          <div class="hero__map-preview">
+            <div class="hero__map-header">
+              <span class="hero__map-title">🗺️ Disponibilités aujourd'hui</span>
+              <span class="hero__map-live">En direct</span>
+            </div>
+            <div class="hero__map-body">
+              <div class="hero__avail-grid" id="avail-grid">
+                <!-- filled by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero__waves">
+      <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="wave-divider">
+        <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#f4f7fa"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-bar__grid">
+        <div class="stats-bar__item">
+          <div class="stats-bar__value">Sud Bordeaux</div>
+          <div class="stats-bar__label">Gironde, 33720</div>
+        </div>
+        <div class="stats-bar__item">
+          <div class="stats-bar__value">8 espèces</div>
+          <div class="stats-bar__label">Poissons disponibles</div>
+        </div>
+        <div class="stats-bar__item">
+          <div class="stats-bar__value">9 pers.</div>
+          <div class="stats-bar__label">Par bateau BBQ</div>
+        </div>
+        <div class="stats-bar__item">
+          <div class="stats-bar__value">Ouvert 7j/7</div>
+          <div class="stats-bar__label">Toute l'année</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SERVICES ===== -->
+  <section class="section" style="background: var(--gray-bg);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Nos activités</span>
+        <h2 class="section-title">Deux expériences uniques<br>sur le lac</h2>
+        <p class="section-subtitle">Que vous soyez passionné de pêche ou à la recherche d'une sortie conviviale en famille ou entre amis, nous avons l'expérience qu'il vous faut.</p>
+      </div>
+      <div class="services__grid">
+        <a href="peche.html" class="service-card">
+          <div class="service-card__bg service-card--peche"></div>
+          <div class="service-card__overlay"></div>
+          <div class="service-card__icon">🎣</div>
+          <div class="service-card__content">
+            <span class="service-card__tag">Location de postes</span>
+            <h3 class="service-card__title">Pêche sur le Lac</h3>
+            <p class="service-card__desc">
+              12 postes de pêche soigneusement aménagés, chacun avec ses spécificités.
+              Carpe, brochet, sandre, perche… le lac regorge de beaux spécimens.
+              Accès facile, équipements inclus, disponibilité en temps réel.
+            </p>
+            <div class="service-card__features">
+              <span class="service-card__feature">Journée & Nuit</span>
+              <span class="service-card__feature">Carte interactive</span>
+              <span class="service-card__feature">Captures récentes</span>
+              <span class="service-card__feature">1 à 3 personnes</span>
+            </div>
+            <div class="service-card__price">
+              À partir de <strong>35€</strong> / session
+            </div>
+            <div class="btn btn--primary" style="margin-top:16px;">Voir les postes →</div>
+          </div>
+        </a>
+        <a href="bateau.html" class="service-card">
+          <div class="service-card__bg service-card--bateau"></div>
+          <div class="service-card__overlay"></div>
+          <div class="service-card__icon">🔥</div>
+          <div class="service-card__content">
+            <span class="service-card__tag" style="background:var(--accent);">Expérience unique</span>
+            <h3 class="service-card__title">Bateaux Barbecue</h3>
+            <p class="service-card__desc">
+              Naviguez sur le lac à bord d'un bateau équipé d'un barbecue intégré.
+              Jusqu'à 9 personnes par embarcation. Idéal pour les apéros, anniversaires
+              et sorties en groupe inoubliables.
+            </p>
+            <div class="service-card__features">
+              <span class="service-card__feature">Jusqu'à 9 pers.</span>
+              <span class="service-card__feature">BBQ inclus</span>
+              <span class="service-card__feature">3 bateaux dispo</span>
+              <span class="service-card__feature">Coucher de soleil</span>
+            </div>
+            <div class="service-card__price">
+              À partir de <strong>35€</strong> / pers.
+            </div>
+            <div class="btn btn--primary" style="margin-top:16px; background:var(--accent);">Découvrir →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHY US ===== -->
+  <section class="section why-us">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Pourquoi nous choisir</span>
+        <h2 class="section-title">Une expérience premium<br>au bord de l'eau</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-card fade-up">
+          <div class="why-card__icon">🗺️</div>
+          <h4 class="why-card__title">Carte interactive en temps réel</h4>
+          <p class="why-card__text">Visualisez tous les postes sur une carte détaillée du lac. Disponibilités mises à jour en direct, photos de chaque emplacement, profondeur et type de fond.</p>
+        </div>
+        <div class="why-card fade-up">
+          <div class="why-card__icon">🐟</div>
+          <h4 class="why-card__title">Données de pêche précises</h4>
+          <p class="why-card__text">Espèces présentes, captures récentes avec photos de clients, records du lac, saisons optimales… Toutes les infos pour choisir le bon poste.</p>
+        </div>
+        <div class="why-card fade-up">
+          <div class="why-card__icon">📱</div>
+          <h4 class="why-card__title">Réservation 100% en ligne</h4>
+          <p class="why-card__text">Choisissez votre poste, vos dates, votre formule. Paiement sécurisé, confirmation immédiate par email. Modifiez ou annulez facilement.</p>
+        </div>
+        <div class="why-card fade-up">
+          <div class="why-card__icon">🌅</div>
+          <h4 class="why-card__title">Cadre naturel exceptionnel</h4>
+          <p class="why-card__text">Le Lac de Podensac offre un environnement calme et préservé, loin de l'agitation. Eau cristalline, végétation luxuriante, couchers de soleil magnifiques.</p>
+        </div>
+        <div class="why-card fade-up">
+          <div class="why-card__icon">🛡️</div>
+          <h4 class="why-card__title">Sécurité & Confort</h4>
+          <p class="why-card__text">Postes sécurisés et équipés, matériel de sécurité à bord des bateaux, personnel disponible sur place. Accès PMR pour certains postes.</p>
+        </div>
+        <div class="why-card fade-up">
+          <div class="why-card__icon">♻️</div>
+          <h4 class="why-card__title">Pêche responsable</h4>
+          <p class="why-card__text">Nous prônons la pêche no-kill et le respect de l'environnement. Quotas respectés, poissons relâchés sains, partenariat avec les associations locales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FISHING SPOTS PREVIEW ===== -->
+  <section class="section spots-preview">
+    <div class="container">
+      <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:20px;">
+        <div>
+          <span class="section-label">Les postes</span>
+          <h2 class="section-title">12 postes de pêche premium</h2>
+          <p class="section-subtitle">Chaque emplacement a été étudié pour offrir les meilleures conditions de pêche.</p>
+        </div>
+        <a href="peche.html" class="btn btn--outline-dark">Voir tous les postes →</a>
+      </div>
+      <div class="spots-grid" id="spots-preview-grid">
+        <!-- filled by JS -->
+      </div>
+      <div style="text-align:center; margin-top:8px;">
+        <a href="peche.html" class="btn btn--secondary btn--lg">🗺️ Voir la carte interactive complète</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BOAT PREVIEW ===== -->
+  <section class="section boat-preview">
+    <div class="container">
+      <div class="boat-concept">
+        <div class="boat-concept__visual">
+          <div class="boat-concept__emoji">🛥️</div>
+          <div class="boat-concept__badge">
+            <div class="boat-concept__badge-title">3 bateaux disponibles · 9 pers. max chacun</div>
+            <div class="boat-concept__badge-sub">Réservation disponible pour groupes & événements</div>
+          </div>
+        </div>
+        <div class="boat-concept__content">
+          <span class="section-label">Bateau Barbecue</span>
+          <h2 class="boat-concept__title">Une sortie sur l'eau<br>comme nulle part ailleurs</h2>
+          <p class="boat-concept__text">
+            Imaginez dériver doucement sur le lac, un verre à la main, pendant que le barbecue
+            grésille sur le pont. Nos bateaux sont spécialement équipés avec des grilles BBQ
+            intégrées, des tables et banquettes confortables pour accueillir jusqu'à 9 personnes.
+            Parfait pour les anniversaires, EVG/EVJF, team building ou simplement profiter d'un
+            coucher de soleil mémorable.
+          </p>
+          <div class="boat-features">
+            <div class="boat-feature">
+              <div class="boat-feature__icon">🔥</div>
+              <div class="boat-feature__title">BBQ intégré</div>
+              <div class="boat-feature__sub">Charbon fourni</div>
+            </div>
+            <div class="boat-feature">
+              <div class="boat-feature__icon">👥</div>
+              <div class="boat-feature__title">Jusqu'à 9 pers.</div>
+              <div class="boat-feature__sub">Par embarcation</div>
+            </div>
+            <div class="boat-feature">
+              <div class="boat-feature__icon">⚓</div>
+              <div class="boat-feature__title">Navigation libre</div>
+              <div class="boat-feature__sub">Permis non requis</div>
+            </div>
+            <div class="boat-feature">
+              <div class="boat-feature__icon">🧊</div>
+              <div class="boat-feature__title">Glacière incluse</div>
+              <div class="boat-feature__sub">Glaçons disponibles</div>
+            </div>
+          </div>
+          <div class="packages-mini">
+            <div class="package-mini">
+              <div class="package-mini__name">Apéritif</div>
+              <div class="package-mini__price">35€</div>
+              <div class="package-mini__dur">2h · /pers.</div>
+            </div>
+            <div class="package-mini">
+              <div class="package-mini__name">Soirée BBQ</div>
+              <div class="package-mini__price">65€</div>
+              <div class="package-mini__dur">3h30 · /pers.</div>
+            </div>
+            <div class="package-mini">
+              <div class="package-mini__name">Journée</div>
+              <div class="package-mini__price">95€</div>
+              <div class="package-mini__dur">6h · /pers.</div>
+            </div>
+          </div>
+          <a href="bateau.html" class="btn btn--primary btn--lg">
+            🔥 Réserver un bateau
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="section testimonials">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Avis clients</span>
+        <h2 class="section-title">Ce que disent nos visiteurs</h2>
+        <p class="section-subtitle">Rejoignez des centaines de pêcheurs et familles qui ont vécu leur meilleure expérience au bord du lac.</p>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card fade-up">
+          <div class="testi-card__stars">★★★★★</div>
+          <p class="testi-card__text">"Le poste n°5 (La Baie Secrète) est absolument incroyable. Carpe de 14kg sortie en pleine nuit, le calme total et une superbe vue. Je reviendrai sans hésiter !"</p>
+          <div class="testi-card__author">
+            <div class="testi-card__avatar">JL</div>
+            <div>
+              <div class="testi-card__name">Jean-Louis M.</div>
+              <div class="testi-card__date">Bordeaux · Avril 2025</div>
+            </div>
+          </div>
+          <div class="testi-card__catch">🐟 Capture : Carpe commune, 14.2 kg — Poste n°5</div>
+        </div>
+        <div class="testi-card fade-up">
+          <div class="testi-card__stars">★★★★★</div>
+          <p class="testi-card__text">"Bateau barbecue pour l'anniversaire de ma femme — 8 personnes sur le bateau, le coucher de soleil était magique, la nourriture excellente. Une expérience inoubliable !"</p>
+          <div class="testi-card__author">
+            <div class="testi-card__avatar">TR</div>
+            <div>
+              <div class="testi-card__name">Thomas R.</div>
+              <div class="testi-card__date">Langon · Mars 2025</div>
+            </div>
+          </div>
+          <div class="testi-card__catch">🔥 Soirée BBQ · Le Martin-Pêcheur</div>
+        </div>
+        <div class="testi-card fade-up">
+          <div class="testi-card__stars">★★★★☆</div>
+          <p class="testi-card__text">"Site de réservation très simple, carte du lac très pratique pour choisir son poste selon le poisson visé. J'ai eu un sandre de 72cm au poste du Chenal. Parfait !"</p>
+          <div class="testi-card__author">
+            <div class="testi-card__avatar">SB</div>
+            <div>
+              <div class="testi-card__name">Sophie B.</div>
+              <div class="testi-card__date">Bordeaux · Mai 2025</div>
+            </div>
+          </div>
+          <div class="testi-card__catch">🐟 Capture : Sandre, 72 cm — Poste n°6 (Le Chenal)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="section cta-section">
+    <div class="cta-section__bg-rings">
+      <div class="cta-ring" style="width:600px;height:600px;top:-200px;right:-100px;"></div>
+      <div class="cta-ring" style="width:400px;height:400px;bottom:-150px;left:-50px;"></div>
+    </div>
+    <div class="container" style="position:relative; z-index:1;">
+      <h2 class="cta-section__title">Prêt à vivre votre prochaine<br>aventure sur le lac ?</h2>
+      <p class="cta-section__text">Réservez dès maintenant votre poste de pêche ou votre bateau barbecue. Places limitées — disponibilités souvent complètes le week-end.</p>
+      <div class="cta-section__actions">
+        <a href="peche.html" class="btn btn--primary btn--lg">🎣 Réserver un poste de pêche</a>
+        <a href="bateau.html" class="btn btn--outline btn--lg">🔥 Réserver un bateau BBQ</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <div class="nav__logo" style="margin-bottom:16px;">
+            <div class="nav__logo-icon">🎣</div>
+            <div class="nav__logo-text">
+              <strong>Lac de Podensac</strong>
+              <span>Pêche & Loisirs</span>
+            </div>
+          </div>
+          <p class="footer__tagline">Votre destination loisirs au bord de l'eau, au cœur du Sauternais. Pêche, détente et expériences uniques à 35km au sud de Bordeaux.</p>
+          <div class="footer__social">
+            <a href="#" class="footer__social-link" aria-label="Facebook">📘</a>
+            <a href="#" class="footer__social-link" aria-label="Instagram">📸</a>
+            <a href="#" class="footer__social-link" aria-label="YouTube">📺</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer__col-title">Navigation</div>
+          <div class="footer__links">
+            <a href="peche.html" class="footer__link">Postes de pêche</a>
+            <a href="peche.html#carte" class="footer__link">Carte du lac</a>
+            <a href="bateau.html" class="footer__link">Bateaux barbecue</a>
+            <a href="galerie.html" class="footer__link">Galerie photos</a>
+            <a href="contact.html" class="footer__link">Nous contacter</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer__col-title">Infos pratiques</div>
+          <div class="footer__links">
+            <a href="peche.html#tarifs" class="footer__link">Tarifs pêche</a>
+            <a href="bateau.html#tarifs" class="footer__link">Tarifs bateaux</a>
+            <a href="#" class="footer__link">Règlement intérieur</a>
+            <a href="#" class="footer__link">Accès & Parking</a>
+            <a href="#" class="footer__link">FAQ</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer__col-title">Contact</div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-icon">📍</span>
+            <span>Lac de Podensac<br>33720 Podensac, Gironde</span>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-icon">📞</span>
+            <span>+33 (0)5 XX XX XX XX</span>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-icon">✉️</span>
+            <span>contact@lac-de-podensac.fr</span>
+          </div>
+          <div class="footer__contact-item">
+            <span class="footer__contact-icon">🕐</span>
+            <span>Lun–Ven: 8h–20h<br>Sam–Dim: 7h–22h</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2025 Lac de Podensac. Tous droits réservés.</span>
+        <div style="display:flex; gap:20px;">
+          <a href="#">Mentions légales</a>
+          <a href="#">Politique de confidentialité</a>
+          <a href="#">CGV</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Hero availability preview
+    const previewSpots = [
+      { nom: "Poste #1", status: "avail", label: "Disponible" },
+      { nom: "Poste #5", status: "busy", label: "Complet" },
+      { nom: "Poste #3", status: "avail", label: "Disponible" },
+      { nom: "Poste #7", status: "partial", label: "Partiel" },
+      { nom: "Poste #9", status: "avail", label: "Disponible" },
+      { nom: "Poste #11", status: "busy", label: "Complet" },
+    ];
+    const grid = document.getElementById('avail-grid');
+    if (grid) {
+      previewSpots.forEach(s => {
+        grid.innerHTML += `<div class="hero__avail-item ${s.status}"><span class="hero__avail-spot">${s.nom}</span><span class="hero__avail-status">${s.label}</span></div>`;
+      });
+    }
+
+    // Spots preview
+    const postes = window.POSTES || [];
+    const previewGrid = document.getElementById('spots-preview-grid');
+    if (previewGrid && typeof POSTES !== 'undefined') {
+      POSTES.slice(0,6).forEach(p => {
+        const avail = p.disponible ? 'available' : 'busy';
+        const availLabel = p.disponible ? '✓ Disponible' : '● Complet';
+        previewGrid.innerHTML += `
+          <div class="spot-card" onclick="location.href='peche.html#poste-${p.id}'">
+            <div class="spot-card__header">
+              <span class="spot-card__number">${p.id}</span>
+              <span class="spot-card__avail ${avail}">${availLabel}</span>
+              <div class="spot-card__illustration">${p.icon}</div>
+            </div>
+            <div class="spot-card__body">
+              <div class="spot-card__name">${p.nom}</div>
+              <div class="spot-card__fish">${p.poissons.slice(0,3).map(f=>`<span class="fish-tag">${f}</span>`).join('')}</div>
+              <div class="spot-card__meta">
+                <div class="spot-card__rating"><span class="stars">★</span> ${p.score} <span>(${p.avis} avis)</span></div>
+                <div class="spot-card__price">${p.prix_jour}€ <small>/ jour</small></div>
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+  </script>
+  <script src="js/postes.js"></script>
+  <script>
+    // Re-render after postes loaded
+    if (previewGrid) {
+      previewGrid.innerHTML = '';
+      POSTES.slice(0,6).forEach(p => {
+        const avail = p.disponible ? 'available' : 'busy';
+        const availLabel = p.disponible ? '✓ Disponible' : '● Complet';
+        previewGrid.innerHTML += `
+          <div class="spot-card fade-up" onclick="location.href='peche.html#poste-${p.id}'" style="cursor:pointer;">
+            <div class="spot-card__header">
+              <span class="spot-card__number">${p.id}</span>
+              <span class="spot-card__avail ${avail}">${availLabel}</span>
+              <div class="spot-card__illustration">${p.icon}</div>
+            </div>
+            <div class="spot-card__body">
+              <div class="spot-card__name">${p.nom}</div>
+              <div class="spot-card__fish">${p.poissons.slice(0,3).map(f=>`<span class="fish-tag">${f}</span>`).join('')}</div>
+              <div class="spot-card__meta">
+                <div class="spot-card__rating"><span class="stars">★</span> ${p.score} <span>(${p.avis} avis)</span></div>
+                <div class="spot-card__price">${p.prix_jour}€ <small>/ jour</small></div>
+              </div>
+            </div>
+          </div>`;
+      });
+      document.querySelectorAll('.fade-up').forEach(el => {
+        const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }); }, {threshold:0.1});
+        obs.observe(el);
+      });
+    }
+  </script>
+</body>
+</html>

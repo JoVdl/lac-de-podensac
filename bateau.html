@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bateaux Barbecue — Lac de Podensac | Location & Réservation</title>
+  <meta name="description" content="Louez un bateau barbecue sur le Lac de Podensac. Jusqu'à 9 personnes, navigation libre, BBQ intégré. Idéal pour apéros, anniversaires, soirées inoubliables.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">
+        <div class="nav__logo-icon">🎣</div>
+        <div class="nav__logo-text"><strong>Lac de Podensac</strong><span>Pêche & Loisirs</span></div>
+      </a>
+      <div class="nav__menu">
+        <a href="peche.html" class="nav__link">Postes de Pêche</a>
+        <a href="bateau.html" class="nav__link active">Bateaux Barbecue</a>
+        <a href="galerie.html" class="nav__link">Galerie</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="#reservation" class="btn btn--primary btn--sm nav__cta" style="background:var(--accent);">Réserver</a>
+      </div>
+      <button class="nav__hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="nav__mobile" id="mobile-menu">
+    <a href="peche.html" class="nav__link">🎣 Postes de Pêche</a>
+    <a href="bateau.html" class="nav__link">🔥 Bateaux Barbecue</a>
+    <a href="galerie.html" class="nav__link">📸 Galerie</a>
+    <a href="contact.html" class="nav__link">📍 Contact</a>
+    <a href="#reservation" class="btn btn--primary" style="margin-top:8px;background:var(--accent);">Réserver un bateau</a>
+  </div>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero" style="background:linear-gradient(135deg,#1a1a2e 0%,#4a1a00 50%,#c47800 100%);">
+    <div class="container">
+      <div class="page-hero__breadcrumb"><a href="index.html">Accueil</a><span>/</span><span>Bateaux Barbecue</span></div>
+      <h1 class="page-hero__title">🔥 Bateaux Barbecue</h1>
+      <p class="page-hero__subtitle">Naviguez sur le lac à bord d'un bateau équipé d'un barbecue. L'expérience la plus originale au sud de Bordeaux pour vos moments festifs.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="#flotte" class="btn btn--primary" style="background:var(--accent);">🛥️ Nos bateaux</a>
+        <a href="#tarifs" class="btn btn--outline">💰 Tarifs & formules</a>
+        <a href="#reservation" class="btn btn--outline">📅 Réserver</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar" style="background:#1a1a2e;">
+    <div class="container">
+      <div class="stats-bar__grid">
+        <div class="stats-bar__item"><div class="stats-bar__value">3</div><div class="stats-bar__label">Bateaux disponibles</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">9 pers.</div><div class="stats-bar__label">Capacité max / bateau</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">35€</div><div class="stats-bar__label">À partir de / personne</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">Permis</div><div class="stats-bar__label">Non requis</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPT -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="grid-2" style="gap:60px;align-items:center;">
+        <div>
+          <span class="section-label">Le concept</span>
+          <h2 class="section-title">Un barbecue flottant<br>sur le lac</h2>
+          <p style="color:var(--gray);line-height:1.85;margin-bottom:20px;font-size:1.02rem;">
+            Nos bateaux barbecue sont des embarcations plates et stables, spécialement conçues pour la navigation
+            de loisir. Au centre du pont, un barbecue charbon circulaire autour duquel tout le groupe peut se réunir.
+            Tables et sièges intégrés pour le confort de tous.
+          </p>
+          <p style="color:var(--gray);line-height:1.85;margin-bottom:28px;font-size:1.02rem;">
+            La navigation est simple et intuitive — aucun permis bateau n'est requis. Après une brève initiation
+            de notre équipe, vous partez en toute autonomie pour explorer les bords du lac à votre rythme.
+          </p>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.6rem;">✅</span>
+              <span style="font-size:0.9rem;color:var(--dark);font-weight:600;">Aucun permis requis</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.6rem;">✅</span>
+              <span style="font-size:0.9rem;color:var(--dark);font-weight:600;">Formation incluse (15 min)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.6rem;">✅</span>
+              <span style="font-size:0.9rem;color:var(--dark);font-weight:600;">Gilets de sauvetage fournis</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.6rem;">✅</span>
+              <span style="font-size:0.9rem;color:var(--dark);font-weight:600;">Assistance radio permanente</span>
+            </div>
+          </div>
+          <a href="#reservation" class="btn btn--primary btn--lg" style="background:var(--accent);">🔥 Réserver maintenant</a>
+        </div>
+        <div style="position:relative;">
+          <div style="background:linear-gradient(135deg,#c47800,#e8951e,#ff6b35);border-radius:24px;height:480px;display:flex;align-items:center;justify-content:center;font-size:9rem;box-shadow:var(--shadow-lg);">
+            🛥️
+          </div>
+          <div style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--white);border-radius:16px;padding:16px 24px;box-shadow:var(--shadow-md);display:flex;gap:24px;">
+            <div style="text-align:center;"><div style="font-size:1.6rem;font-weight:800;color:var(--accent);font-family:var(--font-head);">27</div><div style="font-size:0.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;">sorties ce mois</div></div>
+            <div style="width:1px;background:rgba(0,0,0,0.1);"></div>
+            <div style="text-align:center;"><div style="font-size:1.6rem;font-weight:800;color:var(--primary);font-family:var(--font-head);">4.9⭐</div><div style="font-size:0.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;">Note moyenne</div></div>
+            <div style="width:1px;background:rgba(0,0,0,0.1);"></div>
+            <div style="text-align:center;"><div style="font-size:1.6rem;font-weight:800;color:var(--secondary);font-family:var(--font-head);">98%</div><div style="font-size:0.72rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;">Satisfaction</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOTTE -->
+  <section class="section boats-fleet" id="flotte" style="background:var(--gray-bg);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Notre flotte</span>
+        <h2 class="section-title">3 bateaux, 3 ambiances</h2>
+        <p class="section-subtitle">Chaque bateau a sa personnalité. Ils sont tous identiques en termes d'équipements et de sécurité.</p>
+      </div>
+      <div class="boats-grid">
+        <div class="boat-card card-1">
+          <div class="boat-card__header">
+            🦩
+            <span class="boat-card__badge">Disponible</span>
+          </div>
+          <div class="boat-card__body">
+            <div class="boat-card__name">Le Flamant Rose</div>
+            <div class="boat-card__capacity">👥 Jusqu'à 9 personnes · Idéal soirées & anniversaires</div>
+            <div class="boat-card__features">
+              <div class="boat-card__feature">BBQ charbon circulaire 60cm</div>
+              <div class="boat-card__feature">Table centrale + banquettes périphériques</div>
+              <div class="boat-card__feature">Parasol & guirlandes lumineuses</div>
+              <div class="boat-card__feature">Système audio Bluetooth</div>
+              <div class="boat-card__feature">Glacière 50L</div>
+              <div class="boat-card__feature">9 gilets de sauvetage</div>
+            </div>
+          </div>
+          <div class="boat-card__footer">
+            <div><div class="boat-card__price-from">À partir de</div><div class="boat-card__price">35€ <small style="font-size:0.75rem;font-weight:400;color:var(--gray);">/pers.</small></div></div>
+            <a href="#reservation" class="btn btn--primary btn--sm" style="background:var(--accent);">Réserver</a>
+          </div>
+        </div>
+        <div class="boat-card card-2" style="transform:translateY(-8px);box-shadow:var(--shadow-lg);">
+          <div class="boat-card__header">
+            🐦
+            <span class="boat-card__badge" style="background:var(--primary);">⭐ Populaire</span>
+          </div>
+          <div class="boat-card__body">
+            <div class="boat-card__name">Le Martin-Pêcheur</div>
+            <div class="boat-card__capacity">👥 Jusqu'à 9 personnes · Idéal couchers de soleil</div>
+            <div class="boat-card__features">
+              <div class="boat-card__feature">BBQ charbon circulaire 60cm</div>
+              <div class="boat-card__feature">Zone lounge avec coussins</div>
+              <div class="boat-card__feature">Bimini (protection soleil)</div>
+              <div class="boat-card__feature">Système audio Bluetooth</div>
+              <div class="boat-card__feature">Glacière 65L + bac à glaçons</div>
+              <div class="boat-card__feature">Éclairage LED ambiance</div>
+            </div>
+          </div>
+          <div class="boat-card__footer">
+            <div><div class="boat-card__price-from">À partir de</div><div class="boat-card__price">35€ <small style="font-size:0.75rem;font-weight:400;color:var(--gray);">/pers.</small></div></div>
+            <a href="#reservation" class="btn btn--primary btn--sm" style="background:var(--accent);">Réserver</a>
+          </div>
+        </div>
+        <div class="boat-card card-3">
+          <div class="boat-card__header">
+            🦅
+            <span class="boat-card__badge">Disponible</span>
+          </div>
+          <div class="boat-card__body">
+            <div class="boat-card__name">La Cigogne</div>
+            <div class="boat-card__capacity">👥 Jusqu'à 9 personnes · Idéal famille & détente</div>
+            <div class="boat-card__features">
+              <div class="boat-card__feature">BBQ charbon circulaire 60cm</div>
+              <div class="boat-card__feature">Espace enfants sécurisé</div>
+              <div class="boat-card__feature">Bimini + protection latérale</div>
+              <div class="boat-card__feature">Système audio Bluetooth</div>
+              <div class="boat-card__feature">Glacière 50L</div>
+              <div class="boat-card__feature">Kit premiers secours</div>
+            </div>
+          </div>
+          <div class="boat-card__footer">
+            <div><div class="boat-card__price-from">À partir de</div><div class="boat-card__price">35€ <small style="font-size:0.75rem;font-weight:400;color:var(--gray);">/pers.</small></div></div>
+            <a href="#reservation" class="btn btn--primary btn--sm" style="background:var(--accent);">Réserver</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PACKAGES -->
+  <section class="section packages-section" id="tarifs">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Tarifs & Formules</span>
+        <h2 class="section-title">Choisissez votre formule</h2>
+        <p class="section-subtitle">Toutes les formules incluent le bateau, le BBQ, le charbon, les gilets de sauvetage et la formation de navigation.</p>
+      </div>
+      <div class="packages-grid">
+        <div class="package-card">
+          <div class="package-card__header">
+            <div class="package-card__icon">🥂</div>
+            <div class="package-card__name">Apéritif Coucher de Soleil</div>
+            <div class="package-card__duration">⏱️ 2 heures · De 18h à 20h</div>
+            <div class="package-card__price">35€ <small>/pers.</small></div>
+            <div class="package-card__min">Minimum 4 personnes</div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__includes-title">Ce qui est inclus</div>
+            <div class="package-card__item">Bateau + BBQ charbon</div>
+            <div class="package-card__item">Charbon (2kg fourni)</div>
+            <div class="package-card__item">Gilets de sauvetage</div>
+            <div class="package-card__item">Formation navigation 15 min</div>
+            <div class="package-card__item">Ustensiles BBQ</div>
+          </div>
+          <div class="package-card__footer">
+            <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
+          </div>
+        </div>
+        <div class="package-card featured">
+          <div class="package-card__header">
+            <div class="package-card__featured-badge">⭐ Le plus populaire</div>
+            <div class="package-card__icon">🔥</div>
+            <div class="package-card__name">Soirée Barbecue</div>
+            <div class="package-card__duration">⏱️ 3h30 · Horaires flexibles</div>
+            <div class="package-card__price">65€ <small>/pers.</small></div>
+            <div class="package-card__min">Minimum 4 personnes</div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__includes-title">Ce qui est inclus</div>
+            <div class="package-card__item">Bateau + BBQ charbon</div>
+            <div class="package-card__item">Charbon (3kg fourni)</div>
+            <div class="package-card__item">Gilets de sauvetage</div>
+            <div class="package-card__item">Formation navigation 15 min</div>
+            <div class="package-card__item">Plateau apéritif (chips, olives)</div>
+            <div class="package-card__item">Ustensiles BBQ complets</div>
+            <div class="package-card__item">Vaisselle & couverts</div>
+          </div>
+          <div class="package-card__footer">
+            <a href="#reservation" class="btn btn--primary btn--lg" style="background:var(--accent);width:100%;justify-content:center;">Choisir cette formule</a>
+          </div>
+        </div>
+        <div class="package-card">
+          <div class="package-card__header">
+            <div class="package-card__icon">☀️</div>
+            <div class="package-card__name">Journée Complète</div>
+            <div class="package-card__duration">⏱️ 6 heures · De 11h à 17h</div>
+            <div class="package-card__price">95€ <small>/pers.</small></div>
+            <div class="package-card__min">Minimum 4 personnes</div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__includes-title">Ce qui est inclus</div>
+            <div class="package-card__item">Bateau + BBQ charbon</div>
+            <div class="package-card__item">Charbon illimité</div>
+            <div class="package-card__item">Gilets de sauvetage</div>
+            <div class="package-card__item">Formation navigation 15 min</div>
+            <div class="package-card__item">Plateau apéritif premium</div>
+            <div class="package-card__item">Ustensiles BBQ & vaisselle</div>
+            <div class="package-card__item">Bouteille de vin offerte</div>
+            <div class="package-card__item">Photos souvenir par notre équipe</div>
+          </div>
+          <div class="package-card__footer">
+            <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:36px;background:rgba(232,149,30,0.08);border:1px solid rgba(232,149,30,0.2);border-radius:16px;padding:24px;text-align:center;">
+        <p style="font-size:0.95rem;color:var(--gray-dark);">
+          🎂 <strong>Événements & groupes</strong> — Pour les anniversaires, EVG/EVJF, team building ou groupes de 20+ personnes, nous proposons des tarifs négociés et des formules sur-mesure. <a href="contact.html" style="color:var(--accent);font-weight:700;">Contactez-nous</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU & SUGGESTIONS -->
+  <section class="section menu-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Sur votre barbecue</span>
+        <h2 class="section-title">Idées & suggestions de menu</h2>
+        <p class="section-subtitle">Apportez vos propres victuailles ou commandez notre plateau traiteur. Voici quelques idées pour un BBQ réussi sur l'eau.</p>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <div class="menu-item__icon">🥩</div>
+          <div class="menu-item__name">Viandes & Brochettes</div>
+          <div class="menu-item__desc">Entrecôtes, merguez, brochettes de poulet marinées, côtelettes d'agneau</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🦐</div>
+          <div class="menu-item__name">Fruits de Mer</div>
+          <div class="menu-item__desc">Crevettes grillées, gambas marinées, poisson entier en papillote</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🥗</div>
+          <div class="menu-item__name">Légumes & Végétarien</div>
+          <div class="menu-item__desc">Légumes grillés, halloumi, maïs, poivrons farcis, champignons</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🍷</div>
+          <div class="menu-item__name">Vins de Sauternes</div>
+          <div class="menu-item__desc">Vins locaux du Sauternais disponibles à l'accueil — terroir exceptionnel</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🧀</div>
+          <div class="menu-item__name">Plateau Apéro</div>
+          <div class="menu-item__desc">Fromages régionaux, charcuterie du Périgord, tapenades, pain artisanal</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🎂</div>
+          <div class="menu-item__name">Desserts</div>
+          <div class="menu-item__desc">Fruits rôtis, guimauves grillées, bananes au chocolat, crêpes</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🍺</div>
+          <div class="menu-item__name">Boissons fraîches</div>
+          <div class="menu-item__desc">Bières artisanales locales, sodas, eau minérale — à apporter ou commander</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__icon">🫙</div>
+          <div class="menu-item__name">Plateau Traiteur</div>
+          <div class="menu-item__desc">Option traiteur complète sur commande — 48h à l'avance — de 12€/pers.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="background:var(--white);">
+    <div class="container" style="max-width:800px;">
+      <div class="section-header text-center">
+        <span class="section-label">Questions fréquentes</span>
+        <h2 class="section-title">Tout ce que vous devez savoir</h2>
+      </div>
+      <div id="faq-container"></div>
+    </div>
+  </section>
+
+  <!-- RESERVATION -->
+  <section class="section booking-section" id="reservation" style="background:var(--gray-bg);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Réservation en ligne</span>
+        <h2 class="section-title">🔥 Réservez votre bateau</h2>
+        <p class="section-subtitle">Remplissez le formulaire ci-dessous. Confirmation immédiate par email.</p>
+      </div>
+      <div class="booking-layout">
+        <div class="booking-form-card">
+          <h3 class="booking-form-card__title">Vos informations</h3>
+          <form id="boat-booking-form">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Prénom *</label>
+                <input type="text" class="form-control" id="bf-prenom" placeholder="Votre prénom" required>
+              </div>
+              <div class="form-group">
+                <label>Nom *</label>
+                <input type="text" class="form-control" id="bf-nom" placeholder="Votre nom" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" class="form-control" id="bf-email" placeholder="votre@email.com" required>
+            </div>
+            <div class="form-group">
+              <label>Téléphone *</label>
+              <input type="tel" class="form-control" id="bf-tel" placeholder="06 XX XX XX XX" required>
+            </div>
+            <div class="form-group">
+              <label>Bateau souhaité *</label>
+              <select class="form-control" id="bf-bateau" required>
+                <option value="">— Choisissez un bateau —</option>
+                <option value="flamant">🦩 Le Flamant Rose</option>
+                <option value="martin">🐦 Le Martin-Pêcheur (populaire)</option>
+                <option value="cigogne">🦅 La Cigogne</option>
+                <option value="indifferent">Indifférent — selon disponibilité</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Formule *</label>
+              <div class="form-radio-group">
+                <label class="form-radio">
+                  <input type="radio" name="bformule" value="aperitif" required>
+                  <div class="form-radio__label"><div class="form-radio__price">35€</div><div class="form-radio__name">Apéritif 2h</div></div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="bformule" value="soiree">
+                  <div class="form-radio__label"><div class="form-radio__price">65€</div><div class="form-radio__name">Soirée 3h30</div></div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="bformule" value="journee">
+                  <div class="form-radio__label"><div class="form-radio__price">95€</div><div class="form-radio__name">Journée 6h</div></div>
+                </label>
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Date souhaitée *</label>
+                <input type="date" class="form-control" id="bf-date" required>
+              </div>
+              <div class="form-group">
+                <label>Heure de départ souhaitée</label>
+                <select class="form-control" id="bf-heure">
+                  <option value="10:00">10h00</option>
+                  <option value="11:00">11h00</option>
+                  <option value="12:00">12h00</option>
+                  <option value="14:00">14h00</option>
+                  <option value="16:00">16h00</option>
+                  <option value="18:00">18h00 (coucher de soleil)</option>
+                  <option value="19:00">19h00</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nombre de personnes *</label>
+              <select class="form-control" id="bf-nb" required>
+                <option value="2">2 personnes</option>
+                <option value="3">3 personnes</option>
+                <option value="4" selected>4 personnes (minimum)</option>
+                <option value="5">5 personnes</option>
+                <option value="6">6 personnes</option>
+                <option value="7">7 personnes</option>
+                <option value="8">8 personnes</option>
+                <option value="9">9 personnes (maximum)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Occasion spéciale ?</label>
+              <select class="form-control" id="bf-occasion">
+                <option value="">— Optionnel —</option>
+                <option>Anniversaire 🎂</option>
+                <option>EVG / EVJF 🎉</option>
+                <option>Team Building 🏆</option>
+                <option>Repas en famille 👨‍👩‍👧‍👦</option>
+                <option>Soirée entre amis 🥂</option>
+                <option>Romantique 💕</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Demandes particulières</label>
+              <textarea class="form-control" id="bf-message" rows="3" placeholder="Décorations spéciales, intolérances alimentaires, etc."></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary btn--lg" style="background:var(--accent);width:100%;justify-content:center;">
+              🔥 Confirmer la réservation
+            </button>
+            <p style="font-size:0.78rem;color:var(--gray);text-align:center;margin-top:12px;">
+              Paiement sécurisé · Annulation gratuite 48h avant · Confirmation par email
+            </p>
+          </form>
+        </div>
+        <div>
+          <div class="booking-summary" style="background:linear-gradient(135deg,#1a1a2e,#4a1a00);">
+            <h4 class="booking-summary__title">🔥 Récapitulatif</h4>
+            <div class="summary-line"><span>Bateau</span><span id="bsum-bateau">—</span></div>
+            <div class="summary-line"><span>Formule</span><span id="bsum-formule">—</span></div>
+            <div class="summary-line"><span>Date</span><span id="bsum-date">—</span></div>
+            <div class="summary-line"><span>Personnes</span><span id="bsum-nb">—</span></div>
+            <div class="summary-line"><span>Détail</span><span id="bsum-unitaire">—</span></div>
+            <div class="summary-total">
+              <span>Total</span>
+              <span id="bsum-total" style="color:var(--accent);">—</span>
+            </div>
+            <div class="summary-included">
+              <div class="summary-included__title">Toujours inclus</div>
+              <div class="summary-included__item">Bateau + BBQ charbon</div>
+              <div class="summary-included__item">Charbon & allume-feu</div>
+              <div class="summary-included__item">Gilets de sauvetage</div>
+              <div class="summary-included__item">Formation navigation (15 min)</div>
+              <div class="summary-included__item">Ustensiles BBQ</div>
+              <div class="summary-included__item">Assistance radio sur l'eau</div>
+            </div>
+          </div>
+          <div style="background:rgba(232,149,30,0.1);border:1px solid rgba(232,149,30,0.25);border-radius:16px;padding:20px;margin-top:20px;">
+            <div style="font-weight:700;margin-bottom:8px;color:var(--dark);">📞 Besoin d'aide ?</div>
+            <p style="font-size:0.85rem;color:var(--gray);margin-bottom:12px;">Pour les groupes de 10+ personnes ou les événements spéciaux, appelez-nous directement.</p>
+            <a href="tel:+33500000000" class="btn btn--outline-dark btn--sm" style="width:100%;justify-content:center;">📞 +33 (0)5 XX XX XX XX</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <div class="nav__logo" style="margin-bottom:16px;"><div class="nav__logo-icon">🎣</div><div class="nav__logo-text"><strong>Lac de Podensac</strong><span>Pêche & Loisirs</span></div></div>
+          <p class="footer__tagline">Pêche, détente et expériences uniques à 35km au sud de Bordeaux.</p>
+          <div class="footer__social"><a href="#" class="footer__social-link">📘</a><a href="#" class="footer__social-link">📸</a><a href="#" class="footer__social-link">📺</a></div>
+        </div>
+        <div><div class="footer__col-title">Navigation</div><div class="footer__links"><a href="index.html" class="footer__link">Accueil</a><a href="peche.html" class="footer__link">Postes de pêche</a><a href="bateau.html" class="footer__link">Bateaux barbecue</a><a href="galerie.html" class="footer__link">Galerie</a><a href="contact.html" class="footer__link">Contact</a></div></div>
+        <div><div class="footer__col-title">Bateaux</div><div class="footer__links"><a href="#" class="footer__link">Le Flamant Rose</a><a href="#" class="footer__link">Le Martin-Pêcheur</a><a href="#" class="footer__link">La Cigogne</a><a href="bateau.html#tarifs" class="footer__link">Formules & Tarifs</a></div></div>
+        <div><div class="footer__col-title">Contact</div><div class="footer__contact-item"><span class="footer__contact-icon">📍</span><span>33720 Podensac, Gironde</span></div><div class="footer__contact-item"><span class="footer__contact-icon">📞</span><span>+33 (0)5 XX XX XX XX</span></div><div class="footer__contact-item"><span class="footer__contact-icon">✉️</span><span>contact@lac-de-podensac.fr</span></div></div>
+      </div>
+      <div class="footer__bottom"><span>© 2025 Lac de Podensac. Tous droits réservés.</span><div style="display:flex;gap:20px;"><a href="#">Mentions légales</a><a href="#">CGV</a></div></div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/postes.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/reservation.js"></script>
+  <script>
+    // FAQ
+    const faqs = [
+      { q: "Faut-il un permis bateau ?", a: "Non ! Nos bateaux sont classés comme embarcations de loisir légères. Aucun permis n'est requis. Une formation de 15 minutes est incluse dans chaque réservation." },
+      { q: "Combien de personnes maximum par bateau ?", a: "Chaque bateau peut accueillir jusqu'à 9 personnes. Pour plus de 9 personnes, vous pouvez réserver 2 bateaux simultanément — contactez-nous pour un tarif groupe." },
+      { q: "Le matériel pour le BBQ est-il fourni ?", a: "Le charbon, les allume-feux, les pinces et ustensiles BBQ de base sont fournis avec toutes les formules. Les aliments sont à apporter. Nous proposons également une option traiteur sur commande." },
+      { q: "Peut-on amener de l'alcool à bord ?", a: "Oui, vous pouvez apporter vos propres boissons. Cependant, nous demandons de consommer avec modération. Le capitaine désigné de l'embarcation doit rester sobre. Nous proposons aussi des vins locaux du Sauternais à l'accueil." },
+      { q: "Que se passe-t-il en cas de mauvais temps ?", a: "En cas de météo défavorable (orage, vent fort > 30km/h), nous annulons la sortie et reportons ou remboursons intégralement. Le programme météo est vérifié 24h avant. Nous vous contactons si une annulation est nécessaire." },
+      { q: "Peut-on pêcher depuis le bateau barbecue ?", a: "Les bateaux BBQ ne sont pas conçus pour la pêche sportive. Si vous souhaitez combiner pêche et bateau, contactez-nous — nous proposons des formules découverte avec guides pêche." },
+    ];
+    const faqContainer = document.getElementById('faq-container');
+    if (faqContainer) {
+      faqs.forEach((f, i) => {
+        faqContainer.innerHTML += `
+          <div style="border:1px solid rgba(0,0,0,0.08);border-radius:12px;margin-bottom:12px;overflow:hidden;">
+            <button onclick="toggleFaq(${i})" style="width:100%;text-align:left;padding:18px 20px;background:none;border:none;font-family:var(--font-head);font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--dark);">
+              ${f.q} <span id="faq-icon-${i}" style="font-size:1.2rem;color:var(--primary);">+</span>
+            </button>
+            <div id="faq-body-${i}" style="display:none;padding:0 20px 18px;color:var(--gray);font-size:0.9rem;line-height:1.7;">${f.a}</div>
+          </div>`;
+      });
+    }
+    function toggleFaq(i) {
+      const body = document.getElementById(`faq-body-${i}`);
+      const icon = document.getElementById(`faq-icon-${i}`);
+      if (body && icon) {
+        const open = body.style.display !== 'none';
+        body.style.display = open ? 'none' : 'block';
+        icon.textContent = open ? '+' : '−';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Postes de Pêche — Lac de Podensac | Carte interactive & Réservation</title>
+  <meta name="description" content="Découvrez les 12 postes de pêche du Lac de Podensac sur notre carte interactive. Disponibilité en temps réel, informations détaillées, réservation en ligne.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎣</text></svg>">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">
+        <div class="nav__logo-icon">🎣</div>
+        <div class="nav__logo-text"><strong>Lac de Podensac</strong><span>Pêche & Loisirs</span></div>
+      </a>
+      <div class="nav__menu">
+        <a href="peche.html" class="nav__link active">Postes de Pêche</a>
+        <a href="bateau.html" class="nav__link">Bateaux Barbecue</a>
+        <a href="galerie.html" class="nav__link">Galerie</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="#reservation" class="btn btn--primary btn--sm nav__cta">Réserver</a>
+      </div>
+      <button class="nav__hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="nav__mobile" id="mobile-menu">
+    <a href="peche.html" class="nav__link">🎣 Postes de Pêche</a>
+    <a href="bateau.html" class="nav__link">🔥 Bateaux Barbecue</a>
+    <a href="galerie.html" class="nav__link">📸 Galerie</a>
+    <a href="contact.html" class="nav__link">📍 Contact</a>
+    <a href="#reservation" class="btn btn--primary" style="margin-top:8px;">Réserver</a>
+  </div>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero__breadcrumb">
+        <a href="index.html">Accueil</a><span>/</span><span>Postes de Pêche</span>
+      </div>
+      <h1 class="page-hero__title">🎣 Postes de Pêche</h1>
+      <p class="page-hero__subtitle">12 emplacements premium répartis sur tout le pourtour du lac. Choisissez votre poste, vérifiez la disponibilité et réservez en quelques clics.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="#carte" class="btn btn--primary">🗺️ Voir la carte</a>
+        <a href="#liste" class="btn btn--outline">📋 Liste des postes</a>
+        <a href="#reservation" class="btn btn--outline">📅 Réserver</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK STATS -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-bar__grid">
+        <div class="stats-bar__item"><div class="stats-bar__value" id="available-count">—</div><div class="stats-bar__label">Disponibles aujourd'hui</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">8</div><div class="stats-bar__label">Espèces de poissons</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">35€</div><div class="stats-bar__label">Tarif journée à partir de</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">No-kill</div><div class="stats-bar__label">Pêche responsable</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTE INTERACTIVE -->
+  <section class="section map-section" id="carte">
+    <div class="container--wide">
+      <div class="section-header">
+        <span class="section-label">Carte interactive</span>
+        <h2 class="section-title">Choisissez votre poste sur la carte</h2>
+        <p class="section-subtitle">Cliquez sur un marqueur pour voir les détails du poste et réserver.</p>
+      </div>
+      <div class="map-layout">
+        <div class="map-sidebar">
+          <div class="map-sidebar__header">
+            <div class="map-sidebar__title">Filtrer les postes</div>
+            <div class="map-filter" id="map-filters">
+              <button class="filter-btn active" data-filter="all">Tous</button>
+              <button class="filter-btn" data-filter="available">Disponibles</button>
+              <button class="filter-btn" data-filter="carpe">Carpe</button>
+              <button class="filter-btn" data-filter="brochet">Brochet / Sandre</button>
+              <button class="filter-btn" data-filter="facile">Facile</button>
+              <button class="filter-btn" data-filter="premium">Premium</button>
+            </div>
+          </div>
+          <div class="map-spots-list" id="spots-list"></div>
+        </div>
+        <div class="map-container">
+          <div id="lac-map"></div>
+          <div class="map-legend">
+            <div class="map-legend__title">Disponibilité</div>
+            <div class="map-legend__item"><div class="map-legend__dot available"></div> Disponible</div>
+            <div class="map-legend__item"><div class="map-legend__dot busy"></div> Complet</div>
+            <div class="map-legend__item"><div class="map-legend__dot partial" style="background:#f39c12;"></div> Sur demande</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTE DES POSTES -->
+  <section class="section spots-preview" id="liste" style="background:var(--white);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Tous les postes</span>
+        <h2 class="section-title">Explorez chaque emplacement en détail</h2>
+      </div>
+      <!-- Filtres espèces -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;justify-content:center;" id="species-filters">
+        <button class="filter-btn active" data-species="all">Tous les postes</button>
+        <button class="filter-btn" data-species="Carpe">🐟 Carpe</button>
+        <button class="filter-btn" data-species="Brochet">🐟 Brochet</button>
+        <button class="filter-btn" data-species="Sandre">🐟 Sandre</button>
+        <button class="filter-btn" data-species="Perche">🐟 Perche</button>
+        <button class="filter-btn" data-species="Anguille">🐟 Anguille</button>
+      </div>
+      <div class="spots-grid" id="all-spots-grid"></div>
+    </div>
+  </section>
+
+  <!-- TARIFS -->
+  <section class="section" id="tarifs" style="background:var(--gray-bg);">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Tarifs pêche</span>
+        <h2 class="section-title">Formules & tarifs</h2>
+        <p class="section-subtitle">Des tarifs transparents, sans surprise. Chaque formule inclut l'accès au poste et les équipements de base.</p>
+      </div>
+      <div class="grid-3" style="gap:24px;">
+        <div class="why-card fade-up" style="text-align:center;">
+          <div class="why-card__icon" style="margin:0 auto 20px;">🌤️</div>
+          <h4>Session Journée</h4>
+          <div style="font-size:2.2rem;font-weight:900;color:var(--primary);font-family:var(--font-head);margin:12px 0;">35–55€</div>
+          <p style="color:var(--gray);font-size:0.9rem;">De 6h à 20h (14h de pêche)<br>1 à 3 personnes selon poste</p>
+          <ul style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left;">
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Accès poste aménagé</li>
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Parking inclus</li>
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Sanitaires sur site</li>
+          </ul>
+        </div>
+        <div class="why-card fade-up" style="text-align:center;border-color:var(--accent);box-shadow:0 4px 24px rgba(232,149,30,0.2);">
+          <div style="position:absolute;top:16px;right:16px;background:var(--accent);color:#fff;font-size:0.72rem;font-weight:700;padding:4px 12px;border-radius:50px;">Populaire</div>
+          <div class="why-card__icon" style="margin:0 auto 20px;">🌙</div>
+          <h4>Session Nuit</h4>
+          <div style="font-size:2.2rem;font-weight:900;color:var(--primary);font-family:var(--font-head);margin:12px 0;">42–70€</div>
+          <p style="color:var(--gray);font-size:0.9rem;">De 20h à 8h (12h de pêche)<br>Idéal pour la carpe de nuit</p>
+          <ul style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left;">
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Éclairage nocturne</li>
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Accès bivouac</li>
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Sécurité sur site</li>
+          </ul>
+        </div>
+        <div class="why-card fade-up" style="text-align:center;">
+          <div class="why-card__icon" style="margin:0 auto 20px;">📅</div>
+          <h4>Session 24h / Semaine</h4>
+          <div style="font-size:2.2rem;font-weight:900;color:var(--primary);font-family:var(--font-head);margin:12px 0;">68–300€</div>
+          <p style="color:var(--gray);font-size:0.9rem;">Formule complète ou séjour<br>Remises groupes disponibles</p>
+          <ul style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left;">
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Tarif dégressif semaine</li>
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Priorité réservation</li>
+            <li style="font-size:0.85rem;display:flex;gap:8px;"><span style="color:var(--success);font-weight:700;">✓</span> Guide pêche inclus</li>
+          </ul>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px;background:rgba(13,79,110,0.05);border-radius:16px;padding:24px;border:1px solid rgba(13,79,110,0.1);">
+        <p style="font-size:0.9rem;color:var(--gray);margin-bottom:8px;">🎣 <strong>Règle No-Kill obligatoire</strong> — Tous les poissons doivent être relâchés après capture et photo. Matériel de pesée et tapis de réception fourni sur chaque poste.</p>
+        <p style="font-size:0.9rem;color:var(--gray);">📜 <strong>Carte de pêche obligatoire</strong> — Valable pour la saison en cours. Disponible à l'accueil ou en ligne.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVATION -->
+  <section class="section booking-section" id="reservation">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-label">Réservation en ligne</span>
+        <h2 class="section-title">Réservez votre poste</h2>
+        <p class="section-subtitle">Remplissez le formulaire ci-dessous. Confirmation immédiate par email.</p>
+      </div>
+      <div class="booking-layout">
+        <div class="booking-form-card">
+          <h3 class="booking-form-card__title">Détails de la réservation</h3>
+          <form id="booking-form">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Prénom *</label>
+                <input type="text" class="form-control" id="f-prenom" placeholder="Votre prénom" required>
+              </div>
+              <div class="form-group">
+                <label>Nom *</label>
+                <input type="text" class="form-control" id="f-nom" placeholder="Votre nom" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" class="form-control" id="f-email" placeholder="votre@email.com" required>
+            </div>
+            <div class="form-group">
+              <label>Téléphone *</label>
+              <input type="tel" class="form-control" id="f-tel" placeholder="06 XX XX XX XX" required>
+            </div>
+            <div class="form-group">
+              <label>Poste de pêche *</label>
+              <select class="form-control" id="f-poste" required>
+                <option value="">— Choisissez un poste —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Formule *</label>
+              <div class="form-radio-group" id="f-formule-group">
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="jour" required>
+                  <div class="form-radio__label">
+                    <div class="form-radio__price" id="price-jour">35€</div>
+                    <div class="form-radio__name">Journée</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price" id="price-nuit">45€</div>
+                    <div class="form-radio__name">Nuit</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="24h">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price" id="price-24h">72€</div>
+                    <div class="form-radio__name">24 heures</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Date d'arrivée *</label>
+                <input type="date" class="form-control" id="f-date-debut" required>
+              </div>
+              <div class="form-group">
+                <label>Nombre de nuits / jours</label>
+                <select class="form-control" id="f-duree">
+                  <option value="1">1 session</option>
+                  <option value="2">2 sessions</option>
+                  <option value="3">3 sessions</option>
+                  <option value="7">1 semaine</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nombre de pêcheurs</label>
+              <select class="form-control" id="f-nb">
+                <option value="1">1 pêcheur</option>
+                <option value="2">2 pêcheurs</option>
+                <option value="3">3 pêcheurs</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Message / demande particulière</label>
+              <textarea class="form-control" id="f-message" rows="3" placeholder="Matériel spécifique, accessibilité PMR, etc."></textarea>
+            </div>
+            <button type="submit" class="btn btn--success btn--lg" style="width:100%;justify-content:center;">
+              ✓ Confirmer la réservation
+            </button>
+            <p style="font-size:0.78rem;color:var(--gray);text-align:center;margin-top:12px;">
+              Paiement sécurisé · Annulation gratuite 48h avant · Confirmation par email
+            </p>
+          </form>
+        </div>
+        <div>
+          <div class="booking-summary" id="booking-summary">
+            <h4 class="booking-summary__title">📋 Récapitulatif</h4>
+            <div class="summary-line"><span>Poste</span><span id="sum-poste">—</span></div>
+            <div class="summary-line"><span>Formule</span><span id="sum-formule">—</span></div>
+            <div class="summary-line"><span>Date</span><span id="sum-date">—</span></div>
+            <div class="summary-line"><span>Durée</span><span id="sum-duree">1 session</span></div>
+            <div class="summary-line"><span>Pêcheurs</span><span id="sum-nb">1</span></div>
+            <div class="summary-total">
+              <span>Total</span>
+              <span id="sum-total">35€</span>
+            </div>
+            <div class="summary-included">
+              <div class="summary-included__title">Inclus dans la réservation</div>
+              <div class="summary-included__item">Accès au poste aménagé</div>
+              <div class="summary-included__item">Parking sur site</div>
+              <div class="summary-included__item">Tapis de réception</div>
+              <div class="summary-included__item">Balance de pesée</div>
+              <div class="summary-included__item">Kit photo (carton + marqueur)</div>
+              <div class="summary-included__item">Confirmation email</div>
+            </div>
+          </div>
+          <div class="calendar-widget" style="margin-top:20px;">
+            <div class="calendar-header">
+              <button class="calendar-nav" id="cal-prev">‹</button>
+              <span class="calendar-month" id="cal-month-label"></span>
+              <button class="calendar-nav" id="cal-next">›</button>
+            </div>
+            <div class="calendar-grid" id="cal-grid"></div>
+            <p style="font-size:0.75rem;color:var(--gray);margin-top:12px;text-align:center;">
+              <span style="color:var(--success);font-weight:700;">■</span> Disponible &nbsp;
+              <span style="color:var(--danger);font-weight:700;">■</span> Complet &nbsp;
+              <span style="color:var(--primary);font-weight:700;">■</span> Sélectionné
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL POSTE -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="spot-modal">
+      <div class="modal__header" id="modal-header">
+        <button class="modal__close" id="modal-close">✕</button>
+        <div class="modal__header-content">
+          <span class="modal__badge" id="modal-badge"></span>
+          <h2 class="modal__title" id="modal-title"></h2>
+        </div>
+      </div>
+      <div class="modal__body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <div class="nav__logo" style="margin-bottom:16px;"><div class="nav__logo-icon">🎣</div><div class="nav__logo-text"><strong>Lac de Podensac</strong><span>Pêche & Loisirs</span></div></div>
+          <p class="footer__tagline">Pêche, détente et expériences uniques à 35km au sud de Bordeaux.</p>
+          <div class="footer__social"><a href="#" class="footer__social-link">📘</a><a href="#" class="footer__social-link">📸</a><a href="#" class="footer__social-link">📺</a></div>
+        </div>
+        <div><div class="footer__col-title">Navigation</div><div class="footer__links"><a href="index.html" class="footer__link">Accueil</a><a href="peche.html" class="footer__link">Postes de pêche</a><a href="bateau.html" class="footer__link">Bateaux barbecue</a><a href="galerie.html" class="footer__link">Galerie</a><a href="contact.html" class="footer__link">Contact</a></div></div>
+        <div><div class="footer__col-title">Espèces</div><div class="footer__links"><a href="#" class="footer__link">Carpe commune</a><a href="#" class="footer__link">Brochet</a><a href="#" class="footer__link">Sandre</a><a href="#" class="footer__link">Perche</a><a href="#" class="footer__link">Anguille</a></div></div>
+        <div><div class="footer__col-title">Contact</div><div class="footer__contact-item"><span class="footer__contact-icon">📍</span><span>33720 Podensac, Gironde</span></div><div class="footer__contact-item"><span class="footer__contact-icon">📞</span><span>+33 (0)5 XX XX XX XX</span></div><div class="footer__contact-item"><span class="footer__contact-icon">✉️</span><span>contact@lac-de-podensac.fr</span></div></div>
+      </div>
+      <div class="footer__bottom"><span>© 2025 Lac de Podensac. Tous droits réservés.</span><div style="display:flex;gap:20px;"><a href="#">Mentions légales</a><a href="#">CGV</a></div></div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/postes.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/carte.js"></script>
+  <script src="js/reservation.js"></script>
+</body>
+</html>

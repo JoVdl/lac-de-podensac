@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galerie Photos — Lac de Podensac | Captures & Moments</title>
+  <meta name="description" content="Galerie photos du Lac de Podensac : captures de poissons, bateaux barbecue, paysages du lac. Partagez vos plus belles prises !">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📸</text></svg>">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">
+        <div class="nav__logo-icon">🎣</div>
+        <div class="nav__logo-text"><strong>Lac de Podensac</strong><span>Pêche & Loisirs</span></div>
+      </a>
+      <div class="nav__menu">
+        <a href="peche.html" class="nav__link">Postes de Pêche</a>
+        <a href="bateau.html" class="nav__link">Bateaux Barbecue</a>
+        <a href="galerie.html" class="nav__link active">Galerie</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="peche.html#reservation" class="btn btn--primary btn--sm nav__cta">Réserver</a>
+      </div>
+      <button class="nav__hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="nav__mobile" id="mobile-menu">
+    <a href="peche.html" class="nav__link">🎣 Postes de Pêche</a>
+    <a href="bateau.html" class="nav__link">🔥 Bateaux Barbecue</a>
+    <a href="galerie.html" class="nav__link">📸 Galerie</a>
+    <a href="contact.html" class="nav__link">📍 Contact</a>
+    <a href="peche.html#reservation" class="btn btn--primary" style="margin-top:8px;">Réserver</a>
+  </div>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero__breadcrumb"><a href="index.html">Accueil</a><span>/</span><span>Galerie</span></div>
+      <h1 class="page-hero__title">📸 Galerie</h1>
+      <p class="page-hero__subtitle">Les plus belles captures, les soirées inoubliables et les paysages de notre lac. Envoyez-nous vos photos après votre visite !</p>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-bar__grid">
+        <div class="stats-bar__item"><div class="stats-bar__value">247</div><div class="stats-bar__label">Photos partagées</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">18.6kg</div><div class="stats-bar__label">Record carpe (2025)</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">7.2kg</div><div class="stats-bar__label">Record sandre (2025)</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">8.1kg</div><div class="stats-bar__label">Record brochet (2025)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALERIE -->
+  <section class="section" style="background:var(--white);">
+    <div class="container--wide">
+      <!-- Filtres -->
+      <div class="gallery-filters">
+        <button class="filter-btn active" data-gfilter="all">Toutes les photos</button>
+        <button class="filter-btn" data-gfilter="captures">🐟 Captures</button>
+        <button class="filter-btn" data-gfilter="bateaux">🛥️ Bateaux BBQ</button>
+        <button class="filter-btn" data-gfilter="paysages">🌅 Paysages</button>
+        <button class="filter-btn" data-gfilter="nuit">🌙 Pêche de nuit</button>
+      </div>
+
+      <!-- Grille photos -->
+      <div class="gallery-grid" id="gallery-grid">
+
+        <!-- Grands formats -->
+        <div class="gallery-item large" data-cat="captures" style="background:linear-gradient(135deg,#0a3d5e,#1a7aa0);">
+          🏆
+          <span class="gallery-item__cat">Capture</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2.5rem;">🏆</span>
+            <div class="gallery-item__overlay-text">Carpe 18.6kg — Poste La Baie Secrète</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="bateaux" style="background:linear-gradient(135deg,#c47800,#e8951e);">
+          🛥️
+          <span class="gallery-item__cat">Bateau BBQ</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🛥️</span>
+            <div class="gallery-item__overlay-text">Soirée sur le Martin-Pêcheur</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="paysages" style="background:linear-gradient(135deg,#1a5f3a,#2e7d4f);">
+          🌅
+          <span class="gallery-item__cat">Paysage</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🌅</span>
+            <div class="gallery-item__overlay-text">Coucher de soleil sur le lac</div>
+          </div>
+        </div>
+
+        <div class="gallery-item tall" data-cat="nuit" style="background:linear-gradient(135deg,#0a0a20,#1a2a4a);">
+          🌙
+          <span class="gallery-item__cat">Nuit</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🌙</span>
+            <div class="gallery-item__overlay-text">Session nuit — Poste n°5</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="captures" style="background:linear-gradient(135deg,#1a4a2a,#2e7d4f);">
+          🐟
+          <span class="gallery-item__cat">Capture</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🐟</span>
+            <div class="gallery-item__overlay-text">Sandre 7.2kg — Le Chenal</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="bateaux" style="background:linear-gradient(135deg,#4a1a1a,#8b3a00);">
+          🔥
+          <span class="gallery-item__cat">BBQ</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🔥</span>
+            <div class="gallery-item__overlay-text">BBQ allumé, groupe de 8 pers.</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="paysages" style="background:linear-gradient(135deg,#0a2a4a,#1a6a8a);">
+          🦆
+          <span class="gallery-item__cat">Faune</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🦆</span>
+            <div class="gallery-item__overlay-text">Famille de canards au lever du jour</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="captures" style="background:linear-gradient(135deg,#2a1a4a,#5a3a7a);">
+          🐍
+          <span class="gallery-item__cat">Capture</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🐍</span>
+            <div class="gallery-item__overlay-text">Anguille 2.3kg — Le Delta</div>
+          </div>
+        </div>
+
+        <div class="gallery-item large" data-cat="bateaux" style="background:linear-gradient(135deg,#1a1a2e,#4a2a00);">
+          🥂
+          <span class="gallery-item__cat">Événement</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2.5rem;">🥂</span>
+            <div class="gallery-item__overlay-text">Anniversaire — Le Flamant Rose</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="nuit" style="background:linear-gradient(135deg,#050520,#0a1a3a);">
+          ⭐
+          <span class="gallery-item__cat">Nuit étoilée</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">⭐</span>
+            <div class="gallery-item__overlay-text">Ciel étoilé depuis la rive</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="captures" style="background:linear-gradient(135deg,#0a3a1a,#1a5a2a);">
+          🎣
+          <span class="gallery-item__cat">Capture</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🎣</span>
+            <div class="gallery-item__overlay-text">Brochet 8.1kg — Pont de Pierre</div>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-cat="paysages" style="background:linear-gradient(135deg,#1a3a1a,#4a8a2a);">
+          🌿
+          <span class="gallery-item__cat">Nature</span>
+          <div class="gallery-item__overlay">
+            <span style="font-size:2rem;">🌿</span>
+            <div class="gallery-item__overlay-text">Roselières en fleur — printemps</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CTA partage photos -->
+      <div class="gallery-upload-cta">
+        <div class="gallery-upload-cta__icon">📤</div>
+        <h3 class="gallery-upload-cta__title">Partagez vos plus belles captures !</h3>
+        <p class="gallery-upload-cta__text">Après votre visite, envoyez-nous vos photos par email ou taguez-nous sur Instagram <strong>@lacdepodensac</strong>. Les meilleures seront publiées ici !</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <a href="mailto:photos@lac-de-podensac.fr" class="btn btn--secondary">📧 Envoyer par email</a>
+          <a href="#" class="btn btn--outline-dark">📸 Instagram @lacdepodensac</a>
+        </div>
+      </div>
+
+      <!-- Records -->
+      <div style="margin-top:60px;">
+        <div class="section-header text-center">
+          <span class="section-label">Hall of Fame</span>
+          <h2 class="section-title">Records du lac 2025</h2>
+        </div>
+        <div class="grid-4" style="gap:20px;" id="records-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <div class="nav__logo" style="margin-bottom:16px;"><div class="nav__logo-icon">🎣</div><div class="nav__logo-text"><strong>Lac de Podensac</strong><span>Pêche & Loisirs</span></div></div>
+          <p class="footer__tagline">Pêche, détente et expériences uniques à 35km au sud de Bordeaux.</p>
+          <div class="footer__social"><a href="#" class="footer__social-link">📘</a><a href="#" class="footer__social-link">📸</a><a href="#" class="footer__social-link">📺</a></div>
+        </div>
+        <div><div class="footer__col-title">Navigation</div><div class="footer__links"><a href="index.html" class="footer__link">Accueil</a><a href="peche.html" class="footer__link">Postes de pêche</a><a href="bateau.html" class="footer__link">Bateaux barbecue</a><a href="galerie.html" class="footer__link">Galerie</a><a href="contact.html" class="footer__link">Contact</a></div></div>
+        <div><div class="footer__col-title">Galerie</div><div class="footer__links"><a href="#" class="footer__link">Captures de poissons</a><a href="#" class="footer__link">Bateaux BBQ</a><a href="#" class="footer__link">Paysages du lac</a><a href="#" class="footer__link">Pêche de nuit</a></div></div>
+        <div><div class="footer__col-title">Contact</div><div class="footer__contact-item"><span class="footer__contact-icon">📍</span><span>33720 Podensac, Gironde</span></div><div class="footer__contact-item"><span class="footer__contact-icon">📞</span><span>+33 (0)5 XX XX XX XX</span></div><div class="footer__contact-item"><span class="footer__contact-icon">✉️</span><span>photos@lac-de-podensac.fr</span></div></div>
+      </div>
+      <div class="footer__bottom"><span>© 2025 Lac de Podensac. Tous droits réservés.</span><div style="display:flex;gap:20px;"><a href="#">Mentions légales</a><a href="#">CGV</a></div></div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/postes.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Gallery filters
+    document.querySelectorAll('[data-gfilter]').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('[data-gfilter]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const filter = this.dataset.gfilter;
+        document.querySelectorAll('.gallery-item').forEach(item => {
+          if (filter === 'all' || item.dataset.cat === filter) item.style.display = '';
+          else item.style.display = 'none';
+        });
+      });
+    });
+
+    // Records
+    const records = [
+      { icon: '🏆', espece: 'Carpe commune', record: '18.6 kg', pecheur: 'M. Durand', date: 'Mai 2025', poste: 'La Baie Secrète' },
+      { icon: '🐟', espece: 'Sandre', record: '7.2 kg', pecheur: 'Sophie B.', date: 'Mai 2025', poste: 'La Falaise' },
+      { icon: '🐟', espece: 'Brochet', record: '8.1 kg', pecheur: 'Jean P.', date: 'Mai 2025', poste: 'Pont de Pierre' },
+      { icon: '🐍', espece: 'Anguille', record: '2.3 kg', pecheur: 'Marc T.', date: 'Mai 2025', poste: 'Le Delta' },
+    ];
+    const rGrid = document.getElementById('records-grid');
+    if (rGrid) {
+      records.forEach(r => {
+        rGrid.innerHTML += `
+          <div style="background:var(--white);border-radius:16px;padding:24px;box-shadow:var(--shadow);text-align:center;border:1px solid rgba(0,0,0,0.06);">
+            <div style="font-size:2.5rem;margin-bottom:12px;">${r.icon}</div>
+            <div style="font-weight:800;font-size:1.4rem;color:var(--accent);font-family:var(--font-head);">${r.record}</div>
+            <div style="font-weight:700;color:var(--dark);margin:4px 0;">${r.espece}</div>
+            <div style="font-size:0.8rem;color:var(--gray);">${r.pecheur} · ${r.date}</div>
+            <div style="font-size:0.75rem;color:var(--primary);margin-top:6px;background:rgba(13,79,110,0.06);padding:4px 10px;border-radius:50px;">${r.poste}</div>
+          </div>`;
+      });
+    }
+  </script>
+</body>
+</html>
