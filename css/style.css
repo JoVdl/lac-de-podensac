@@ -3,25 +3,25 @@
    ============================================================ */
 
 :root {
-  --primary:        #0d4f6e;
-  --primary-light:  #1a7aa0;
-  --primary-dark:   #083548;
+  --primary:        #3d8a80;
+  --primary-light:  #6aab9c;
+  --primary-dark:   #2a6059;
   --secondary:      #2e7d4f;
   --secondary-light:#3ea066;
   --accent:         #e8951e;
   --accent-dark:    #c47800;
   --danger:         #e74c3c;
   --success:        #27ae60;
-  --dark:           #0d1b2a;
+  --dark:           #132523;
   --gray-dark:      #2c3e50;
   --gray:           #6c7a89;
   --gray-light:     #b2bec3;
-  --gray-bg:        #f4f7fa;
-  --light:          #f8fbff;
+  --gray-bg:        #f2f8f7;
+  --light:          #f5fbfa;
   --white:          #ffffff;
-  --water-1:        #1e6fa8;
-  --water-2:        #0d4f6e;
-  --water-3:        #092d45;
+  --water-1:        #6aab9c;
+  --water-2:        #3d8a80;
+  --water-3:        #1a4f4a;
   --shadow:         0 4px 20px rgba(13,79,110,0.12);
   --shadow-md:      0 6px 30px rgba(13,79,110,0.16);
   --shadow-lg:      0 12px 50px rgba(13,79,110,0.22);
@@ -144,15 +144,15 @@ p { margin-bottom: 0; }
   display: flex; align-items: center; gap: 12px;
 }
 .nav__logo-icon {
-  width: 44px; height: 44px; background: var(--accent);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 1.4rem;
+  width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
+.nav__logo-icon img { width: 44px; height: 44px; object-fit: cover; }
 .nav__logo-text { color: var(--white); }
 .nav__logo-text strong {
-  display: block; font-family: var(--font-head); font-size: 1.05rem; font-weight: 700;
+  display: block; font-family: var(--font-head); font-size: 0.92rem; font-weight: 700; line-height: 1.2;
 }
-.nav__logo-text span { font-size: 0.72rem; opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; }
+.nav__logo-text span { font-size: 0.68rem; opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; }
 .nav__menu {
   display: flex; align-items: center; gap: 8px;
 }
@@ -188,7 +188,7 @@ p { margin-bottom: 0; }
 }
 .hero__bg {
   position: absolute; inset: 0; z-index: 0;
-  background: linear-gradient(135deg, #0a2540 0%, #0d4f6e 40%, #1a7aa0 70%, #0e6e5e 100%);
+  background: linear-gradient(135deg, #0d2e2b 0%, #2a6059 40%, #3d8a80 70%, #6aab9c 100%);
 }
 .hero__waves {
   position: absolute; bottom: -2px; left: 0; right: 0; z-index: 1;
