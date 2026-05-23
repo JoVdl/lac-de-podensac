@@ -188,11 +188,7 @@ p { margin-bottom: 0; }
 }
 .hero__bg {
   position: absolute; inset: 0; z-index: 0;
-  background: linear-gradient(135deg, #0d2e2b, #2a6059);
-  background-image: url('../images/cover_facebook.jpg');
-  background-size: contain;
-  background-position: center 30%;
-  background-repeat: no-repeat;
+  background: url('../images/cover_facebook.jpg') center 45% / cover no-repeat;
 }
 .hero__waves {
   position: absolute; bottom: -2px; left: 0; right: 0; z-index: 1;
