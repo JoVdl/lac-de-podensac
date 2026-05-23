@@ -188,7 +188,7 @@ p { margin-bottom: 0; }
 }
 .hero__bg {
   position: absolute; inset: 0; z-index: 0;
-  background: url('../images/cover_facebook.jpg') center 60% / cover no-repeat;
+  background: url('../images/cover_facebook.jpg') center 40% / 100% auto no-repeat, linear-gradient(135deg, #0d2e2b, #2a6059);
 }
 .hero__waves {
   position: absolute; bottom: -2px; left: 0; right: 0; z-index: 1;
@@ -323,7 +323,7 @@ p { margin-bottom: 0; }
   transition: transform 0.6s ease;
 }
 .service-card:hover .service-card__bg { transform: scale(1.05); }
-.service-card--peche .service-card__bg {
+.service-card__bg.service-card--peche {
   background: url('../images/cover_facebook.jpg') center 55% / cover no-repeat;
 }
 .service-card--bateau .service-card__bg {
