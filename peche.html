@@ -39,7 +39,7 @@
   </div>
 
   <!-- PAGE HERO -->
-  <section class="page-hero">
+  <section class="page-hero" style="background:linear-gradient(rgba(5,20,18,0.65),rgba(5,20,18,0.65)),url('images/eau%20etendue.jpg') center / cover no-repeat;">
     <div class="container">
       <div class="page-hero__breadcrumb">
         <a href="index.html">Accueil</a><span>/</span><span>Postes de Pêche</span>
@@ -119,6 +119,37 @@
         <button class="filter-btn" data-species="Anguille">🐟 Anguille</button>
       </div>
       <div class="spots-grid" id="all-spots-grid"></div>
+    </div>
+  </section>
+
+  <!-- BATHYMETRIE -->
+  <section class="section" style="background:var(--white);">
+    <div class="container">
+      <div class="grid-2" style="align-items:center;gap:60px;">
+        <div>
+          <span class="section-label">Connaissance du lac</span>
+          <h2 class="section-title" style="margin-bottom:16px;">Carte bathymétrique</h2>
+          <p style="color:var(--gray);line-height:1.7;margin-bottom:20px;">Le lac de Podensac offre une topographie sous-marine variée : des zones peu profondes idéales pour la perche, jusqu'à des fosses atteignant plusieurs mètres, refuges préférés des carpes et brochets. Utilisez cette carte pour choisir le poste qui correspond à votre cible.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.88rem;">
+              <span style="width:18px;height:18px;border-radius:4px;background:#f5a623;display:inline-block;flex-shrink:0;"></span>
+              <span><strong>Zones peu profondes (0–2m)</strong> — perche, rotengle, gardon</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.88rem;">
+              <span style="width:18px;height:18px;border-radius:4px;background:#4ab8c4;display:inline-block;flex-shrink:0;"></span>
+              <span><strong>Profondeurs moyennes (2–5m)</strong> — sandre, brochet</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:0.88rem;">
+              <span style="width:18px;height:18px;border-radius:4px;background:#1a4f7a;display:inline-block;flex-shrink:0;"></span>
+              <span><strong>Grandes profondeurs (+5m)</strong> — carpe, silure</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img src="images/bathym%C3%A9trie.jpg" alt="Carte bathymétrique du lac de Podensac" style="width:100%;border-radius:16px;box-shadow:var(--shadow-lg);display:block;">
+          <p style="text-align:center;font-size:0.78rem;color:var(--gray);margin-top:10px;">Carte bathymétrique officielle — lac de Podensac</p>
+        </div>
+      </div>
     </div>
   </section>
 
