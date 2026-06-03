@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const booking = {
         type: 'peche',
+        status: 'pending',
         posteId, prenom, nom, email, tel, formule, dateDebut, duree, nb, message, dates,
       };
 
@@ -264,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const total = prix[formule] * parseInt(nb);
       const labels = { 'aperitif': 'Apéritif (2h)', 'soiree': 'Soirée BBQ (3h30)', 'journee': 'Journée (6h)' };
 
-      const booking = { type: 'bateau', prenom, nom, email, tel, bateau, formule, date, heure, nb: parseInt(nb) };
+      const booking = { type: 'bateau', status: 'pending', prenom, nom, email, tel, bateau, formule, date, heure, nb: parseInt(nb) };
 
       const submitBtn = boatForm.querySelector('[type="submit"]');
       const origHtml = submitBtn?.innerHTML;

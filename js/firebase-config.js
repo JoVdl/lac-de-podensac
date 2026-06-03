@@ -8,7 +8,7 @@
 //     match /reservations/{id} {
 //       allow create: if true;
 //       allow read: if true;
-//       allow update, delete: if false;
+//       allow update, delete: if request.auth != null;
 //     }
 //   }
 // }

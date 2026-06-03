@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Lac de Podensac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #2a6059;
+      --primary-light: #3d8a80;
+      --primary-dark: #1a3d38;
+      --accent: #e8951e;
+      --success: #1e8a4a;
+      --success-bg: #e8f7ee;
+      --danger: #c0392b;
+      --danger-bg: #fdf0ee;
+      --warning: #b07800;
+      --warning-bg: #fff8e6;
+      --gray: #5a6a72;
+      --gray-light: #8fa0a8;
+      --bg: #edf2f1;
+      --white: #ffffff;
+      --border: #d6e4e2;
+      --card-shadow: 0 2px 12px rgba(42,96,89,0.08);
+      --font: 'Inter', sans-serif;
+      --font-head: 'Montserrat', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: #1a2e2b;
+      min-height: 100vh;
+      font-size: 15px;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+      justify-content: center;
+    }
+    .login-logo img { width: 52px; height: 52px; }
+    .login-logo-text strong {
+      display: block;
+      font-family: var(--font-head);
+      font-size: 1rem;
+      color: var(--primary);
+    }
+    .login-logo-text span {
+      font-size: 0.78rem;
+      color: var(--gray);
+    }
+    .login-title {
+      text-align: center;
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+    .login-subtitle {
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.85rem;
+      margin-bottom: 32px;
+    }
+    .login-field {
+      margin-bottom: 18px;
+    }
+    .login-field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+    .login-field input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.95rem;
+      color: #1a2e2b;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .login-field input:focus { border-color: var(--primary-light); }
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .login-btn:hover { background: var(--primary-dark); }
+    .login-btn:active { transform: scale(0.98); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .login-error {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      margin-top: 14px;
+      display: none;
+    }
+    .login-error.show { display: block; }
+
+    /* ── ADMIN APP ── */
+    #admin-app { min-height: 100vh; }
+
+    /* ── TOP NAV ── */
+    .admin-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 60px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .admin-nav__left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .admin-nav__left img { width: 34px; height: 34px; }
+    .admin-nav__title {
+      font-family: var(--font-head);
+      font-weight: 800;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .admin-nav__title span {
+      display: block;
+      font-family: var(--font);
+      font-weight: 400;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+    }
+    .admin-nav__right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .admin-user {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.6);
+      display: none;
+    }
+    @media (min-width: 640px) { .admin-user { display: block; } }
+    .btn-logout {
+      padding: 7px 16px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── MAIN CONTENT ── */
+    .admin-content { padding: 24px 20px; max-width: 1200px; margin: 0 auto; }
+    @media (min-width: 768px) { .admin-content { padding: 28px 32px; } }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+    @media (min-width: 1024px) { .stats-grid { grid-template-columns: repeat(5, 1fr); } }
+    .stat-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--card-shadow);
+      border-left: 4px solid var(--primary-light);
+    }
+    .stat-card.accent { border-left-color: var(--accent); }
+    .stat-card.success { border-left-color: var(--success); }
+    .stat-card.warning { border-left-color: var(--warning); }
+    .stat-card.danger { border-left-color: var(--danger); }
+    .stat-card__value {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card__label {
+      font-size: 0.78rem;
+      color: var(--gray);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── FILTERS / CONTROLS ── */
+    .admin-controls {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (min-width: 768px) {
+      .admin-controls { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 7px 14px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      background: none;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font);
+      white-space: nowrap;
+    }
+    .filter-tab:hover { border-color: var(--primary-light); color: var(--primary); }
+    .filter-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .filter-tab.active.peche { background: var(--primary); border-color: var(--primary); }
+    .filter-tab.active.bateau { background: var(--accent); border-color: var(--accent); }
+    .filter-tab.active.pending { background: var(--warning); border-color: var(--warning); }
+    .filter-tab.active.confirmed { background: var(--success); border-color: var(--success); }
+    .filter-tab.active.cancelled { background: var(--danger); border-color: var(--danger); }
+    .search-bar {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .search-bar input {
+      padding: 8px 14px 8px 36px;
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-family: var(--font);
+      font-size: 0.88rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    @media (min-width: 768px) { .search-bar input { width: 220px; } }
+    .search-bar input:focus { border-color: var(--primary-light); }
+    .search-bar::before {
+      content: '🔍';
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .results-count {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    /* ── RESERVATION CARDS ── */
+    .res-grid {
+      display: grid;
+      gap: 14px;
+    }
+    @media (min-width: 900px) {
+      .res-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1200px) {
+      .res-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    .res-card {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s;
+      border-top: 4px solid var(--border);
+    }
+    .res-card:hover { box-shadow: 0 6px 24px rgba(42,96,89,0.14); }
+    .res-card.confirmed { border-top-color: var(--success); }
+    .res-card.cancelled { border-top-color: var(--gray-light); opacity: 0.75; }
+    .res-card.pending { border-top-color: var(--warning); }
+
+    .res-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .res-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 50px;
+      font-family: var(--font-head);
+    }
+    .res-type-badge.peche { background: rgba(42,96,89,0.1); color: var(--primary); }
+    .res-type-badge.bateau { background: rgba(232,149,30,0.12); color: #a06010; }
+    .res-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .res-received-date {
+      font-size: 0.72rem;
+      color: var(--gray-light);
+    }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 50px;
+    }
+    .status-badge.pending { background: var(--warning-bg); color: var(--warning); }
+    .status-badge.confirmed { background: var(--success-bg); color: var(--success); }
+    .status-badge.cancelled { background: #f0f0f0; color: var(--gray); }
+
+    .res-card__body { padding: 14px 16px; flex: 1; }
+
+    .res-client {
+      margin-bottom: 12px;
+    }
+    .res-client__name {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+    .res-client__contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .res-client__contact a {
+      font-size: 0.82rem;
+      color: var(--primary-light);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .res-client__contact a:hover { text-decoration: underline; }
+
+    .res-details {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .res-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .res-detail-row:last-child { margin-bottom: 0; }
+    .res-detail-row .label { color: var(--gray); }
+    .res-detail-row .value { font-weight: 600; color: var(--primary-dark); text-align: right; }
+
+    .res-message {
+      font-size: 0.82rem;
+      color: var(--gray);
+      font-style: italic;
+      background: #fffbf5;
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 8px;
+    }
+
+    .res-card__footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .res-total {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .res-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .btn-action {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font);
+    }
+    .btn-confirm { background: var(--success-bg); color: var(--success); }
+    .btn-confirm:hover { background: var(--success); color: #fff; }
+    .btn-cancel-res { background: var(--warning-bg); color: var(--warning); }
+    .btn-cancel-res:hover { background: var(--warning); color: #fff; }
+    .btn-restore { background: rgba(42,96,89,0.08); color: var(--primary); }
+    .btn-restore:hover { background: var(--primary); color: #fff; }
+    .btn-delete {
+      background: var(--danger-bg);
+      color: var(--danger);
+      padding: 7px 10px;
+    }
+    .btn-delete:hover { background: var(--danger); color: #fff; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+    }
+    .empty-state__icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state__text { font-size: 1rem; font-weight: 600; }
+    .empty-state__sub { font-size: 0.85rem; margin-top: 4px; }
+
+    /* ── TOAST ── */
+    #toast-admin {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast-admin-item {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transform: translateX(120%);
+      transition: transform 0.3s;
+    }
+    .toast-admin-item.show { transform: translateX(0); }
+    .toast-admin-item.success { border-left: 4px solid var(--success); }
+    .toast-admin-item.error { border-left: 4px solid var(--danger); }
+
+    /* ── LOADING SPINNER ── */
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-light);
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary-light);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MODAL CONFIRM DELETE ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 32px 28px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      transform: scale(0.95);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal-box { transform: scale(1); }
+    .modal-box h3 { font-family: var(--font-head); color: var(--primary-dark); margin-bottom: 10px; }
+    .modal-box p { font-size: 0.9rem; color: var(--gray); margin-bottom: 24px; }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btns button { flex: 1; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; font-family: var(--font); }
+    .modal-btn-cancel-del { background: var(--bg); color: var(--gray); }
+    .modal-btn-confirm-del { background: var(--danger); color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- LOGIN SCREEN                                                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="images/logo.svg" alt="Logo">
+        <div class="login-logo-text">
+          <strong>Lac de Podensac</strong>
+          <span>Pêche & Loisirs</span>
+        </div>
+      </div>
+      <div class="login-title">Espace Administration</div>
+      <div class="login-subtitle">Accès réservé — Gérez vos réservations</div>
+      <form id="login-form">
+        <div class="login-field">
+          <label for="admin-email">Adresse email</label>
+          <input type="email" id="admin-email" autocomplete="email" placeholder="vous@example.com" required>
+        </div>
+        <div class="login-field">
+          <label for="admin-password">Mot de passe</label>
+          <input type="password" id="admin-password" autocomplete="current-password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="login-btn" id="login-btn">Se connecter</button>
+        <div class="login-error" id="login-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ADMIN DASHBOARD                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="admin-app" hidden>
+
+    <!-- NAV -->
+    <nav class="admin-nav">
+      <div class="admin-nav__left">
+        <img src="images/logo.svg" alt="Logo">
+        <div class="admin-nav__title">
+          Administration
+          <span>Lac de Podensac</span>
+        </div>
+      </div>
+      <div class="admin-nav__right">
+        <span class="admin-user" id="admin-user-email"></span>
+        <button class="btn-logout" id="logout-btn">Déconnexion</button>
+      </div>
+    </nav>
+
+    <div class="admin-content">
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__value" id="stat-total">—</div>
+          <div class="stat-card__label">Total réservations</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card__value" id="stat-confirmed">—</div>
+          <div class="stat-card__label">✓ Confirmées</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card__value" id="stat-pending">—</div>
+          <div class="stat-card__label">⏳ En attente</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value" id="stat-peche">—</div>
+          <div class="stat-card__label">🎣 Pêche</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-card__value" id="stat-revenue">—</div>
+          <div class="stat-card__label">💰 CA estimé</div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="admin-controls">
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-filter="all">Tout</button>
+          <button class="filter-tab peche" data-filter="peche">🎣 Pêche</button>
+          <button class="filter-tab bateau" data-filter="bateau">🔥 Bateaux</button>
+          <button class="filter-tab pending" data-filter-status="pending">⏳ En attente</button>
+          <button class="filter-tab confirmed" data-filter-status="confirmed">✓ Confirmées</button>
+          <button class="filter-tab cancelled" data-filter-status="cancelled">✗ Annulées</button>
+        </div>
+        <div class="search-bar">
+          <input type="search" id="search-input" placeholder="Nom, email, téléphone…">
+        </div>
+      </div>
+
+      <!-- LIST -->
+      <div class="section-header">
+        <div class="section-title">Réservations</div>
+        <div class="results-count" id="results-count"></div>
+      </div>
+      <div class="res-grid" id="reservations-list">
+        <div class="loading-state" style="grid-column:1/-1;">
+          <div class="spinner"></div>
+          Chargement…
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DELETE -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-box">
+      <h3>🗑 Supprimer la réservation</h3>
+      <p>Cette action est définitive. La réservation sera supprimée de la base de données.</p>
+      <div class="modal-btns">
+        <button class="modal-btn-cancel-del" id="delete-modal-cancel">Annuler</button>
+        <button class="modal-btn-confirm-del" id="delete-modal-confirm">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div id="toast-admin"></div>
+
+  <!-- SCRIPTS -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/postes.js"></script>
+  <script>
+  // ================================================================
+  // Admin JS
+  // ================================================================
+  const auth = firebase.auth();
+  let allReservations = [];
+  let activeTypeFilter = 'all';
+  let activeStatusFilter = 'all';
+  let searchQuery = '';
+  let pendingDeleteId = null;
+  let unsubscribeReservations = null;
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const container = document.getElementById('toast-admin');
+    const el = document.createElement('div');
+    el.className = `toast-admin-item ${type}`;
+    el.textContent = msg;
+    container.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3500);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    } catch { return dateStr; }
+  }
+
+  function formatDateTime(ts) {
+    if (!ts) return '—';
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch { return '—'; }
+  }
+
+  function calculatePrice(r) {
+    if (r.type === 'peche') {
+      const poste = (typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === r.posteId) : null;
+      if (!poste) return 0;
+      const prix = r.formule === 'jour' ? poste.prix_jour : r.formule === 'nuit' ? poste.prix_nuit : poste.prix_24h;
+      return (prix || 0) * (r.duree || 1);
+    }
+    if (r.type === 'bateau') {
+      const tarifs = { aperitif: 35, soiree: 65, journee: 95 };
+      return (tarifs[r.formule] || 0) * (parseInt(r.nb) || 1);
+    }
+    return 0;
+  }
+
+  // ── Auth ──────────────────────────────────────────────────────
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      showDashboard(user);
+    } else {
+      showLogin();
+    }
+  });
+
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    const email = document.getElementById('admin-email').value;
+    const password = document.getElementById('admin-password').value;
+    btn.disabled = true;
+    btn.textContent = 'Connexion…';
+    errEl.classList.remove('show');
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch (err) {
+      const msgs = {
+        'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+        'auth/user-not-found': 'Compte introuvable.',
+        'auth/wrong-password': 'Mot de passe incorrect.',
+        'auth/too-many-requests': 'Trop de tentatives. Réessayez dans quelques minutes.',
+        'auth/network-request-failed': 'Erreur réseau. Vérifiez votre connexion.',
+      };
+      errEl.textContent = msgs[err.code] || 'Erreur de connexion : ' + err.message;
+      errEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    if (unsubscribeReservations) unsubscribeReservations();
+    auth.signOut();
+  });
+
+  function showLogin() {
+    document.getElementById('login-screen').hidden = false;
+    document.getElementById('admin-app').hidden = true;
+  }
+
+  function showDashboard(user) {
+    document.getElementById('login-screen').hidden = true;
+    document.getElementById('admin-app').hidden = false;
+    document.getElementById('admin-user-email').textContent = user.email;
+    startWatching();
+  }
+
+  // ── Real-time listener ────────────────────────────────────────
+  function startWatching() {
+    if (unsubscribeReservations) unsubscribeReservations();
+    unsubscribeReservations = db.collection('reservations')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(snap => {
+        allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        updateStats();
+        renderList();
+      }, err => {
+        console.error('Firestore:', err);
+        document.getElementById('reservations-list').innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state__icon">⚠️</div>
+            <div class="empty-state__text">Erreur de chargement</div>
+            <div class="empty-state__sub">${err.message}</div>
+          </div>`;
+      });
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────
+  function updateStats() {
+    const confirmed = allReservations.filter(r => r.status === 'confirmed');
+    const pending = allReservations.filter(r => !r.status || r.status === 'pending');
+    const peche = allReservations.filter(r => r.type === 'peche');
+    const revenue = allReservations
+      .filter(r => r.status !== 'cancelled')
+      .reduce((sum, r) => sum + calculatePrice(r), 0);
+
+    document.getElementById('stat-total').textContent = allReservations.length;
+    document.getElementById('stat-confirmed').textContent = confirmed.length;
+    document.getElementById('stat-pending').textContent = pending.length;
+    document.getElementById('stat-peche').textContent = peche.length;
+    document.getElementById('stat-revenue').textContent = revenue + '€';
+  }
+
+  // ── Filters ───────────────────────────────────────────────────
+  document.getElementById('filter-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    if ('filter' in tab.dataset) {
+      document.querySelectorAll('[data-filter]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeTypeFilter = tab.dataset.filter;
+    }
+    if ('filterStatus' in tab.dataset) {
+      document.querySelectorAll('[data-filter-status]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeStatusFilter = tab.dataset.filterStatus;
+    }
+    renderList();
+  });
+
+  document.getElementById('search-input').addEventListener('input', e => {
+    searchQuery = e.target.value.toLowerCase().trim();
+    renderList();
+  });
+
+  // ── Render ────────────────────────────────────────────────────
+  function renderList() {
+    let filtered = allReservations.filter(r => {
+      if (activeTypeFilter !== 'all' && r.type !== activeTypeFilter) return false;
+      const status = r.status || 'pending';
+      if (activeStatusFilter !== 'all' && status !== activeStatusFilter) return false;
+      if (searchQuery) {
+        const hay = [r.nom, r.prenom, r.email, r.tel, r.message].filter(Boolean).join(' ').toLowerCase();
+        if (!hay.includes(searchQuery)) return false;
+      }
+      return true;
+    });
+
+    const listEl = document.getElementById('reservations-list');
+    const countEl = document.getElementById('results-count');
+    countEl.textContent = `${filtered.length} résultat${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state__icon">🔍</div>
+          <div class="empty-state__text">Aucune réservation trouvée</div>
+          <div class="empty-state__sub">Essayez d'autres filtres</div>
+        </div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(r => buildCard(r)).join('');
+  }
+
+  function buildCard(r) {
+    const status = r.status || 'pending';
+    const price = calculatePrice(r);
+    const received = formatDateTime(r.createdAt);
+
+    const statusBadge = {
+      pending:   `<span class="status-badge pending">⏳ En attente</span>`,
+      confirmed: `<span class="status-badge confirmed">✓ Confirmé</span>`,
+      cancelled: `<span class="status-badge cancelled">✗ Annulé</span>`,
+    }[status] || '';
+
+    // Details block
+    let detailsHtml = '';
+    if (r.type === 'peche') {
+      const poste = (typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === r.posteId) : null;
+      const formuleLabel = { jour: 'Journée (6h–20h)', nuit: 'Nuit (20h–8h)', '24h': '24 heures' }[r.formule] || r.formule;
+      const datesDisplay = r.dates && r.dates.length > 1
+        ? `Du ${formatDate(r.dates[0])} au ${formatDate(r.dates[r.dates.length - 1])}`
+        : formatDate(r.dateDebut);
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Poste</span><span class="value">#${r.posteId} — ${poste?.nom || '?'}</span></div>
+        <div class="res-detail-row"><span class="label">Formule</span><span class="value">${formuleLabel}</span></div>
+        <div class="res-detail-row"><span class="label">Date(s)</span><span class="value">${datesDisplay}</span></div>
+        <div class="res-detail-row"><span class="label">Durée</span><span class="value">${r.duree || 1} session${(r.duree || 1) > 1 ? 's' : ''}</span></div>
+        <div class="res-detail-row"><span class="label">Pêcheurs</span><span class="value">${r.nb || 1} pêcheur${(r.nb || 1) > 1 ? 's' : ''}</span></div>
+      `;
+    } else if (r.type === 'bateau') {
+      const formuleLabel = { aperitif: 'Apéritif (2h)', soiree: 'Soirée BBQ (3h30)', journee: 'Journée (6h)' }[r.formule] || r.formule;
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Bateau</span><span class="value">${r.bateau || '—'}</span></div>
+        <div class="res-detail-row"><span class="label">Formule</span><span class="value">${formuleLabel}</span></div>
+        <div class="res-detail-row"><span class="label">Date</span><span class="value">${formatDate(r.date)}${r.heure ? ' à ' + r.heure : ''}</span></div>
+        <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb || 1} pers.</span></div>
+      `;
+    }
+
+    const actionBtns = [];
+    if (status === 'pending') {
+      actionBtns.push(`<button class="btn-action btn-confirm" onclick="updateStatus('${r.id}','confirmed')">✓ Confirmer</button>`);
+      actionBtns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatus('${r.id}','cancelled')">✗ Annuler</button>`);
+    }
+    if (status === 'confirmed') {
+      actionBtns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatus('${r.id}','cancelled')">✗ Annuler</button>`);
+    }
+    if (status === 'cancelled') {
+      actionBtns.push(`<button class="btn-action btn-restore" onclick="updateStatus('${r.id}','confirmed')">↩ Rétablir</button>`);
+    }
+    actionBtns.push(`<button class="btn-action btn-delete" title="Supprimer" onclick="confirmDelete('${r.id}')">🗑</button>`);
+
+    return `
+      <div class="res-card ${status}">
+        <div class="res-card__header">
+          <div class="res-type-badge ${r.type}">${r.type === 'peche' ? '🎣 Pêche' : '🔥 Bateau BBQ'}</div>
+          <div class="res-header-right">
+            ${statusBadge}
+            <span class="res-received-date">${received}</span>
+          </div>
+        </div>
+        <div class="res-card__body">
+          <div class="res-client">
+            <div class="res-client__name">${r.prenom || ''} ${(r.nom || '').toUpperCase()}</div>
+            <div class="res-client__contact">
+              ${r.tel ? `<a href="tel:${r.tel}">📞 ${r.tel}</a>` : ''}
+              ${r.email ? `<a href="mailto:${r.email}">✉ ${r.email}</a>` : ''}
+            </div>
+          </div>
+          <div class="res-details">${detailsHtml}</div>
+          ${r.message ? `<div class="res-message">💬 ${r.message}</div>` : ''}
+        </div>
+        <div class="res-card__footer">
+          <div class="res-total">${price > 0 ? price + '€' : '—'}</div>
+          <div class="res-actions">${actionBtns.join('')}</div>
+        </div>
+      </div>`;
+  }
+
+  // ── Actions ───────────────────────────────────────────────────
+  window.updateStatus = async function(id, status) {
+    try {
+      await db.collection('reservations').doc(id).update({ status });
+      const labels = { confirmed: 'Confirmée ✓', cancelled: 'Annulée ✗', pending: 'Remise en attente' };
+      toast('Réservation ' + (labels[status] || status), 'success');
+    } catch (err) {
+      toast('Erreur : ' + err.message, 'error');
+    }
+  };
+
+  window.confirmDelete = function(id) {
+    pendingDeleteId = id;
+    document.getElementById('delete-modal').classList.add('open');
+  };
+
+  document.getElementById('delete-modal-cancel').addEventListener('click', () => {
+    pendingDeleteId = null;
+    document.getElementById('delete-modal').classList.remove('open');
+  });
+
+  document.getElementById('delete-modal-confirm').addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    pendingDeleteId = null;
+    document.getElementById('delete-modal').classList.remove('open');
+    try {
+      await db.collection('reservations').doc(id).delete();
+      toast('Réservation supprimée', 'success');
+    } catch (err) {
+      toast('Erreur suppression : ' + err.message, 'error');
+    }
+  });
+
+  document.getElementById('delete-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) {
+      pendingDeleteId = null;
+      e.currentTarget.classList.remove('open');
+    }
+  });
+  </script>
+</body>
+</html>
