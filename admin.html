@@ -110,6 +110,41 @@
       outline: none;
     }
     .login-field input:focus { border-color: var(--primary-light); }
+
+    /* Champ mot de passe avec toggle */
+    .pw-field { position: relative; }
+    .pw-field input { padding-right: 48px; }
+    .pw-toggle {
+      position: absolute;
+      right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--gray); font-size: 1.1rem; line-height: 1;
+      padding: 4px; border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .pw-toggle:hover { color: var(--primary); }
+
+    /* Se souvenir de moi */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+    .remember-row input[type="checkbox"] {
+      width: 17px; height: 17px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .remember-row label {
+      font-size: 0.85rem;
+      color: var(--gray);
+      cursor: pointer;
+      user-select: none;
+    }
+
     .login-btn {
       width: 100%;
       padding: 14px;
@@ -599,7 +634,14 @@
         </div>
         <div class="login-field">
           <label for="admin-password">Mot de passe</label>
-          <input type="password" id="admin-password" autocomplete="current-password" placeholder="••••••••" required>
+          <div class="pw-field">
+            <input type="password" id="admin-password" autocomplete="current-password" placeholder="••••••••" required>
+            <button type="button" class="pw-toggle" id="pw-toggle" title="Afficher / Masquer">👁</button>
+          </div>
+        </div>
+        <div class="remember-row">
+          <input type="checkbox" id="remember-me" checked>
+          <label for="remember-me">Se souvenir de moi</label>
         </div>
         <button type="submit" class="login-btn" id="login-btn">Se connecter</button>
         <div class="login-error" id="login-error"></div>
@@ -757,7 +799,19 @@
     return 0;
   }
 
+  // ── Toggle visibilité mot de passe ───────────────────────────
+  document.getElementById('pw-toggle').addEventListener('click', function () {
+    const input = document.getElementById('admin-password');
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    this.textContent = isHidden ? '🙈' : '👁';
+  });
+
   // ── Auth ──────────────────────────────────────────────────────
+  // Masquer les deux écrans pendant la vérification de session
+  document.getElementById('login-screen').hidden = true;
+  document.getElementById('admin-app').hidden = true;
+
   auth.onAuthStateChanged(user => {
     if (user) {
       showDashboard(user);
@@ -770,22 +824,35 @@
     e.preventDefault();
     const btn = document.getElementById('login-btn');
     const errEl = document.getElementById('login-error');
-    const email = document.getElementById('admin-email').value;
+    const email = document.getElementById('admin-email').value.trim();
     const password = document.getElementById('admin-password').value;
+    const remember = document.getElementById('remember-me').checked;
+
     btn.disabled = true;
     btn.textContent = 'Connexion…';
     errEl.classList.remove('show');
+
     try {
+      // Persistance selon la case cochée
+      const persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+      await auth.setPersistence(persistence);
       await auth.signInWithEmailAndPassword(email, password);
+      // onAuthStateChanged prend le relais automatiquement
     } catch (err) {
+      console.error('[Auth]', err.code, err.message);
       const msgs = {
-        'auth/invalid-credential': 'Email ou mot de passe incorrect.',
-        'auth/user-not-found': 'Compte introuvable.',
-        'auth/wrong-password': 'Mot de passe incorrect.',
-        'auth/too-many-requests': 'Trop de tentatives. Réessayez dans quelques minutes.',
-        'auth/network-request-failed': 'Erreur réseau. Vérifiez votre connexion.',
+        'auth/invalid-credential':      'Email ou mot de passe incorrect.',
+        'auth/invalid-email':           'Adresse email invalide.',
+        'auth/user-not-found':          'Aucun compte trouvé avec cet email.',
+        'auth/wrong-password':          'Mot de passe incorrect.',
+        'auth/too-many-requests':       'Trop de tentatives — réessayez dans quelques minutes.',
+        'auth/network-request-failed':  'Erreur réseau — vérifiez votre connexion.',
+        'auth/user-disabled':           'Ce compte a été désactivé.',
+        'auth/operation-not-allowed':   'Connexion par email non activée dans Firebase.',
       };
-      errEl.textContent = msgs[err.code] || 'Erreur de connexion : ' + err.message;
+      errEl.textContent = msgs[err.code] || `Erreur (${err.code}) : ${err.message}`;
       errEl.classList.add('show');
     } finally {
       btn.disabled = false;
