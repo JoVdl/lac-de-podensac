@@ -33,10 +33,19 @@ document.addEventListener('DOMContentLoaded', function () {
     scrollWheelZoom: true,
   });
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  }).addTo(map);
+  const satelliteLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP', maxZoom: 20 }
+  );
+  const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', maxZoom: 19,
+  });
+  satelliteLayer.addTo(map);
+  L.control.layers(
+    { '🛰️ Satellite': satelliteLayer, '🗺️ Carte': osmLayer },
+    {},
+    { position: 'topright', collapsed: false }
+  ).addTo(map);
 
   // ── Zone "Toutes pêches" (fond, rendu en premier) ───────────
   L.polygon(ZONE_TOUTES_PECHES, {

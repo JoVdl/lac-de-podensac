@@ -126,14 +126,16 @@ document.addEventListener('DOMContentLoaded', function () {
         ? (tarifs[duree] || duree * 35)
         : (formule === 'demi' ? 15 : 20) * duree;
 
-      const opts = calcOptionsPrice(formule, duree, nbAccomp, has4canne);
+      const opts        = calcOptionsPrice(formule, duree, nbAccomp, has4canne);
+      const materielPrice = typeof calcMaterielPrice === 'function' ? calcMaterielPrice() : 0;
 
-      const total = basePrice + opts.accompPrice + opts.canne4Price;
+      const total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
       if (el('sum-total')) el('sum-total').textContent = `${total} €`;
 
       // Lignes options dans récap
-      const accompLine = el('sum-accompagnant-line');
-      const canne4Line = el('sum-4canne-line');
+      const accompLine  = el('sum-accompagnant-line');
+      const canne4Line  = el('sum-4canne-line');
+      const materielLine = el('sum-materiel-line');
       if (accompLine) {
         accompLine.style.display = nbAccomp > 0 ? 'flex' : 'none';
         if (el('sum-accompagnant')) el('sum-accompagnant').textContent =
@@ -143,16 +145,90 @@ document.addEventListener('DOMContentLoaded', function () {
         canne4Line.style.display = (has4canne && formule !== 'demi') ? 'flex' : 'none';
         if (el('sum-4canne')) el('sum-4canne').textContent = `+${opts.canne4Price} €`;
       }
+      if (materielLine) {
+        materielLine.style.display = materielPrice > 0 ? 'flex' : 'none';
+        if (el('sum-materiel')) el('sum-materiel').textContent = `+${materielPrice} €`;
+      }
     } else {
       if (el('sum-total')) el('sum-total').textContent = '—';
     }
   }
 
-  ['f-poste','f-duree','f-nb','f-date-debut','f-accompagnant'].forEach(id => {
+  // ── Stepper accompagnant ─────────────────────────────────────
+  const accompMinus = document.getElementById('accomp-minus');
+  const accompPlus  = document.getElementById('accomp-plus');
+  const accompVal   = document.getElementById('accomp-val');
+  const accompSel   = document.getElementById('f-accompagnant');
+  if (accompMinus && accompPlus && accompVal && accompSel) {
+    accompMinus.addEventListener('click', () => {
+      const cur = parseInt(accompSel.value) || 0;
+      if (cur > 0) { accompSel.value = cur - 1; accompVal.textContent = cur - 1; updateSummary(); }
+    });
+    accompPlus.addEventListener('click', () => {
+      const cur = parseInt(accompSel.value) || 0;
+      if (cur < 4) { accompSel.value = cur + 1; accompVal.textContent = cur + 1; updateSummary(); }
+    });
+  }
+
+  // ── Location de matériel toggle ───────────────────────────────
+  const materielToggle = document.getElementById('materiel-toggle');
+  const materielPanel  = document.getElementById('materiel-panel');
+  if (materielToggle && materielPanel) {
+    materielToggle.addEventListener('click', () => {
+      const open = materielPanel.classList.toggle('open');
+      materielToggle.classList.toggle('open', open);
+    });
+    materielToggle.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); materielToggle.click(); } });
+  }
+
+  document.querySelectorAll('.materiel-cb').forEach(cb => cb.addEventListener('change', () => { updateMaterielUI(); updateSummary(); }));
+
+  function calcMaterielPrice() {
+    const formule = document.querySelector('input[name="formule"]:checked')?.value || 'jour';
+    const duree   = parseInt(document.getElementById('f-duree')?.value || 1);
+    let total = 0;
+    document.querySelectorAll('.materiel-cb:checked').forEach(cb => {
+      const row   = cb.closest('.materiel-booking-item');
+      const priceEl = row?.querySelector('.materiel-booking-item__price');
+      if (!priceEl) return;
+      const pJour = parseInt(priceEl.dataset.jour) || 0;
+      const pNuit = parseInt(priceEl.dataset.nuit) || 0;
+      if (formule === 'nuit') total += pNuit * duree;
+      else total += pJour;
+    });
+    return total;
+  }
+
+  function updateMaterielUI() {
+    const checked = document.querySelectorAll('.materiel-cb:checked').length;
+    const price   = calcMaterielPrice();
+    const badge   = document.getElementById('materiel-count-badge');
+    const totalEl = document.getElementById('materiel-total-price');
+    const toggle  = document.getElementById('materiel-toggle');
+    if (badge) {
+      badge.textContent = `${checked} article${checked > 1 ? 's' : ''}`;
+      badge.classList.toggle('visible', checked > 0);
+    }
+    if (totalEl) totalEl.textContent = price > 0 ? `+${price} €` : '';
+    if (toggle) toggle.classList.toggle('has-items', checked > 0);
+
+    // Update price labels based on selected formule
+    const formule = document.querySelector('input[name="formule"]:checked')?.value || 'jour';
+    const duree   = parseInt(document.getElementById('f-duree')?.value || 1);
+    document.querySelectorAll('.materiel-booking-item__price').forEach(el => {
+      const pJour = parseInt(el.dataset.jour) || 0;
+      const pNuit = parseInt(el.dataset.nuit) || 0;
+      if (!el.dataset.jour) return;
+      if (formule === 'nuit') el.textContent = `${pNuit * duree} €`;
+      else el.textContent = `${pJour} €/j`;
+    });
+  }
+
+  ['f-poste','f-duree','f-nb','f-date-debut'].forEach(id => {
     const e = document.getElementById(id);
-    if (e) e.addEventListener('change', updateSummary);
+    if (e) e.addEventListener('change', () => { updateMaterielUI(); updateSummary(); });
   });
-  document.querySelectorAll('input[name="formule"]').forEach(r => r.addEventListener('change', updateSummary));
+  document.querySelectorAll('input[name="formule"]').forEach(r => r.addEventListener('change', () => { updateMaterielUI(); updateSummary(); }));
   const f4c = document.getElementById('f-4canne');
   if (f4c) f4c.addEventListener('change', updateSummary);
 
@@ -220,13 +296,16 @@ document.addEventListener('DOMContentLoaded', function () {
         ? (tarifs[duree] || duree * 35)
         : (formule === 'demi' ? 15 : 20) * duree;
       const opts  = calcOptionsPrice(formule, duree, nbAccomp, has4canne);
-      const total = basePrice + opts.accompPrice + opts.canne4Price;
+      const materielPrice = typeof calcMaterielPrice === 'function' ? calcMaterielPrice() : 0;
+      const total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
+      const selectedMateriel = Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id);
 
       const booking = {
         type: 'peche', status: 'pending',
         posteId, prenom, nom, email, tel, formule, dateDebut, duree, nb, message, dates,
         nbAccompagnants: nbAccomp,
         canne4: has4canne && formule !== 'demi',
+        materiel: selectedMateriel,
         totalPrice: total,
       };
 

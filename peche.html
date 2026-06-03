@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/darkmode.js"></script>
   <link rel="icon" href="images/logo.svg" type="image/svg+xml">
 </head>
 <body>
@@ -26,6 +27,7 @@
         <a href="galerie.html" class="nav__link">Galerie</a>
         <a href="contact.html" class="nav__link">Contact</a>
         <a href="reglement.html" class="nav__link">Règlement</a>
+        <button class="dark-toggle" aria-label="Mode sombre">🌙</button>
         <a href="#reservation" class="btn btn--primary btn--sm nav__cta">Réserver</a>
       </div>
       <button class="nav__hamburger" id="hamburger"><span></span><span></span><span></span></button>
@@ -274,29 +276,140 @@
   </section>
 
   <!-- LOCATION DE MATÉRIEL -->
-  <section class="section materiel-section" id="materiel" style="background:var(--gray-bg);">
+  <section class="section materiel-section" id="materiel">
     <div class="container">
-      <div class="section-header text-center" style="margin-bottom:40px;">
-        <span class="section-label">Location</span>
+      <div class="section-header text-center" style="margin-bottom:48px;">
+        <span class="section-label">Location sur site</span>
         <h2 class="section-title">Matériel de pêche</h2>
-        <p class="section-subtitle">Venez les mains vides — tout le matériel est disponible à la location sur site. Réservez lors de votre demande de poste.</p>
+        <p class="section-subtitle">Venez les mains vides — tout le matériel est disponible à la location. Sélectionnez vos articles directement lors de la réservation de votre poste.</p>
       </div>
-      <div class="materiel-grid" id="materiel-grid">
-        <div class="materiel-card"><div class="materiel-card__icon">🎣</div><div class="materiel-card__body"><div class="materiel-card__label">Canne carpe + moulinet</div><div class="materiel-card__note">12ft, 3lb TC</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 €/j</span><span class="prix-tag prix-tag--nuit">🌙 12 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🎣</div><div class="materiel-card__body"><div class="materiel-card__label">Canne carnassier + moulinet</div><div class="materiel-card__note">Sans leurres</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 €/j</span><span class="prix-tag prix-tag--nuit">🌙 12 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🎣</div><div class="materiel-card__body"><div class="materiel-card__label">Canne feeder complète</div><div class="materiel-card__note">Feeder fourni</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 5 €/j</span><span class="prix-tag prix-tag--nuit">🌙 8 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🪣</div><div class="materiel-card__body"><div class="materiel-card__label">Épuisette carpe</div><div class="materiel-card__note">Grande taille</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 3 €/j</span><span class="prix-tag prix-tag--nuit">🌙 5 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🟫</div><div class="materiel-card__body"><div class="materiel-card__label">Tapis de réception</div><div class="materiel-card__note">Obligatoire carpe</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 2 €/j</span><span class="prix-tag prix-tag--nuit">🌙 3 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🫙</div><div class="materiel-card__body"><div class="materiel-card__label">Sac de conservation</div><div class="materiel-card__note">No-kill</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 3 €/j</span><span class="prix-tag prix-tag--nuit">🌙 5 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">⚙️</div><div class="materiel-card__body"><div class="materiel-card__label">Pod + 3 repose-cannes</div><div class="materiel-card__note"></div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 5 €/j</span><span class="prix-tag prix-tag--nuit">🌙 8 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🔔</div><div class="materiel-card__body"><div class="materiel-card__label">Détecteurs × 3 + boîtier</div><div class="materiel-card__note"></div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 €/j</span><span class="prix-tag prix-tag--nuit">🌙 12 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🪑</div><div class="materiel-card__body"><div class="materiel-card__label">Chaise inclinable pêche</div><div class="materiel-card__note"></div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 5 €/j</span><span class="prix-tag prix-tag--nuit">🌙 8 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">⛺</div><div class="materiel-card__body"><div class="materiel-card__label">Bivouac (abri de pêche)</div><div class="materiel-card__note"></div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 12 €/j</span><span class="prix-tag prix-tag--nuit">🌙 15 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">🛏️</div><div class="materiel-card__body"><div class="materiel-card__label">Sac de couchage</div><div class="materiel-card__note"></div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 €/j</span><span class="prix-tag prix-tag--nuit">🌙 10 €/nuit</span></div></div></div>
-        <div class="materiel-card"><div class="materiel-card__icon">📸</div><div class="materiel-card__body"><div class="materiel-card__label">Kit photo (carton + marqueur)</div><div class="materiel-card__note">Sur demande</div><div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">Inclus</span></div></div></div>
+      <div class="materiel-categories">
+        <!-- Cannes à pêche -->
+        <div>
+          <div class="materiel-category__title">
+            <span class="materiel-category__title-icon">🎣</span>
+            Cannes à pêche
+          </div>
+          <div class="materiel-grid">
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🎣</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Canne carpe + moulinet</div>
+                <div class="materiel-card__note">12ft, 3lb TC — prête à l'emploi</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 12 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🎣</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Canne carnassier + moulinet</div>
+                <div class="materiel-card__note">Leurres non fournis</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 12 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🎣</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Canne feeder complète</div>
+                <div class="materiel-card__note">Feeder fourni, fil monté</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 5 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 8 € / nuit</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Accessoires de pêche -->
+        <div>
+          <div class="materiel-category__title">
+            <span class="materiel-category__title-icon">⚙️</span>
+            Accessoires de pêche
+          </div>
+          <div class="materiel-grid">
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🪣</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Épuisette carpe</div>
+                <div class="materiel-card__note">Grande taille, tête plate</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 3 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 5 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🟫</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Tapis de réception</div>
+                <div class="materiel-card__note">Obligatoire pour la carpe</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 2 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 3 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🫙</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Sac de conservation</div>
+                <div class="materiel-card__note">Pratique No-Kill</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 3 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 5 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">⚙️</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Pod + 3 repose-cannes</div>
+                <div class="materiel-card__note">Réglable, compatible tous cannes</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 5 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 8 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🔔</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Détecteurs × 3 + boîtier</div>
+                <div class="materiel-card__note">Alertes sonores & lumineuses</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 12 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">📸</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Kit photo souvenir</div>
+                <div class="materiel-card__note">Carton + marqueur No-Kill</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour" style="background:rgba(61,138,128,0.1);color:var(--primary-dark);">✓ Inclus</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Campement -->
+        <div>
+          <div class="materiel-category__title">
+            <span class="materiel-category__title-icon">⛺</span>
+            Campement & confort
+          </div>
+          <div class="materiel-grid">
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🪑</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Chaise inclinable pêche</div>
+                <div class="materiel-card__note">Confort longue session</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 5 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 8 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">⛺</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Bivouac (abri de pêche)</div>
+                <div class="materiel-card__note">Montage et démontage inclus</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 12 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 15 € / nuit</span></div>
+              </div>
+            </div>
+            <div class="materiel-card">
+              <div class="materiel-card__icon">🛏️</div>
+              <div class="materiel-card__body">
+                <div class="materiel-card__label">Sac de couchage</div>
+                <div class="materiel-card__note">Confort 3 saisons</div>
+                <div class="materiel-card__prices"><span class="prix-tag prix-tag--jour">☀️ 8 € / jour</span><span class="prix-tag prix-tag--nuit">🌙 10 € / nuit</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <p style="font-size:0.82rem;color:var(--gray);margin-top:20px;text-align:center;">
-        📝 Mentionnez le matériel souhaité dans le champ « Message » lors de votre réservation. Disponibilité vérifiée à la confirmation.
+      <p style="font-size:0.82rem;color:var(--gray);margin-top:28px;text-align:center;">
+        🛒 Sélectionnez le matériel souhaité directement dans le formulaire de réservation. Disponibilité confirmée par email.
       </p>
     </div>
   </section>
@@ -424,13 +537,20 @@
                     <div class="option-card__desc">Conjoint, ami, enfant non-pêcheur</div>
                     <div class="option-card__price" id="opt-accompagnant-price">+5 € / pers.</div>
                   </div>
-                  <select class="form-control option-select" id="f-accompagnant">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                  </select>
+                  <div class="option-card__controls">
+                    <div class="option-stepper">
+                      <button type="button" class="option-stepper__btn" id="accomp-minus">−</button>
+                      <span class="option-stepper__val" id="accomp-val">0</span>
+                      <button type="button" class="option-stepper__btn" id="accomp-plus">+</button>
+                    </div>
+                    <select class="option-select-hidden" id="f-accompagnant" aria-hidden="true" tabindex="-1">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </div>
                 </div>
                 <!-- 4ème canne -->
                 <div class="option-card" id="opt-4canne-card">
@@ -438,19 +558,63 @@
                   <div class="option-card__content">
                     <div class="option-card__title">4ème canne</div>
                     <div class="option-card__desc">3 cannes incluses par défaut</div>
-                    <div class="option-card__price" id="opt-4canne-price">Non dispo (demi-j.)</div>
+                    <div class="option-card__price" id="opt-4canne-price">Non disponible</div>
                   </div>
-                  <label class="option-toggle">
-                    <input type="checkbox" id="f-4canne">
-                    <span class="option-toggle__btn">Ajouter</span>
-                  </label>
+                  <div class="option-card__controls">
+                    <label class="option-toggle">
+                      <input type="checkbox" id="f-4canne">
+                      <span class="option-toggle__sw"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── LOCATION DE MATÉRIEL ────────────────────────── -->
+            <div class="form-group materiel-booking-section">
+              <label>Location de matériel</label>
+              <div class="materiel-booking-toggle" id="materiel-toggle" role="button" tabindex="0">
+                <div class="materiel-booking-toggle__left">
+                  <span class="materiel-booking-toggle__icon">🎒</span>
+                  <span class="materiel-booking-toggle__title">Ajouter du matériel</span>
+                  <span class="materiel-booking-toggle__badge" id="materiel-count-badge">0 article</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span class="materiel-booking-toggle__price" id="materiel-total-price"></span>
+                  <span class="materiel-booking-toggle__arrow">▼</span>
+                </div>
+              </div>
+              <div class="materiel-booking-panel" id="materiel-panel">
+                <!-- Cannes à pêche -->
+                <div class="materiel-booking-category">
+                  <div class="materiel-booking-category__title">🎣 Cannes à pêche</div>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="canne-carpe"><span class="materiel-booking-item__emoji">🎣</span><span class="materiel-booking-item__label">Canne carpe + moulinet <span class="materiel-booking-item__note">12ft, 3lb TC</span></span><span class="materiel-booking-item__price" data-jour="8" data-nuit="12">8 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="canne-carnass"><span class="materiel-booking-item__emoji">🎣</span><span class="materiel-booking-item__label">Canne carnassier + moulinet <span class="materiel-booking-item__note">Sans leurres</span></span><span class="materiel-booking-item__price" data-jour="8" data-nuit="12">8 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="canne-feeder"><span class="materiel-booking-item__emoji">🎣</span><span class="materiel-booking-item__label">Canne feeder complète <span class="materiel-booking-item__note">Feeder fourni</span></span><span class="materiel-booking-item__price" data-jour="5" data-nuit="8">5 €/j</span></label>
+                </div>
+                <!-- Accessoires -->
+                <div class="materiel-booking-category">
+                  <div class="materiel-booking-category__title">⚙️ Accessoires de pêche</div>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="epuisette"><span class="materiel-booking-item__emoji">🪣</span><span class="materiel-booking-item__label">Épuisette carpe <span class="materiel-booking-item__note">Grande taille</span></span><span class="materiel-booking-item__price" data-jour="3" data-nuit="5">3 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="tapis"><span class="materiel-booking-item__emoji">🟫</span><span class="materiel-booking-item__label">Tapis de réception <span class="materiel-booking-item__note">Obligatoire carpe</span></span><span class="materiel-booking-item__price" data-jour="2" data-nuit="3">2 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="sac-garde"><span class="materiel-booking-item__emoji">🫙</span><span class="materiel-booking-item__label">Sac de conservation <span class="materiel-booking-item__note">No-kill</span></span><span class="materiel-booking-item__price" data-jour="3" data-nuit="5">3 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="pod"><span class="materiel-booking-item__emoji">⚙️</span><span class="materiel-booking-item__label">Pod + 3 repose-cannes</span><span class="materiel-booking-item__price" data-jour="5" data-nuit="8">5 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="detecteurs"><span class="materiel-booking-item__emoji">🔔</span><span class="materiel-booking-item__label">Détecteurs × 3 + boîtier</span><span class="materiel-booking-item__price" data-jour="8" data-nuit="12">8 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="kit-photo"><span class="materiel-booking-item__emoji">📸</span><span class="materiel-booking-item__label">Kit photo <span class="materiel-booking-item__note">Carton + marqueur</span></span><span class="materiel-booking-item__price" data-jour="2" data-nuit="2">2 €/j</span></label>
+                </div>
+                <!-- Campement -->
+                <div class="materiel-booking-category">
+                  <div class="materiel-booking-category__title">⛺ Campement & confort</div>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="chaise"><span class="materiel-booking-item__emoji">🪑</span><span class="materiel-booking-item__label">Chaise inclinable pêche</span><span class="materiel-booking-item__price" data-jour="5" data-nuit="8">5 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="bivouac"><span class="materiel-booking-item__emoji">⛺</span><span class="materiel-booking-item__label">Bivouac (abri de pêche)</span><span class="materiel-booking-item__price" data-jour="12" data-nuit="15">12 €/j</span></label>
+                  <label class="materiel-booking-item"><input type="checkbox" class="materiel-cb" data-id="sac-couchage"><span class="materiel-booking-item__emoji">🛏️</span><span class="materiel-booking-item__label">Sac de couchage</span><span class="materiel-booking-item__price" data-jour="8" data-nuit="10">8 €/j</span></label>
                 </div>
               </div>
             </div>
 
             <div class="form-group">
               <label>Message / demande particulière</label>
-              <textarea class="form-control" id="f-message" rows="3" placeholder="Location de matériel souhaitée, accessibilité PMR, etc."></textarea>
+              <textarea class="form-control" id="f-message" rows="3" placeholder="Accessibilité PMR, demande spéciale, etc."></textarea>
             </div>
             <button type="submit" class="btn btn--success btn--lg" style="width:100%;justify-content:center;">
               ✓ Confirmer la réservation
@@ -461,6 +625,7 @@
           </form>
         </div>
         <div>
+          <div class="booking-col-sticky">
           <div class="booking-summary" id="booking-summary">
             <h4 class="booking-summary__title">📋 Récapitulatif</h4>
             <div class="summary-line"><span>Poste</span><span id="sum-poste">—</span></div>
@@ -474,9 +639,12 @@
             <div class="summary-line" id="sum-4canne-line" style="display:none;">
               <span>4ème canne</span><span id="sum-4canne">—</span>
             </div>
+            <div class="summary-line" id="sum-materiel-line" style="display:none;">
+              <span>Matériel</span><span id="sum-materiel">—</span>
+            </div>
             <div class="summary-total">
               <span>Total</span>
-              <span id="sum-total">35€</span>
+              <span id="sum-total">—</span>
             </div>
             <div class="summary-included">
               <div class="summary-included__title">Inclus dans la réservation</div>
@@ -488,7 +656,7 @@
               <div class="summary-included__item">Confirmation email</div>
             </div>
           </div>
-          <div class="calendar-widget" style="margin-top:20px;">
+          <div class="calendar-widget">
             <div class="calendar-header">
               <button class="calendar-nav" id="cal-prev">‹</button>
               <span class="calendar-month" id="cal-month-label"></span>
@@ -501,6 +669,7 @@
               <span style="color:var(--primary);font-weight:700;">■</span> Sélectionné
             </p>
           </div>
+          </div><!-- /booking-col-sticky -->
         </div>
       </div>
     </div>
