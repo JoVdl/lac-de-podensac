@@ -958,6 +958,7 @@ p { margin-bottom: 0; }
   .packages-grid { grid-template-columns: 1fr; }
   .boats-grid { grid-template-columns: 1fr 1fr; }
   .booking-layout { grid-template-columns: 1fr; }
+  .booking-summary { position: static; }
   .contact-layout { grid-template-columns: 1fr; }
   .gallery-grid { grid-template-columns: repeat(2,1fr); }
   .menu-grid { grid-template-columns: repeat(2,1fr); }
