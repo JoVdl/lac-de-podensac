@@ -40,17 +40,38 @@
   </div>
 
   <!-- HERO -->
-  <section class="page-hero" style="background:linear-gradient(rgba(5,20,18,0.68),rgba(5,20,18,0.68)),url('images/cover_facebook.jpg') center 50% / cover no-repeat;">
+  <section class="page-hero" style="background:linear-gradient(135deg,#051412 0%,#0d3830 50%,#1a5f4a 100%);padding:56px 0 40px;">
     <div class="container">
-      <span class="section-label" style="color:rgba(255,255,255,0.7);">Lac de Podensac</span>
-      <h1 class="page-hero__title">Règlement Intérieur</h1>
-      <p class="page-hero__subtitle">À lire et respecter avant toute session de pêche.<br>Merci pour votre coopération et votre respect du lieu.</p>
+      <div class="page-hero__breadcrumb"><a href="index.html" style="color:rgba(255,255,255,0.6);">Accueil</a><span style="color:rgba(255,255,255,0.4);">/</span><span style="color:rgba(255,255,255,0.8);">Règlement</span></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:16px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85);letter-spacing:0.06em;">RÈGLEMENT OFFICIEL</span>
+          </div>
+          <h1 class="page-hero__title" style="margin-bottom:12px;">Règlement Intérieur</h1>
+          <p class="page-hero__subtitle" style="max-width:560px;">À lire et respecter avant toute session de pêche. La connaissance du règlement est obligatoire pour accéder au site.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;">
+            <span style="background:rgba(232,149,30,0.2);border:1px solid rgba(232,149,30,0.4);color:#ffd080;padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">🦈 Carnassier</span>
+            <span style="background:rgba(42,96,89,0.3);border:1px solid rgba(61,138,128,0.4);color:#7dd4c8;padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">🐟 Carpe</span>
+            <span style="background:rgba(39,174,96,0.15);border:1px solid rgba(39,174,96,0.3);color:#7dffb0;padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">🎣 Coup & Feeder</span>
+            <span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.75);padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">📋 Clauses générales</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0;">
+          <button onclick="window.print()" class="btn btn--outline" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.85);gap:8px;">
+            🖨️ Imprimer / PDF
+          </button>
+          <a href="peche.html#reservation" class="btn btn--primary btn--sm" style="text-align:center;">
+            📅 Réserver un poste
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- TABS NAV -->
   <div style="background:var(--white);border-bottom:2px solid var(--gray-bg);position:sticky;top:64px;z-index:50;">
-    <div class="container" style="display:flex;gap:0;overflow-x:auto;scrollbar-width:none;">
+    <div class="container" style="display:flex;gap:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
       <button class="reg-tab active" data-tab="carnassier" onclick="showTab('carnassier',this)">🦈 Carnassier</button>
       <button class="reg-tab" data-tab="carpe" onclick="showTab('carpe',this)">🐟 Carpe</button>
       <button class="reg-tab" data-tab="feeder" onclick="showTab('feeder',this)">🎣 Coup & Feeder</button>
@@ -131,11 +152,36 @@
       line-height: 1.6;
     }
     .reg-notice strong { color: #b06000; }
+
+    /* Légende des couleurs */
+    .reg-legend {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      padding: 14px 20px; background: var(--gray-bg); border-radius: 12px;
+      margin-bottom: 28px; font-size: 0.8rem;
+    }
+    .reg-legend-item { display: flex; align-items: center; gap: 7px; font-weight: 600; color: var(--gray-dark); }
+    .reg-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Impression */
+    @media print {
+      .nav, .nav__mobile, .admin-fab, [style*="sticky"] { display: none !important; }
+      .reg-section { display: block !important; }
+      .page-hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 0; }
+      .reg-item { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+      .reg-intro { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
   </style>
 
   <!-- CONTENT -->
-  <section class="section" style="padding-top:40px;">
+  <section class="section" style="padding-top:32px;">
     <div class="container" style="max-width:860px;">
+      <!-- Légende -->
+      <div class="reg-legend">
+        <div class="reg-legend-item"><div class="reg-legend-dot" style="background:#27ae60;"></div>Obligation</div>
+        <div class="reg-legend-item"><div class="reg-legend-dot" style="background:#e74c3c;"></div>Interdiction</div>
+        <div class="reg-legend-item"><div class="reg-legend-dot" style="background:#f39c12;"></div>Information</div>
+        <div class="reg-legend-item" style="margin-left:auto;font-weight:400;color:var(--gray);font-size:0.75rem;">Dernière mise à jour : Saison 2025</div>
+      </div>
 
       <!-- ── CARNASSIER ── -->
       <div id="tab-carnassier" class="reg-section active">

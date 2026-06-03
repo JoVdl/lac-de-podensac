@@ -23,12 +23,30 @@ const CARTES_JOURS = [
 // Tarifs groupe (5 pêcheurs et plus)
 const TARIFS_GROUPE = { demi: 10, jour: 15, nuit: 25 };
 
-// Accompagnants (hors pêcheur, conjoint, enfant)
-const TARIF_ACCOMPAGNANT = { jour: 10, nuit: 10 };
-const TARIF_4EME_CANNE   = { jour: 10, nuit: 20 };
+// Accompagnants (hors pêcheur, conjoint, enfant) — par personne
+const TARIF_ACCOMPAGNANT = { demi: 5, jour: 10, nuit: 10 }; // ×nbNuits pour les séjours nuit
+// 4ème canne (3 incluses par défaut) — formule max(20, duree×10) pour les nuits
+const TARIF_4EME_CANNE = { jour: 10, nuit: 20 };
 
-// Privatisation
+// Privatisation du plan d'eau
 const TARIF_PRIVAT = 400;
+
+// Location de matériel (tarifs par session)
+const LOCATION_MATERIEL = [
+  { id: 'canne-carpe',   label: 'Canne carpe + moulinet',     emoji: '🎣', prix_jour: 8,  prix_nuit: 12, note: '12ft, 3lb TC' },
+  { id: 'canne-carnass', label: 'Canne carnassier + moulinet', emoji: '🎣', prix_jour: 8,  prix_nuit: 12, note: 'Sans leurres' },
+  { id: 'canne-feeder',  label: 'Canne feeder complète',       emoji: '🎣', prix_jour: 5,  prix_nuit: 8,  note: 'Feeder fourni' },
+  { id: 'epuisette',     label: 'Épuisette carpe',              emoji: '🪣', prix_jour: 3,  prix_nuit: 5,  note: 'Grande taille' },
+  { id: 'tapis',         label: 'Tapis de réception',           emoji: '🟫', prix_jour: 2,  prix_nuit: 3,  note: 'Obligatoire carpe' },
+  { id: 'sac-garde',     label: 'Sac de conservation',          emoji: '🫙', prix_jour: 3,  prix_nuit: 5,  note: 'No-kill' },
+  { id: 'pod',           label: 'Pod + 3 repose-cannes',        emoji: '⚙️', prix_jour: 5,  prix_nuit: 8,  note: '' },
+  { id: 'detecteurs',    label: 'Détecteurs × 3 + boîtier',    emoji: '🔔', prix_jour: 8,  prix_nuit: 12, note: '' },
+  { id: 'chaise',        label: 'Chaise inclinable pêche',      emoji: '🪑', prix_jour: 5,  prix_nuit: 8,  note: '' },
+  { id: 'bivouac',       label: 'Bivouac (abri de pêche)',      emoji: '⛺', prix_jour: 12, prix_nuit: 15, note: '' },
+  { id: 'sac-couchage',  label: 'Sac de couchage',              emoji: '🛏️', prix_jour: 8,  prix_nuit: 10, note: '' },
+  { id: 'kit-photo',     label: 'Kit photo (carton + marqueur)',emoji: '📸', prix_jour: 2,  prix_nuit: 2,  note: 'Inclus si demandé' },
+];
+window.LOCATION_MATERIEL = LOCATION_MATERIEL;
 
 const POSTES = [
   {
