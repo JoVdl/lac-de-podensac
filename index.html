@@ -470,22 +470,17 @@
 
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
   <script src="js/main.js"></script>
   <script>
-    // Hero availability preview
-    const previewSpots = [
-      { nom: "Poste #1", status: "avail", label: "Disponible" },
-      { nom: "Poste #5", status: "busy", label: "Complet" },
-      { nom: "Poste #3", status: "avail", label: "Disponible" },
-      { nom: "Poste #7", status: "partial", label: "Partiel" },
-      { nom: "Poste #9", status: "avail", label: "Disponible" },
-      { nom: "Poste #11", status: "busy", label: "Complet" },
-    ];
     const grid = document.getElementById('avail-grid');
+    // Affichage initial statique (remplacé par Firebase dès que prêt)
     if (grid) {
-      previewSpots.forEach(s => {
-        grid.innerHTML += `<div class="hero__avail-item ${s.status}"><span class="hero__avail-spot">${s.nom}</span><span class="hero__avail-status">${s.label}</span></div>`;
-      });
+      for (let i = 1; i <= 6; i++) {
+        grid.innerHTML += `<div class="hero__avail-item avail" data-avail-id="${i}"><span class="hero__avail-spot">Poste #${i}</span><span class="hero__avail-status">Chargement…</span></div>`;
+      }
     }
 
     // Spots preview
@@ -542,6 +537,52 @@
       document.querySelectorAll('.fade-up').forEach(el => {
         const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }); }, {threshold:0.1});
         obs.observe(el);
+      });
+    }
+
+    // ── Disponibilités en temps réel (Firebase) ──
+    if (typeof LacDB !== 'undefined' && typeof POSTES !== 'undefined') {
+      const today = new Date().toISOString().split('T')[0];
+
+      // Remplir la grille hero avec les postes réels (statique d'abord)
+      if (grid) {
+        grid.innerHTML = '';
+        POSTES.slice(0, 6).forEach(p => {
+          const s = p.coming_soon ? 'partial' : p.disponible ? 'avail' : 'busy';
+          const l = p.coming_soon ? 'Bientôt' : p.disponible ? 'Disponible' : 'Complet';
+          grid.innerHTML += `<div class="hero__avail-item ${s}" data-avail-id="${p.id}"><span class="hero__avail-spot">Poste #${p.id}</span><span class="hero__avail-status">${l}</span></div>`;
+        });
+      }
+
+      LacDB.watchAllReservations(function(reservations) {
+        const bookedToday = new Set(
+          reservations
+            .filter(r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today))
+            .map(r => r.posteId)
+        );
+
+        // Mettre à jour la grille hero
+        if (grid && typeof POSTES !== 'undefined') {
+          grid.innerHTML = '';
+          POSTES.slice(0, 6).forEach(p => {
+            const isBooked = bookedToday.has(p.id);
+            const s = p.coming_soon ? 'partial' : (isBooked || !p.disponible) ? 'busy' : 'avail';
+            const l = p.coming_soon ? 'Bientôt' : isBooked ? 'Complet' : p.disponible ? 'Disponible' : 'Complet';
+            grid.innerHTML += `<div class="hero__avail-item ${s}" data-avail-id="${p.id}"><span class="hero__avail-spot">Poste #${p.id}</span><span class="hero__avail-status">${l}</span></div>`;
+          });
+        }
+
+        // Mettre à jour les badges de disponibilité dans la grille des postes
+        document.querySelectorAll('#spots-preview-grid .spot-card').forEach((card, i) => {
+          const p = POSTES[i];
+          if (!p) return;
+          const badge = card.querySelector('.spot-card__avail');
+          if (!badge) return;
+          const isBooked = bookedToday.has(p.id);
+          const avail = !isBooked && p.disponible && !p.coming_soon;
+          badge.className = `spot-card__avail ${avail ? 'available' : 'busy'}`;
+          badge.textContent = avail ? '✓ Disponible' : '● Complet';
+        });
       });
     }
   </script>

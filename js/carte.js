@@ -367,4 +367,51 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   window._leafletMap = map;
+
+  // ── Disponibilité temps réel via Firebase ────────────────────
+  if (typeof LacDB !== 'undefined') {
+    const today = new Date().toISOString().split('T')[0];
+    LacDB.watchAllReservations(function (reservations) {
+      const bookedToday = new Set(
+        reservations
+          .filter(r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today))
+          .map(r => r.posteId)
+      );
+
+      // Mettre à jour les couleurs des polygones
+      Object.entries(polygonLayers).forEach(([pid, poly]) => {
+        const id = parseInt(pid);
+        const poste = POSTES.find(p => p.id === id);
+        if (!poste) return;
+        const isSoon = poste.coming_soon;
+        const isAvail = !isSoon && poste.disponible && !bookedToday.has(id);
+        poly.setStyle({
+          fillColor: isSoon ? '#95a5a6' : isAvail ? '#3d8a80' : '#e74c3c',
+          color: isSoon ? '#7f8c8d' : isAvail ? '#2a6059' : '#c0392b',
+        });
+      });
+
+      // Mettre à jour le compteur de disponibilités
+      const countEl = document.getElementById('available-count');
+      if (countEl) {
+        const count = POSTES.filter(p => p.disponible && !p.coming_soon && !bookedToday.has(p.id)).length;
+        countEl.textContent = `${count}/10`;
+      }
+
+      // Mettre à jour la liste latérale
+      document.querySelectorAll('.map-spot-item').forEach(item => {
+        const id = parseInt(item.id.replace('list-item-', ''));
+        const poste = POSTES.find(p => p.id === id);
+        if (!poste) return;
+        const isSoon = poste.coming_soon;
+        const isAvail = !isSoon && poste.disponible && !bookedToday.has(id);
+        item.className = `map-spot-item ${isAvail ? 'available' : 'busy'}`;
+        const badge = item.querySelector('.map-spot-item__avail');
+        if (badge) {
+          badge.className = `map-spot-item__avail ${isAvail ? 'available' : 'busy'}`;
+          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : '● Complet';
+        }
+      });
+    });
+  }
 });
