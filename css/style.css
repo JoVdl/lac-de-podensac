@@ -730,9 +730,9 @@ p { margin-bottom: 0; }
 .form-radio__label { display: block; padding: 14px 10px; text-align: center; }
 .form-radio__price { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; color: var(--primary); }
 .form-radio__name { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
-.booking-col-sticky { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 20px; }
 .booking-summary {
   background: var(--primary); border-radius: var(--radius-xl); padding: 32px; color: var(--white);
+  position: sticky; top: 90px; align-self: start;
 }
 .booking-summary__title { font-size: 1.1rem; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 16px; }
 .summary-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.88rem; }
@@ -1097,7 +1097,7 @@ p { margin-bottom: 0; }
 }
 
 @media (max-width: 900px) {
-  .booking-col-sticky { position: static; }
+  .booking-summary { position: static; }
 }
 
 /* ================================================================
@@ -1256,6 +1256,45 @@ p { margin-bottom: 0; }
 }
 .prix-tag--jour { background: rgba(39,174,96,0.1); color: #1a7a40; }
 .prix-tag--nuit { background: rgba(61,138,128,0.1); color: var(--primary-dark); }
+
+/* ================================================================
+   MATÉRIEL EN OPTION (cards dans formulaire)
+   ================================================================ */
+.materiel-cards-section { display: flex; flex-direction: column; gap: 20px; }
+.materiel-cards-group__title {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--gray); margin-bottom: 10px;
+}
+.materiel-cards-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.materiel-opt-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border: 2px solid rgba(0,0,0,0.08);
+  border-radius: var(--radius); background: var(--white);
+  transition: border-color 0.2s, background 0.2s;
+}
+.materiel-opt-card:has(.materiel-cb:checked) {
+  border-color: var(--primary); background: rgba(61,138,128,0.05);
+}
+.materiel-opt-card__icon { font-size: 1.2rem; flex-shrink: 0; }
+.materiel-opt-card__body { flex: 1; min-width: 0; }
+.materiel-opt-card__name { font-size: 0.78rem; font-weight: 700; color: var(--dark); line-height: 1.2; }
+.materiel-opt-card__note { font-size: 0.68rem; color: var(--gray); margin-top: 1px; }
+.materiel-opt-card__price {
+  font-size: 0.75rem; font-weight: 800; color: var(--primary);
+  font-family: var(--font-head); white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .materiel-cards-grid { grid-template-columns: 1fr; }
+}
+
+/* Calendrier — état "pending" (en attente de confirmation) */
+.calendar-day.pending {
+  background: rgba(232,149,30,0.15); color: var(--accent-dark);
+  cursor: default; font-weight: 600;
+}
+.calendar-day.pending::after { content: ''; }
 
 /* ================================================================
    DARK MODE

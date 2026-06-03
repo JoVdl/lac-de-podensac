@@ -188,11 +188,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const duree   = parseInt(document.getElementById('f-duree')?.value || 1);
     let total = 0;
     document.querySelectorAll('.materiel-cb:checked').forEach(cb => {
-      const row   = cb.closest('.materiel-booking-item');
-      const priceEl = row?.querySelector('.materiel-booking-item__price');
-      if (!priceEl) return;
-      const pJour = parseInt(priceEl.dataset.jour) || 0;
-      const pNuit = parseInt(priceEl.dataset.nuit) || 0;
+      const pJour = parseInt(cb.dataset.jour) || 0;
+      const pNuit = parseInt(cb.dataset.nuit) || 0;
       if (formule === 'nuit') total += pNuit * duree;
       else total += pJour;
     });
@@ -200,27 +197,35 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateMaterielUI() {
-    const checked = document.querySelectorAll('.materiel-cb:checked').length;
-    const price   = calcMaterielPrice();
-    const badge   = document.getElementById('materiel-count-badge');
-    const totalEl = document.getElementById('materiel-total-price');
-    const toggle  = document.getElementById('materiel-toggle');
-    if (badge) {
-      badge.textContent = `${checked} article${checked > 1 ? 's' : ''}`;
-      badge.classList.toggle('visible', checked > 0);
-    }
-    if (totalEl) totalEl.textContent = price > 0 ? `+${price} €` : '';
-    if (toggle) toggle.classList.toggle('has-items', checked > 0);
-
-    // Update price labels based on selected formule
     const formule = document.querySelector('input[name="formule"]:checked')?.value || 'jour';
     const duree   = parseInt(document.getElementById('f-duree')?.value || 1);
-    document.querySelectorAll('.materiel-booking-item__price').forEach(el => {
-      const pJour = parseInt(el.dataset.jour) || 0;
-      const pNuit = parseInt(el.dataset.nuit) || 0;
-      if (!el.dataset.jour) return;
-      if (formule === 'nuit') el.textContent = `${pNuit * duree} €`;
-      else el.textContent = `${pJour} €/j`;
+    const checked = document.querySelectorAll('.materiel-cb:checked').length;
+    const price   = calcMaterielPrice();
+
+    // Update badge on section label
+    const badge = document.getElementById('materiel-total-badge');
+    if (badge) {
+      if (checked > 0) {
+        badge.textContent = `${checked} article${checked > 1 ? 's' : ''} · +${price} €`;
+        badge.style.display = 'inline';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    // Update individual card price labels
+    document.querySelectorAll('.materiel-cb').forEach(cb => {
+      const id     = cb.dataset.id;
+      const pJour  = parseInt(cb.dataset.jour) || 0;
+      const pNuit  = parseInt(cb.dataset.nuit) || 0;
+      const priceEl = document.getElementById(`mprice-${id}`);
+      if (!priceEl) return;
+      if (formule === 'nuit' && pNuit) {
+        priceEl.textContent = duree > 1 ? `${pNuit * duree} € (${duree}n)` : `${pNuit} €/n`;
+      } else {
+        const isDay = formule === 'jour';
+        priceEl.textContent = `${pJour} €${isDay ? '/j' : ''}`;
+      }
     });
   }
 
@@ -366,7 +371,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (startDow < 0) startDow = 6;
 
     const today        = new Date().toISOString().split('T')[0];
-    const bookedDates  = _bookedDates;
+    const confirmedDates = Array.isArray(_bookedDates) ? _bookedDates : (_bookedDates.confirmed || []);
+    const pendingDates   = Array.isArray(_bookedDates) ? [] : (_bookedDates.pending || []);
     const selectedDate = document.getElementById('f-date-debut')?.value;
 
     for (let i = 0; i < startDow; i++) {
@@ -382,9 +388,12 @@ document.addEventListener('DOMContentLoaded', function () {
       cell.textContent = d;
 
       if (dateStr === today) cell.classList.add('today');
-      if (bookedDates.includes(dateStr)) {
+      if (confirmedDates.includes(dateStr)) {
         cell.classList.add('booked');
         cell.title = 'Déjà réservé';
+      } else if (pendingDates.includes(dateStr)) {
+        cell.classList.add('pending');
+        cell.title = 'En attente de confirmation';
       } else if (dateStr === selectedDate) {
         cell.classList.add('selected');
       } else if (dateStr >= today) {

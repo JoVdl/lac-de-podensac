@@ -40,11 +40,16 @@ const LacDB = {
     return db.collection('reservations')
       .where('posteId', '==', posteId)
       .onSnapshot(snap => {
-        const dates = snap.docs.flatMap(doc => doc.data().dates || []);
-        callback(dates);
+        const confirmed = snap.docs
+          .filter(d => d.data().status === 'confirmed')
+          .flatMap(d => d.data().dates || []);
+        const pending = snap.docs
+          .filter(d => !d.data().status || d.data().status === 'pending')
+          .flatMap(d => d.data().dates || []);
+        callback({ confirmed, pending });
       }, err => {
         console.warn('[LacDB] Erreur lecture poste:', err.message);
-        callback([]);
+        callback({ confirmed: [], pending: [] });
       });
   },
 
