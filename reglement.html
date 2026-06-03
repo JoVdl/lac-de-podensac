@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Règlement Intérieur — Pêche au Lac de Podensac</title>
+  <meta name="description" content="Règlement intérieur du Lac de Podensac — Pêche carnassier, carpe, coup & feeder, et clauses générales. Consulter avant votre session.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="navbar">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">
+        <div class="nav__logo-icon"><img src="images/logo.svg" alt="Logo Pêche au lac de Podensac"></div>
+        <div class="nav__logo-text"><strong>Pêche au lac de Podensac</strong><span>Pêche & Loisirs</span></div>
+      </a>
+      <div class="nav__menu">
+        <a href="peche.html" class="nav__link">Postes de Pêche</a>
+        <a href="bateau.html" class="nav__link">Bateaux Barbecue</a>
+        <a href="galerie.html" class="nav__link">Galerie</a>
+        <a href="reglement.html" class="nav__link active">Règlement</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="peche.html#reservation" class="btn btn--primary btn--sm nav__cta">Réserver</a>
+      </div>
+      <button class="nav__hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="nav__mobile" id="mobile-menu">
+    <a href="peche.html" class="nav__link">🎣 Postes de Pêche</a>
+    <a href="bateau.html" class="nav__link">🔥 Bateaux Barbecue</a>
+    <a href="galerie.html" class="nav__link">📸 Galerie</a>
+    <a href="reglement.html" class="nav__link">📋 Règlement</a>
+    <a href="contact.html" class="nav__link">📍 Contact</a>
+    <a href="peche.html#reservation" class="btn btn--primary" style="margin:8px 16px;">Réserver un poste</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="page-hero" style="background:linear-gradient(135deg,#051412 0%,#0d3830 50%,#1a5f4a 100%);padding:56px 0 40px;">
+    <div class="container">
+      <div class="page-hero__breadcrumb"><a href="index.html" style="color:rgba(255,255,255,0.6);">Accueil</a><span style="color:rgba(255,255,255,0.4);">/</span><span style="color:rgba(255,255,255,0.8);">Règlement</span></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:16px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:50px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85);letter-spacing:0.06em;">RÈGLEMENT OFFICIEL</span>
+          </div>
+          <h1 class="page-hero__title" style="margin-bottom:12px;">Règlement Intérieur</h1>
+          <p class="page-hero__subtitle" style="max-width:560px;">À lire et respecter avant toute session de pêche. La connaissance du règlement est obligatoire pour accéder au site.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;">
+            <span style="background:rgba(232,149,30,0.2);border:1px solid rgba(232,149,30,0.4);color:#ffd080;padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">🦈 Carnassier</span>
+            <span style="background:rgba(42,96,89,0.3);border:1px solid rgba(61,138,128,0.4);color:#7dd4c8;padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">🐟 Carpe</span>
+            <span style="background:rgba(39,174,96,0.15);border:1px solid rgba(39,174,96,0.3);color:#7dffb0;padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">🎣 Coup & Feeder</span>
+            <span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.75);padding:4px 13px;border-radius:50px;font-size:0.78rem;font-weight:700;">📋 Clauses générales</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;flex-shrink:0;">
+          <button onclick="window.print()" class="btn btn--outline" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.85);gap:8px;">
+            🖨️ Imprimer / PDF
+          </button>
+          <a href="peche.html#reservation" class="btn btn--primary btn--sm" style="text-align:center;">
+            📅 Réserver un poste
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS NAV -->
+  <div style="background:var(--white);border-bottom:2px solid var(--gray-bg);position:sticky;top:64px;z-index:50;">
+    <div class="container" style="display:flex;gap:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+      <button class="reg-tab active" data-tab="carnassier" onclick="showTab('carnassier',this)">🦈 Carnassier</button>
+      <button class="reg-tab" data-tab="carpe" onclick="showTab('carpe',this)">🐟 Carpe</button>
+      <button class="reg-tab" data-tab="feeder" onclick="showTab('feeder',this)">🎣 Coup & Feeder</button>
+      <button class="reg-tab" data-tab="general" onclick="showTab('general',this)">📋 Clauses générales</button>
+    </div>
+  </div>
+
+  <style>
+    .reg-tab {
+      padding: 16px 22px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-family: var(--font-head);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--gray);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .reg-tab:hover { color: var(--primary); }
+    .reg-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .reg-section { display: none; }
+    .reg-section.active { display: block; }
+
+    .reg-intro {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+    }
+    .reg-intro h2 { font-family: var(--font-head); font-size: 1.4rem; margin-bottom: 8px; }
+    .reg-intro p { font-size: 0.92rem; opacity: 0.9; line-height: 1.6; }
+
+    .reg-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .reg-item {
+      display: flex;
+      gap: 16px;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 8px rgba(42,96,89,0.06);
+      border-left: 4px solid var(--primary-light);
+      align-items: flex-start;
+    }
+    .reg-item.interdiction { border-left-color: #e74c3c; }
+    .reg-item.obligation { border-left-color: #27ae60; }
+    .reg-item.info { border-left-color: #f39c12; }
+    .reg-num {
+      min-width: 32px; height: 32px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-size: 0.82rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .reg-item.interdiction .reg-num { background: #e74c3c; }
+    .reg-item.obligation .reg-num { background: #27ae60; }
+    .reg-item.info .reg-num { background: #f39c12; }
+    .reg-text { font-size: 0.9rem; line-height: 1.65; color: #1a2e2b; }
+    .reg-text strong { color: var(--primary-dark); }
+
+    .reg-notice {
+      background: rgba(232,149,30,0.08);
+      border: 1px solid rgba(232,149,30,0.25);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      font-size: 0.88rem;
+      color: #6b4400;
+      line-height: 1.6;
+    }
+    .reg-notice strong { color: #b06000; }
+
+    /* Légende des couleurs */
+    .reg-legend {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      padding: 14px 20px; background: var(--gray-bg); border-radius: 12px;
+      margin-bottom: 28px; font-size: 0.8rem;
+    }
+    .reg-legend-item { display: flex; align-items: center; gap: 7px; font-weight: 600; color: var(--gray-dark); }
+    .reg-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Impression */
+    @media print {
+      .nav, .nav__mobile, .admin-fab, [style*="sticky"] { display: none !important; }
+      .reg-section { display: block !important; }
+      .page-hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 20px 0; }
+      .reg-item { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+      .reg-intro { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+
+  <!-- CONTENT -->
+  <section class="section" style="padding-top:32px;">
+    <div class="container" style="max-width:860px;">
+      <!-- Légende -->
+      <div class="reg-legend">
+        <div class="reg-legend-item"><div class="reg-legend-dot" style="background:#27ae60;"></div>Obligation</div>
+        <div class="reg-legend-item"><div class="reg-legend-dot" style="background:#e74c3c;"></div>Interdiction</div>
+        <div class="reg-legend-item"><div class="reg-legend-dot" style="background:#f39c12;"></div>Information</div>
+        <div class="reg-legend-item" style="margin-left:auto;font-weight:400;color:var(--gray);font-size:0.75rem;">Dernière mise à jour : Saison 2025</div>
+      </div>
+
+      <!-- ── CARNASSIER ── -->
+      <div id="tab-carnassier" class="reg-section active">
+        <div class="reg-intro">
+          <h2>🦈 Règlement — Pêche du Carnassier</h2>
+          <p>Sandre, brochet, perche… La pêche aux carnassiers requiert un équipement adapté et le respect strict du poisson. Lisez attentivement ces règles avant votre session.</p>
+        </div>
+        <ul class="reg-list">
+          <li class="reg-item obligation">
+            <div class="reg-num">1</div>
+            <div class="reg-text"><strong>Respect du poisson</strong> — Les poissons que vous pêchez méritent le plus grand respect. Mettez tout en œuvre pour garantir leur bon état physique et leur survie.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">2</div>
+            <div class="reg-text"><strong>No-Kill obligatoire</strong> — Le lac est praticable uniquement en No-Kill sur toutes espèces. <strong>Exceptions :</strong> perche soleil, goujon asiatique, écrevisse américaine et écrevisse de Louisiane qu'il est <em>interdit de remettre à l'eau</em>.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">3</div>
+            <div class="reg-text"><strong>Hameçons sans ardillon obligatoires</strong> — Pour faciliter le décrochage des poissons et garantir leur intégrité, utilisez des hameçons avec ardillons écrasés.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">4</div>
+            <div class="reg-text"><strong>Épuisette obligatoire.</strong></div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">5</div>
+            <div class="reg-text"><strong>Pince à poisson (Fishgrip) interdite.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">6</div>
+            <div class="reg-text"><strong>Pince à dégorger obligatoire.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">7</div>
+            <div class="reg-text"><strong>Gilet de sauvetage obligatoire</strong> pour ceux qui se déplacent sur l'eau.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">8</div>
+            <div class="reg-text"><strong>Bourriche et conservation des poissons interdites</strong> — Remise à l'eau immédiate après photo.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">9</div>
+            <div class="reg-text"><strong>Respect des zones assignées</strong> — Respectez les zones qui vous sont assignées et gardez une distance de courtoisie de <strong>50 m</strong> avec les autres pêcheurs.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">10</div>
+            <div class="reg-text">Les barques sont louées pour <strong>3 personnes maximum</strong>.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">11</div>
+            <div class="reg-text">Float-tube et barque/zodiac avec moteur électrique autorisés.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── CARPE ── -->
+      <div id="tab-carpe" class="reg-section">
+        <div class="reg-intro">
+          <h2>🐟 Règlement — Pêche de la Carpe</h2>
+          <p>Le lac offre de belles populations de carpes, amours blancs et tanches. Ces règles assurent la pérennité du cheptel et le confort de tous les pêcheurs.</p>
+        </div>
+        <ul class="reg-list">
+          <li class="reg-item obligation">
+            <div class="reg-num">1</div>
+            <div class="reg-text"><strong>Respect du poisson</strong> — Les poissons méritent le plus grand respect. Mettez tout en œuvre pour garantir leur bon état physique et leur survie.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">2</div>
+            <div class="reg-text"><strong>No-Kill obligatoire</strong> — Sur toutes espèces. <strong>Exceptions :</strong> perche soleil, goujon asiatique, écrevisse américaine et écrevisse de Louisiane — interdits de remise à l'eau.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">3</div>
+            <div class="reg-text"><strong>Hameçon</strong> — Un seul hameçon simple par ligne, de n°2 à n°8, sans ardillon (ardillons écrasés ou micro ardillons).</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">4</div>
+            <div class="reg-text"><strong>Épuisette obligatoire.</strong></div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">5</div>
+            <div class="reg-text"><strong>Pince à poisson (Fishgrip) interdite.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">6</div>
+            <div class="reg-text"><strong>Tapis de réception obligatoire.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">7</div>
+            <div class="reg-text"><strong>Gilet de sauvetage obligatoire</strong> pour ceux qui se déplacent sur l'eau.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">8</div>
+            <div class="reg-text"><strong>Bourriche et conservation interdites</strong> — Remise à l'eau immédiate après photo.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">9</div>
+            <div class="reg-text"><strong>Respect des zones</strong> — Respectez les zones assignées et gardez une distance de courtoisie de <strong>50 m</strong> avec les autres pêcheurs.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">10</div>
+            <div class="reg-text">Les barques sont louées pour <strong>3 personnes maximum</strong>.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">11</div>
+            <div class="reg-text"><strong>Bruit</strong> — Le domaine est un endroit calme. La musique, les bruits et les sons des détecteurs de touche ne doivent pas dépasser les limites de votre poste.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">12</div>
+            <div class="reg-text"><strong>Drogues et excès d'alcool interdits.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">13</div>
+            <div class="reg-text"><strong>Surveillance obligatoire</strong> — Les cannes ne doivent être à l'eau que si vous êtes sur le poste.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">14</div>
+            <div class="reg-text"><strong>Matériel adapté</strong> — Les épuisettes, tapis de réception ou cradle doivent être de grande taille et prévus pour les carpes.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">15</div>
+            <div class="reg-text"><strong>Il est strictement interdit de tuer, mutiler ou marquer les poissons.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">16</div>
+            <div class="reg-text"><strong>Amorçage</strong> — Les graines doivent être obligatoirement bien cuites. Les esches animales ou vivantes sont interdites. Les asticots et vers de vase sont tolérés dans l'amorçage.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">17</div>
+            <div class="reg-text"><strong>Canon à bouillettes interdit.</strong></div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">18</div>
+            <div class="reg-text"><strong>Bateau amorceur autorisé.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">19</div>
+            <div class="reg-text"><strong>Accès au site</strong> — Seuls les pêcheurs et accompagnants ayant réglé leur session sont autorisés. Toute personne entrée sans autorisation devra s'acquitter d'une <strong>surtaxe de 50 € par jour</strong>.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">20</div>
+            <div class="reg-text"><strong>Montages bloqués interdits</strong> — Tout montage ne permettant pas au poisson de se libérer est interdit.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">21</div>
+            <div class="reg-text"><strong>Entrées et sorties interdites de nuit</strong> entre 21h00 et 7h00.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">22</div>
+            <div class="reg-text"><strong>Eschage</strong> — L'eschage se fait uniquement en dehors de l'hameçon (sur un cheveu, D-rig…). L'hameçon doit rester sans esche.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">23</div>
+            <div class="reg-text"><strong>Accompagnants</strong> — Pour accueillir des accompagnants, demandez au préalable l'autorisation au propriétaire et réglez le coût avant leur entrée sur site.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── FEEDER ── -->
+      <div id="tab-feeder" class="reg-section">
+        <div class="reg-intro">
+          <h2>🎣 Règlement — Pêche au Coup & au Feeder</h2>
+          <p>Pêche de rive accessible à tous les niveaux. Ces règles s'appliquent à la pêche au coup, au feeder et aux techniques associées.</p>
+        </div>
+        <ul class="reg-list">
+          <li class="reg-item obligation">
+            <div class="reg-num">1</div>
+            <div class="reg-text"><strong>Respect du poisson</strong> — Mettez tout en œuvre pour garantir le bon état physique et la survie des poissons.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">2</div>
+            <div class="reg-text"><strong>No-Kill obligatoire</strong> — Sur toutes espèces. <strong>Exceptions :</strong> perche soleil, goujon asiatique, écrevisses américaine et de Louisiane — interdits de remise à l'eau.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">3</div>
+            <div class="reg-text"><strong>Hameçon</strong> — Un seul hameçon simple par ligne, sans ardillon (ardillons écrasés ou micro ardillons).</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">4</div>
+            <div class="reg-text"><strong>Épuisette obligatoire.</strong></div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">5</div>
+            <div class="reg-text"><strong>Pince à poisson (Fishgrip) interdite.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">6</div>
+            <div class="reg-text"><strong>Tapis de réception obligatoire.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">7</div>
+            <div class="reg-text"><strong>Gilet de sauvetage obligatoire</strong> pour ceux qui se déplacent sur l'eau.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">8</div>
+            <div class="reg-text"><strong>Bourriche et conservation interdites</strong> — Remise à l'eau immédiate après photo.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">9</div>
+            <div class="reg-text"><strong>Respect des zones</strong> — Respectez les zones assignées et une distance de courtoisie de <strong>50 m</strong> avec les autres pêcheurs.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">10</div>
+            <div class="reg-text">Les barques sont louées pour <strong>3 personnes maximum</strong>.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">11</div>
+            <div class="reg-text"><strong>Calme obligatoire</strong> — Le domaine est un endroit calme. Les bruits et sons de détecteurs ne doivent pas dépasser les limites de votre poste.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">12</div>
+            <div class="reg-text"><strong>Drogues et excès d'alcool interdits.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">13</div>
+            <div class="reg-text">Les cannes ne doivent être à l'eau que si vous êtes sur le poste.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">14</div>
+            <div class="reg-text"><strong>Bas de ligne</strong> — Le bas de ligne devra avoir une résistance inférieure au corps de ligne.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">15</div>
+            <div class="reg-text"><strong>Il est strictement interdit de tuer, mutiler ou marquer les poissons.</strong></div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">16</div>
+            <div class="reg-text"><strong>Montages bloqués interdits</strong> — Tout montage ne permettant pas au poisson de se libérer est interdit.</div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">17</div>
+            <div class="reg-text"><strong>Bateau amorceur autorisé.</strong></div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">18</div>
+            <div class="reg-text"><strong>Accès au site</strong> — Seuls les pêcheurs et accompagnants ayant réglé leur session sont autorisés. Toute personne sans autorisation devra s'acquitter d'une <strong>surtaxe de 50 € par jour</strong>.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── GENERAL ── -->
+      <div id="tab-general" class="reg-section">
+        <div class="reg-intro">
+          <h2>📋 Clauses Générales</h2>
+          <p>Ces règles s'appliquent à tous les pêcheurs et visiteurs du site, quelle que soit la technique de pêche pratiquée.</p>
+        </div>
+        <div class="reg-notice">
+          ⚠️ <strong>Rappel important :</strong> Toute personne entrée sur le site sans autorisation du propriétaire devra s'acquitter d'une <strong>surtaxe de 50 € par jour</strong>. Le site est intégralement équipé de caméras de surveillance et de capteurs GPS.
+        </div>
+        <ul class="reg-list">
+          <li class="reg-item obligation">
+            <div class="reg-num">1</div>
+            <div class="reg-text"><strong>Mineurs</strong> — Les clients mineurs doivent obligatoirement être accompagnés d'un adulte et restent sous la responsabilité de cet adulte.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">2</div>
+            <div class="reg-text"><strong>Circulation & stationnement</strong> — Garez votre véhicule sur le parking à l'entrée. Il est interdit de stationner sur la rampe de mise à l'eau. Vous pouvez approcher votre voiture pour déposer vos affaires au bord de l'eau.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">3</div>
+            <div class="reg-text"><strong>Il est interdit de faire sa vaisselle dans le lac.</strong></div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">4</div>
+            <div class="reg-text"><strong>Animaux</strong> — Les animaux sont tolérés à condition de ramasser les déjections. Ils doivent rester au poste du pêcheur et ne pas errer sur le site.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">5</div>
+            <div class="reg-text"><strong>Il est interdit de monter sur la digue côté Garonne</strong> (risque de chute).</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">6</div>
+            <div class="reg-text"><strong>Paiement avant installation</strong> — Le paiement du séjour doit être réalisé avant de s'installer sur le poste.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">7</div>
+            <div class="reg-text"><strong>Fermeture du site</strong> — Le site doit être clos à tout instant. Merci de refermer derrière vous en arrivant et en partant.</div>
+          </li>
+          <li class="reg-item obligation">
+            <div class="reg-num">8</div>
+            <div class="reg-text"><strong>Accès réservé</strong> — Seuls les pêcheurs et accompagnants ayant réglé leur session sont autorisés sur le site. Toute personne sans autorisation devra s'acquitter d'une <strong>surtaxe de 50 € par jour</strong>.</div>
+          </li>
+          <li class="reg-item interdiction">
+            <div class="reg-num">9</div>
+            <div class="reg-text"><strong>Circulation de nuit avec véhicules interdite.</strong></div>
+          </li>
+          <li class="reg-item info">
+            <div class="reg-num">10</div>
+            <div class="reg-text"><strong>Surveillance</strong> — Le site est entièrement équipé de caméras de surveillance et de capteurs GPS afin de sécuriser le site et ses équipements.</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CTA -->
+      <div style="text-align:center;margin-top:48px;padding:32px;background:var(--white);border-radius:16px;box-shadow:0 2px 16px rgba(42,96,89,0.07);">
+        <div style="font-size:2rem;margin-bottom:12px;">🎣</div>
+        <h3 style="font-family:var(--font-head);color:var(--primary-dark);margin-bottom:8px;">Prêt pour votre session ?</h3>
+        <p style="color:var(--gray);font-size:0.9rem;margin-bottom:20px;">Réservez votre poste en ligne. Confirmation immédiate.</p>
+        <a href="peche.html#reservation" class="btn btn--primary btn--lg">Réserver un poste →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col">
+          <div class="footer__logo">
+            <img src="images/logo.svg" alt="Logo" style="width:44px;height:44px;">
+            <div><strong style="font-family:var(--font-head);color:var(--white);">Pêche au lac de Podensac</strong><br><span style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Pêche & Loisirs</span></div>
+          </div>
+          <p class="footer__desc">Lac privé au sud de Bordeaux (Gironde 33720). Pêche, bateaux barbecue et loisirs nautiques sur réservation.</p>
+        </div>
+        <div class="footer__col">
+          <div class="footer__col-title">Navigation</div>
+          <div class="footer__links">
+            <a href="index.html" class="footer__link">Accueil</a>
+            <a href="peche.html" class="footer__link">Postes de Pêche</a>
+            <a href="bateau.html" class="footer__link">Bateaux Barbecue</a>
+            <a href="galerie.html" class="footer__link">Galerie</a>
+            <a href="reglement.html" class="footer__link">Règlement intérieur</a>
+            <a href="contact.html" class="footer__link">Contact</a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <div class="footer__col-title">Contact</div>
+          <div class="footer__contact-item"><span class="footer__contact-icon">📍</span><span>Podensac, Gironde 33720</span></div>
+          <div class="footer__contact-item"><span class="footer__contact-icon">📞</span><a href="tel:0672514714" style="color:inherit;">06 72 51 47 14</a></div>
+          <div class="footer__contact-item"><span class="footer__contact-icon">✉️</span><a href="mailto:contact@escalesflottantes.fr" style="color:inherit;">contact@escalesflottantes.fr</a></div>
+        </div>
+      </div>
+      <div class="footer__bottom"><span>© 2025 Lac de Podensac. Tous droits réservés.</span><div style="display:flex;gap:20px;align-items:center;"><a href="#">Mentions légales</a><a href="#">CGV</a><a href="admin.html" style="opacity:0.35;font-size:0.78rem;" title="Administration">🔒</a></div></div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+  <a href="admin.html" class="admin-fab" title="Espace administration">🔒 Admin</a>
+
+  <script src="js/main.js"></script>
+  <script>
+    function showTab(name, btn) {
+      document.querySelectorAll('.reg-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.reg-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>

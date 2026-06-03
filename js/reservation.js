@@ -16,61 +16,151 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // ── Calcul prix options ───────────────────────────────────────
+  function calcOptionsPrice(formule, duree, nbAccomp, has4canne) {
+    const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+    const accomp = window.TARIF_ACCOMPAGNANT || { demi:5, jour:10, nuit:10 };
+
+    let accompPrice = 0;
+    let canne4Price = 0;
+
+    if (formule === 'demi') {
+      accompPrice = accomp.demi * nbAccomp;
+      canne4Price = 0; // non disponible demi-journée
+    } else if (formule === 'jour') {
+      accompPrice = accomp.jour * nbAccomp;
+      canne4Price = has4canne ? 10 : 0;
+    } else if (formule === 'nuit') {
+      accompPrice = accomp.nuit * duree * nbAccomp;
+      // 4ème canne nuit: max(20, duree×10)
+      canne4Price = has4canne ? Math.max(20, duree * 10) : 0;
+    }
+    return { accompPrice, canne4Price, total: accompPrice + canne4Price };
+  }
+
   // ── Mise à jour du récapitulatif ──────────────────────────────
   function updateSummary() {
-    const posteId = parseInt(document.getElementById('f-poste')?.value);
-    const formule = document.querySelector('input[name="formule"]:checked')?.value;
-    const duree = parseInt(document.getElementById('f-duree')?.value || 1);
-    const nb = parseInt(document.getElementById('f-nb')?.value || 1);
-    const date = document.getElementById('f-date-debut')?.value;
+    const posteId  = parseInt(document.getElementById('f-poste')?.value);
+    const formule  = document.querySelector('input[name="formule"]:checked')?.value;
+    const duree    = parseInt(document.getElementById('f-duree')?.value || 1);
+    const nb       = parseInt(document.getElementById('f-nb')?.value || 1);
+    const date     = document.getElementById('f-date-debut')?.value;
+    const nbAccomp = parseInt(document.getElementById('f-accompagnant')?.value || 0);
+    const has4canne = document.getElementById('f-4canne')?.checked || false;
 
     const poste = typeof POSTES !== 'undefined' ? POSTES.find(p => p.id === posteId) : null;
 
-    const sumPoste = document.getElementById('sum-poste');
-    const sumFormule = document.getElementById('sum-formule');
-    const sumDate = document.getElementById('sum-date');
-    const sumDuree = document.getElementById('sum-duree');
-    const sumNb = document.getElementById('sum-nb');
-    const sumTotal = document.getElementById('sum-total');
-    const priceJour = document.getElementById('price-jour');
-    const priceNuit = document.getElementById('price-nuit');
-    const price24h = document.getElementById('price-24h');
+    const el = id => document.getElementById(id);
 
     if (poste) {
-      if (sumPoste) sumPoste.textContent = `#${poste.id} ${poste.nom}`;
-      if (priceJour) priceJour.textContent = `${poste.prix_jour}€`;
-      if (priceNuit) priceNuit.textContent = `${poste.prix_nuit}€`;
-      if (price24h) price24h.textContent = `${poste.prix_24h}€`;
+      if (el('sum-poste')) el('sum-poste').textContent = `#${poste.id} ${poste.nom}`;
     } else {
-      if (sumPoste) sumPoste.textContent = '—';
+      if (el('sum-poste')) el('sum-poste').textContent = '—';
     }
 
-    const formuleLabels = { 'jour': 'Journée', 'nuit': 'Nuit', '24h': '24 heures' };
-    if (sumFormule) sumFormule.textContent = formuleLabels[formule] || '—';
-    if (sumDate) sumDate.textContent = date ? formatDateFR(date) : '—';
-    if (sumDuree) sumDuree.textContent = `${duree} session${duree > 1 ? 's' : ''}`;
-    if (sumNb) sumNb.textContent = `${nb} pêcheur${nb > 1 ? 's' : ''}`;
+    // Labels formule
+    const formuleLabels = { 'demi': 'Demi-journée', 'jour': 'Journée (12h)', 'nuit': 'Nuitée (24h)' };
+    if (el('sum-formule')) el('sum-formule').textContent = formuleLabels[formule] || '—';
+    if (el('sum-date'))    el('sum-date').textContent    = date ? formatDateFR(date) : '—';
+    if (el('sum-duree'))   el('sum-duree').textContent   = formule === 'nuit'
+      ? `${duree} nuit${duree > 1 ? 's' : ''}`
+      : `${duree} session${duree > 1 ? 's' : ''}`;
+    if (el('sum-nb'))      el('sum-nb').textContent      = `${nb} pêcheur${nb > 1 ? 's' : ''}`;
 
+    // Affichage radio prices
+    const priceDemiEl = el('price-demi');
+    const priceJourEl = el('price-jour');
+    const priceNuitEl = el('price-nuit');
+    if (priceDemiEl) priceDemiEl.textContent = '15 €';
+    if (priceJourEl) priceJourEl.textContent = '20 €';
+    if (priceNuitEl) priceNuitEl.textContent = formule === 'nuit'
+      ? `${(window.TARIFS_NUITS || {})[duree] || 35} €`
+      : '35 €';
+
+    // ── Options UI ────────────────────────────────────────────
+    const accomp = window.TARIF_ACCOMPAGNANT || { demi:5, jour:10, nuit:10 };
+
+    // Prix affiché dans la carte accompagnant
+    const optAccompPrice = el('opt-accompagnant-price');
+    if (optAccompPrice) {
+      if (!formule) {
+        optAccompPrice.textContent = '+5–10 € / pers.';
+      } else if (formule === 'demi') {
+        optAccompPrice.textContent = `+${accomp.demi} € / pers.`;
+      } else if (formule === 'jour') {
+        optAccompPrice.textContent = `+${accomp.jour} € / pers.`;
+      } else {
+        optAccompPrice.textContent = `+${accomp.nuit} € / pers. / nuit`;
+      }
+    }
+
+    // 4ème canne — afficher/désactiver selon formule
+    const opt4canneCard  = el('opt-4canne-card');
+    const opt4cannePrice = el('opt-4canne-price');
+    const f4canne        = el('f-4canne');
+    if (opt4canneCard) {
+      if (formule === 'demi' || !formule) {
+        opt4canneCard.classList.add('disabled');
+        if (f4canne) f4canne.checked = false;
+        if (opt4cannePrice) opt4cannePrice.textContent = 'Non disponible';
+      } else {
+        opt4canneCard.classList.remove('disabled');
+        if (formule === 'jour') {
+          if (opt4cannePrice) opt4cannePrice.textContent = '+10 €';
+        } else {
+          const p = Math.max(20, duree * 10);
+          if (opt4cannePrice) opt4cannePrice.textContent = `+${p} € (${duree} nuit${duree>1?'s':''})`;
+        }
+      }
+    }
+
+    // Visuel option-card has-value
+    const accompCard = el('opt-accompagnant-card');
+    if (accompCard) accompCard.classList.toggle('has-value', nbAccomp > 0);
+    if (opt4canneCard) opt4canneCard.classList.toggle('has-value', has4canne && formule !== 'demi');
+
+    // ── Total ────────────────────────────────────────────────
     if (poste && formule) {
-      const unitPrice = formule === 'jour' ? poste.prix_jour : formule === 'nuit' ? poste.prix_nuit : poste.prix_24h;
-      const total = unitPrice * duree;
-      if (sumTotal) sumTotal.textContent = `${total}€`;
+      const tarifs  = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+      let basePrice = formule === 'nuit'
+        ? (tarifs[duree] || duree * 35)
+        : (formule === 'demi' ? 15 : 20) * duree;
+
+      const opts = calcOptionsPrice(formule, duree, nbAccomp, has4canne);
+
+      const total = basePrice + opts.accompPrice + opts.canne4Price;
+      if (el('sum-total')) el('sum-total').textContent = `${total} €`;
+
+      // Lignes options dans récap
+      const accompLine = el('sum-accompagnant-line');
+      const canne4Line = el('sum-4canne-line');
+      if (accompLine) {
+        accompLine.style.display = nbAccomp > 0 ? 'flex' : 'none';
+        if (el('sum-accompagnant')) el('sum-accompagnant').textContent =
+          `${nbAccomp} × ${opts.accompPrice / (nbAccomp || 1)} € = +${opts.accompPrice} €`;
+      }
+      if (canne4Line) {
+        canne4Line.style.display = (has4canne && formule !== 'demi') ? 'flex' : 'none';
+        if (el('sum-4canne')) el('sum-4canne').textContent = `+${opts.canne4Price} €`;
+      }
     } else {
-      if (sumTotal) sumTotal.textContent = '—';
+      if (el('sum-total')) el('sum-total').textContent = '—';
     }
   }
 
-  ['f-poste', 'f-duree', 'f-nb', 'f-date-debut'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', updateSummary);
+  ['f-poste','f-duree','f-nb','f-date-debut','f-accompagnant'].forEach(id => {
+    const e = document.getElementById(id);
+    if (e) e.addEventListener('change', updateSummary);
   });
   document.querySelectorAll('input[name="formule"]').forEach(r => r.addEventListener('change', updateSummary));
+  const f4c = document.getElementById('f-4canne');
+  if (f4c) f4c.addEventListener('change', updateSummary);
 
   // Date minimum = aujourd'hui
   const dateInput = document.getElementById('f-date-debut');
   if (dateInput) {
     const today = new Date().toISOString().split('T')[0];
-    dateInput.min = today;
+    dateInput.min   = today;
     dateInput.value = today;
     updateSummary();
   }
@@ -96,16 +186,18 @@ document.addEventListener('DOMContentLoaded', function () {
     bookingForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const prenom = document.getElementById('f-prenom').value.trim();
-      const nom = document.getElementById('f-nom').value.trim();
-      const email = document.getElementById('f-email').value.trim();
-      const tel = document.getElementById('f-tel').value.trim();
-      const posteId = parseInt(document.getElementById('f-poste').value);
-      const formule = document.querySelector('input[name="formule"]:checked')?.value;
+      const prenom    = document.getElementById('f-prenom').value.trim();
+      const nom       = document.getElementById('f-nom').value.trim();
+      const email     = document.getElementById('f-email').value.trim();
+      const tel       = document.getElementById('f-tel').value.trim();
+      const posteId   = parseInt(document.getElementById('f-poste').value);
+      const formule   = document.querySelector('input[name="formule"]:checked')?.value;
       const dateDebut = document.getElementById('f-date-debut').value;
-      const duree = parseInt(document.getElementById('f-duree').value);
-      const nb = parseInt(document.getElementById('f-nb').value);
-      const message = document.getElementById('f-message')?.value;
+      const duree     = parseInt(document.getElementById('f-duree').value);
+      const nb        = parseInt(document.getElementById('f-nb').value);
+      const nbAccomp  = parseInt(document.getElementById('f-accompagnant')?.value || 0);
+      const has4canne = document.getElementById('f-4canne')?.checked || false;
+      const message   = document.getElementById('f-message')?.value;
 
       if (!prenom || !nom || !email || !tel || !posteId || !formule || !dateDebut) {
         showToast('Veuillez remplir tous les champs obligatoires.', 'error', '⚠️');
@@ -122,30 +214,38 @@ document.addEventListener('DOMContentLoaded', function () {
         dates.push(new Date(d.getTime() + i * 86400000).toISOString().split('T')[0]);
       }
 
+      // Calcul du total
+      const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+      const basePrice = formule === 'nuit'
+        ? (tarifs[duree] || duree * 35)
+        : (formule === 'demi' ? 15 : 20) * duree;
+      const opts  = calcOptionsPrice(formule, duree, nbAccomp, has4canne);
+      const total = basePrice + opts.accompPrice + opts.canne4Price;
+
       const booking = {
-        type: 'peche',
-        status: 'pending',
+        type: 'peche', status: 'pending',
         posteId, prenom, nom, email, tel, formule, dateDebut, duree, nb, message, dates,
+        nbAccompagnants: nbAccomp,
+        canne4: has4canne && formule !== 'demi',
+        totalPrice: total,
       };
 
       const submitBtn = bookingForm.querySelector('[type="submit"]');
-      const origHtml = submitBtn?.innerHTML;
+      const origHtml  = submitBtn?.innerHTML;
       if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Envoi en cours…</span>'; }
 
       try {
-        if (typeof LacDB !== 'undefined') {
-          await LacDB.addReservation(booking);
-        }
+        if (typeof LacDB !== 'undefined') await LacDB.addReservation(booking);
 
-        const formuleLabels = { 'jour': 'Journée', 'nuit': 'Nuit', '24h': '24h' };
-        const unitPrice = formule === 'jour' ? poste.prix_jour : formule === 'nuit' ? poste.prix_nuit : poste.prix_24h;
-        const total = unitPrice * duree;
+        const formuleLabels = { 'demi': 'Demi-journée', 'jour': 'Journée (12h)', 'nuit': 'Nuitée (24h)' };
+        let msg = `✓ Réservation enregistrée ! Poste #${posteId} — ${poste.nom} — ${total} €.`;
+        if (nbAccomp > 0) msg += ` (${nbAccomp} accompagnant${nbAccomp>1?'s':''})`;
+        msg += ` Nous vous contacterons à ${email}.`;
+        showToast(msg, 'success', '🎣');
 
-        showToast(`✓ Réservation enregistrée ! Poste #${posteId} — ${poste.nom} — ${total}€. Nous vous contacterons à ${email}.`, 'success', '🎣');
         bookingForm.reset();
-        if (dateInput) { dateInput.value = new Date().toISOString().split('T')[0]; }
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         updateSummary();
-        // Le calendrier se met à jour automatiquement via onSnapshot
 
       } catch (err) {
         console.error('[Réservation pêche]', err);
@@ -158,18 +258,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ── Calendrier ────────────────────────────────────────────────
   let calendarDate = new Date();
-  const JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-  const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const JOURS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const MOIS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
   function renderCalendar() {
-    const grid = document.getElementById('cal-grid');
+    const grid  = document.getElementById('cal-grid');
     const label = document.getElementById('cal-month-label');
     if (!grid || !label) return;
 
     label.textContent = `${MOIS[calendarDate.getMonth()]} ${calendarDate.getFullYear()}`;
     grid.innerHTML = '';
 
-    // En-têtes jours
     JOURS.forEach(j => {
       const d = document.createElement('div');
       d.className = 'calendar-day-name';
@@ -177,20 +276,18 @@ document.addEventListener('DOMContentLoaded', function () {
       grid.appendChild(d);
     });
 
-    const year = calendarDate.getFullYear();
-    const month = calendarDate.getMonth();
+    const year     = calendarDate.getFullYear();
+    const month    = calendarDate.getMonth();
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const lastDay  = new Date(year, month + 1, 0);
 
-    // Décalage (lundi = 0)
     let startDow = firstDay.getDay() - 1;
     if (startDow < 0) startDow = 6;
 
-    const today = new Date().toISOString().split('T')[0];
-    const bookedDates = _bookedDates;
+    const today        = new Date().toISOString().split('T')[0];
+    const bookedDates  = _bookedDates;
     const selectedDate = document.getElementById('f-date-debut')?.value;
 
-    // Cases vides début
     for (let i = 0; i < startDow; i++) {
       const blank = document.createElement('div');
       blank.className = 'calendar-day other-month';
@@ -199,8 +296,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const cell = document.createElement('div');
-      cell.className = 'calendar-day';
+      const cell    = document.createElement('div');
+      cell.className  = 'calendar-day';
       cell.textContent = d;
 
       if (dateStr === today) cell.classList.add('today');
@@ -227,15 +324,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   renderCalendar();
 
-  // Rafraîchir le calendrier et démarrer l'écoute Firebase quand le poste change
   const posteSelectEl = document.getElementById('f-poste');
   if (posteSelectEl) {
     posteSelectEl.addEventListener('change', () => {
       const id = parseInt(posteSelectEl.value);
-      if (id) setupCalendarWatch(id);
-      else renderCalendar();
+      if (id) setupCalendarWatch(id); else renderCalendar();
     });
-    // Démarrer sur le poste déjà sélectionné au chargement
     const initialId = parseInt(posteSelectEl.value);
     if (initialId) setupCalendarWatch(initialId);
   }
@@ -246,37 +340,35 @@ document.addEventListener('DOMContentLoaded', function () {
     boatForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const prenom = document.getElementById('bf-prenom')?.value.trim();
-      const nom = document.getElementById('bf-nom')?.value.trim();
-      const email = document.getElementById('bf-email')?.value.trim();
-      const tel = document.getElementById('bf-tel')?.value.trim();
-      const bateau = document.getElementById('bf-bateau')?.value;
+      const prenom  = document.getElementById('bf-prenom')?.value.trim();
+      const nom     = document.getElementById('bf-nom')?.value.trim();
+      const email   = document.getElementById('bf-email')?.value.trim();
+      const tel     = document.getElementById('bf-tel')?.value.trim();
+      const bateau  = document.getElementById('bf-bateau')?.value;
       const formule = document.querySelector('input[name="bformule"]:checked')?.value;
-      const date = document.getElementById('bf-date')?.value;
-      const heure = document.getElementById('bf-heure')?.value;
-      const nb = document.getElementById('bf-nb')?.value;
+      const date    = document.getElementById('bf-date')?.value;
+      const heure   = document.getElementById('bf-heure')?.value;
+      const nb      = document.getElementById('bf-nb')?.value;
 
       if (!prenom || !nom || !email || !tel || !bateau || !formule || !date) {
         showToast('Veuillez remplir tous les champs obligatoires.', 'error', '⚠️');
         return;
       }
 
-      const prix = { 'aperitif': 35, 'soiree': 65, 'journee': 95 };
-      const total = prix[formule] * parseInt(nb);
+      const prix   = { 'aperitif': 35, 'soiree': 65, 'journee': 95 };
+      const total  = prix[formule] * parseInt(nb);
       const labels = { 'aperitif': 'Apéritif (2h)', 'soiree': 'Soirée BBQ (3h30)', 'journee': 'Journée (6h)' };
 
-      const booking = { type: 'bateau', status: 'pending', prenom, nom, email, tel, bateau, formule, date, heure, nb: parseInt(nb) };
+      const booking = { type:'bateau', status:'pending', prenom, nom, email, tel, bateau, formule, date, heure, nb: parseInt(nb) };
 
       const submitBtn = boatForm.querySelector('[type="submit"]');
-      const origHtml = submitBtn?.innerHTML;
+      const origHtml  = submitBtn?.innerHTML;
       if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Envoi en cours…</span>'; }
 
       try {
-        if (typeof LacDB !== 'undefined') {
-          await LacDB.addReservation(booking);
-        }
+        if (typeof LacDB !== 'undefined') await LacDB.addReservation(booking);
 
-        showToast(`🔥 Réservation bateau enregistrée ! ${labels[formule]} — ${total}€ pour ${nb} pers. Nous vous contacterons à ${email}.`, 'success', '🔥');
+        showToast(`🔥 Réservation bateau enregistrée ! ${labels[formule]} — ${total} € pour ${nb} pers. Nous vous contacterons à ${email}.`, 'success', '🔥');
         boatForm.reset();
         const bdate = document.getElementById('bf-date');
         if (bdate) bdate.min = new Date().toISOString().split('T')[0];
@@ -295,30 +387,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Mise à jour récapitulatif bateau
   function updateBoatSummary() {
-    const nb = parseInt(document.getElementById('bf-nb')?.value || 2);
+    const nb      = parseInt(document.getElementById('bf-nb')?.value || 2);
     const formule = document.querySelector('input[name="bformule"]:checked')?.value;
-    const bateau = document.getElementById('bf-bateau')?.value;
-    const date = document.getElementById('bf-date')?.value;
+    const bateau  = document.getElementById('bf-bateau')?.value;
+    const date    = document.getElementById('bf-date')?.value;
 
-    const prix = { 'aperitif': 35, 'soiree': 65, 'journee': 95 };
+    const prix   = { 'aperitif': 35, 'soiree': 65, 'journee': 95 };
     const labels = { 'aperitif': 'Apéritif 2h', 'soiree': 'Soirée BBQ 3h30', 'journee': 'Journée 6h' };
 
-    const el = (id) => document.getElementById(id);
-    if (el('bsum-bateau')) el('bsum-bateau').textContent = bateau || '—';
+    const el = id => document.getElementById(id);
+    if (el('bsum-bateau'))  el('bsum-bateau').textContent  = bateau || '—';
     if (el('bsum-formule')) el('bsum-formule').textContent = formule ? labels[formule] : '—';
-    if (el('bsum-date')) el('bsum-date').textContent = date ? formatDateFR(date) : '—';
-    if (el('bsum-nb')) el('bsum-nb').textContent = `${nb} personnes`;
+    if (el('bsum-date'))    el('bsum-date').textContent    = date ? formatDateFR(date) : '—';
+    if (el('bsum-nb'))      el('bsum-nb').textContent      = `${nb} personnes`;
 
     if (formule) {
       const total = prix[formule] * nb;
-      if (el('bsum-total')) el('bsum-total').textContent = `${total}€`;
-      if (el('bsum-unitaire')) el('bsum-unitaire').textContent = `${nb} × ${prix[formule]}€`;
+      if (el('bsum-total'))    el('bsum-total').textContent    = `${total} €`;
+      if (el('bsum-unitaire')) el('bsum-unitaire').textContent = `${nb} × ${prix[formule]} €`;
     }
   }
 
   ['bf-bateau','bf-nb','bf-date'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', updateBoatSummary);
+    const e = document.getElementById(id);
+    if (e) e.addEventListener('change', updateBoatSummary);
   });
   document.querySelectorAll('input[name="bformule"]').forEach(r => r.addEventListener('change', updateBoatSummary));
 });

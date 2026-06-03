@@ -1020,4 +1020,83 @@ p { margin-bottom: 0; }
   .form-grid-2 { grid-template-columns: 1fr; }
   .form-radio-group { grid-template-columns: 1fr; }
   .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .options-grid { grid-template-columns: 1fr; }
+  .materiel-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ================================================================
+   OPTIONS DE RÉSERVATION (accompagnant, 4ème canne)
+   ================================================================ */
+.options-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.option-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border: 2px solid rgba(0,0,0,0.08);
+  border-radius: var(--radius-lg); transition: border-color 0.2s, background 0.2s;
+  background: var(--white);
+}
+.option-card.has-value { border-color: var(--primary); background: rgba(42,96,89,0.04); }
+.option-card.disabled { opacity: 0.45; pointer-events: none; }
+.option-card__icon { font-size: 1.5rem; flex-shrink: 0; }
+.option-card__content { flex: 1; min-width: 0; }
+.option-card__title { font-weight: 700; font-size: 0.88rem; color: var(--dark); line-height: 1.2; }
+.option-card__desc { font-size: 0.73rem; color: var(--gray); margin-top: 2px; }
+.option-card__price { font-size: 0.78rem; font-weight: 700; color: var(--primary); margin-top: 5px; }
+.option-select { width: 90px !important; padding: 8px 10px !important; flex-shrink: 0; }
+.option-toggle { display: flex; align-items: center; cursor: pointer; flex-shrink: 0; }
+.option-toggle input { display: none; }
+.option-toggle__btn {
+  padding: 7px 14px; border-radius: 50px; border: 2px solid var(--primary);
+  color: var(--primary); font-size: 0.78rem; font-weight: 700; font-family: var(--font-head);
+  transition: background 0.2s, color 0.2s; white-space: nowrap; cursor: pointer;
+}
+.option-toggle input:checked ~ .option-toggle__btn { background: var(--primary); color: var(--white); }
+
+/* ================================================================
+   LOCATION DE MATÉRIEL
+   ================================================================ */
+.materiel-section { background: var(--gray-bg); }
+.materiel-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 14px;
+}
+.materiel-card {
+  background: var(--white); border-radius: var(--radius-lg); padding: 18px 16px;
+  border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex; align-items: flex-start; gap: 13px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.materiel-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.materiel-card__icon { font-size: 1.7rem; flex-shrink: 0; margin-top: 2px; }
+.materiel-card__body { flex: 1; }
+.materiel-card__label { font-weight: 700; font-size: 0.88rem; color: var(--dark); margin-bottom: 3px; line-height: 1.25; }
+.materiel-card__note { font-size: 0.71rem; color: var(--gray); margin-bottom: 8px; }
+.materiel-card__prices { display: flex; gap: 6px; flex-wrap: wrap; }
+.prix-tag {
+  padding: 3px 10px; border-radius: 50px; font-size: 0.73rem; font-weight: 700;
+  white-space: nowrap;
+}
+.prix-tag--jour { background: rgba(39,174,96,0.12); color: #1e8a4a; }
+.prix-tag--nuit { background: rgba(42,96,89,0.1); color: var(--primary); }
+
+/* ================================================================
+   RÈGLEMENT — ACCÈS RAPIDE BANNER
+   ================================================================ */
+.reglement-banner {
+  background: linear-gradient(135deg, var(--dark) 0%, #1a3d38 60%, var(--primary) 100%);
+  border-radius: var(--radius-xl); padding: 32px 36px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  flex-wrap: wrap;
+}
+.reglement-banner__text h3 { font-size: 1.2rem; color: var(--white); margin-bottom: 6px; }
+.reglement-banner__text p { font-size: 0.88rem; color: rgba(255,255,255,0.7); }
+.reglement-banner__badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.reglement-banner__badge {
+  padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+}
+
+/* booking-summary static on mobile */
+@media (max-width: 900px) {
+  .booking-summary { position: static; }
 }

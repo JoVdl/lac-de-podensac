@@ -791,10 +791,27 @@
 
   function calculatePrice(r) {
     if (r.type === 'peche') {
-      const poste = (typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === r.posteId) : null;
-      if (!poste) return 0;
-      const prix = r.formule === 'jour' ? poste.prix_jour : r.formule === 'nuit' ? poste.prix_nuit : poste.prix_24h;
-      return (prix || 0) * (r.duree || 1);
+      // Utiliser le totalPrice enregistré si disponible
+      if (r.totalPrice) return r.totalPrice;
+
+      const duree = r.duree || 1;
+      let base = 0;
+      if (r.formule === 'nuit') {
+        const tarifs = { 1:35, 2:70, 3:90, 4:110, 5:130, 6:150, 7:170 };
+        base = tarifs[duree] || duree * 35;
+      } else {
+        base = (r.formule === 'demi' ? 15 : 20) * duree;
+      }
+      // Options
+      const nbAccomp = r.nbAccompagnants || 0;
+      const accompTarif = { demi:5, jour:10, nuit:10 };
+      const accomp = (accompTarif[r.formule] || 10) * (r.formule === 'nuit' ? duree : 1) * nbAccomp;
+      let canne4 = 0;
+      if (r.canne4) {
+        if (r.formule === 'jour') canne4 = 10;
+        else if (r.formule === 'nuit') canne4 = Math.max(20, duree * 10);
+      }
+      return base + accomp + canne4;
     }
     if (r.type === 'bateau') {
       const tarifs = { aperitif: 35, soiree: 65, journee: 95 };
@@ -994,6 +1011,8 @@
         <div class="res-detail-row"><span class="label">Date(s)</span><span class="value">${datesDisplay}</span></div>
         <div class="res-detail-row"><span class="label">Durée</span><span class="value">${r.duree || 1} session${(r.duree || 1) > 1 ? 's' : ''}</span></div>
         <div class="res-detail-row"><span class="label">Pêcheurs</span><span class="value">${r.nb || 1} pêcheur${(r.nb || 1) > 1 ? 's' : ''}</span></div>
+        ${(r.nbAccompagnants || 0) > 0 ? `<div class="res-detail-row"><span class="label">Accompagnants</span><span class="value">${r.nbAccompagnants} pers.</span></div>` : ''}
+        ${r.canne4 ? `<div class="res-detail-row"><span class="label">4ème canne</span><span class="value" style="color:var(--primary);">✓ Incluse</span></div>` : ''}
       `;
     } else if (r.type === 'bateau') {
       const formuleLabel = { aperitif: 'Apéritif (2h)', soiree: 'Soirée BBQ (3h30)', journee: 'Journée (6h)' }[r.formule] || r.formule;

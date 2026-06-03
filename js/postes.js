@@ -2,6 +2,52 @@
 // Données des postes de pêche — Lac de Podensac
 // Coordonnées réelles extraites de la carte Google Maps du lac
 // ================================================================
+
+// Tarifs pêche par pêcheur (source : flyer officiel)
+const TARIFS_NUITS = { 1: 35, 2: 70, 3: 90, 4: 110, 5: 130, 6: 150, 7: 170 };
+const TARIF_JOUR  = 20;  // Journée 12h
+const TARIF_DEMI  = 15;  // Demi-journée
+
+// Cartes (multi-sessions)
+const CARTES_NUITS = [
+  { label: "Carte 5 nuitées",  prix: 160 },
+  { label: "Carte 10 nuitées", prix: 300 },
+  { label: "Carte 20 nuitées", prix: 550 },
+];
+const CARTES_JOURS = [
+  { label: "Carte 5 journées",  prix: 95  },
+  { label: "Carte 10 journées", prix: 180 },
+  { label: "Carte 20 journées", prix: 350 },
+];
+
+// Tarifs groupe (5 pêcheurs et plus)
+const TARIFS_GROUPE = { demi: 10, jour: 15, nuit: 25 };
+
+// Accompagnants (hors pêcheur, conjoint, enfant) — par personne
+const TARIF_ACCOMPAGNANT = { demi: 5, jour: 10, nuit: 10 }; // ×nbNuits pour les séjours nuit
+// 4ème canne (3 incluses par défaut) — formule max(20, duree×10) pour les nuits
+const TARIF_4EME_CANNE = { jour: 10, nuit: 20 };
+
+// Privatisation du plan d'eau
+const TARIF_PRIVAT = 400;
+
+// Location de matériel (tarifs par session)
+const LOCATION_MATERIEL = [
+  { id: 'canne-carpe',   label: 'Canne carpe + moulinet',     emoji: '🎣', prix_jour: 8,  prix_nuit: 12, note: '12ft, 3lb TC' },
+  { id: 'canne-carnass', label: 'Canne carnassier + moulinet', emoji: '🎣', prix_jour: 8,  prix_nuit: 12, note: 'Sans leurres' },
+  { id: 'canne-feeder',  label: 'Canne feeder complète',       emoji: '🎣', prix_jour: 5,  prix_nuit: 8,  note: 'Feeder fourni' },
+  { id: 'epuisette',     label: 'Épuisette carpe',              emoji: '🪣', prix_jour: 3,  prix_nuit: 5,  note: 'Grande taille' },
+  { id: 'tapis',         label: 'Tapis de réception',           emoji: '🟫', prix_jour: 2,  prix_nuit: 3,  note: 'Obligatoire carpe' },
+  { id: 'sac-garde',     label: 'Sac de conservation',          emoji: '🫙', prix_jour: 3,  prix_nuit: 5,  note: 'No-kill' },
+  { id: 'pod',           label: 'Pod + 3 repose-cannes',        emoji: '⚙️', prix_jour: 5,  prix_nuit: 8,  note: '' },
+  { id: 'detecteurs',    label: 'Détecteurs × 3 + boîtier',    emoji: '🔔', prix_jour: 8,  prix_nuit: 12, note: '' },
+  { id: 'chaise',        label: 'Chaise inclinable pêche',      emoji: '🪑', prix_jour: 5,  prix_nuit: 8,  note: '' },
+  { id: 'bivouac',       label: 'Bivouac (abri de pêche)',      emoji: '⛺', prix_jour: 12, prix_nuit: 15, note: '' },
+  { id: 'sac-couchage',  label: 'Sac de couchage',              emoji: '🛏️', prix_jour: 8,  prix_nuit: 10, note: '' },
+  { id: 'kit-photo',     label: 'Kit photo (carton + marqueur)',emoji: '📸', prix_jour: 2,  prix_nuit: 2,  note: 'Inclus si demandé' },
+];
+window.LOCATION_MATERIEL = LOCATION_MATERIEL;
+
 const POSTES = [
   {
     id: 1,
@@ -14,22 +60,17 @@ const POSTES = [
     profondeur: "1.5–3m",
     fond: "Herbeux / Vaseux",
     capacite: 2,
-    prix_jour: 35,
-    prix_nuit: 45,
-    prix_24h: 72,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.6,
-    avis: 38,
-    acces_pmr: true,
+    score: 4.6, avis: 38, acces_pmr: true,
     captures: [
-      { espece: "Carpe", poids: "8.4kg", date: "12 mai 2025", emoji: "🐟" },
-      { espece: "Tanche", poids: "1.2kg", date: "5 mai 2025", emoji: "🐟" },
-      { espece: "Carpe", poids: "11.3kg", date: "28 avr. 2025", emoji: "🐟" },
-      { espece: "Brème", poids: "0.8kg", date: "20 avr. 2025", emoji: "🐟" },
+      { espece: "Carpe",  poids: "8.4kg",  date: "12 mai 2025", emoji: "🐟" },
+      { espece: "Tanche", poids: "1.2kg",  date: "5 mai 2025",  emoji: "🐟" },
+      { espece: "Carpe",  poids: "11.3kg", date: "28 avr. 2025", emoji: "🐟" },
+      { espece: "Brème",  poids: "0.8kg",  date: "20 avr. 2025", emoji: "🐟" },
     ],
     equipements: ["Banc de pêche", "Anneau d'amarrage", "Accès PMR"],
-    zone_ha: 1.20,
-    note: "Zone de pêche à la nuitée — 1,20 ha",
+    zone_ha: 1.20, note: "Zone de pêche à la nuitée — 1,20 ha",
   },
   {
     id: 2,
@@ -42,22 +83,17 @@ const POSTES = [
     profondeur: "1–2.5m",
     fond: "Herbeux / Sableux",
     capacite: 2,
-    prix_jour: 38,
-    prix_nuit: 48,
-    prix_24h: 78,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: false,
-    score: 4.4,
-    avis: 52,
-    acces_pmr: false,
+    score: 4.4, avis: 52, acces_pmr: false,
     captures: [
       { espece: "Tanche", poids: "2.1kg", date: "15 mai 2025", emoji: "🐟" },
-      { espece: "Carpe", poids: "9.7kg", date: "10 mai 2025", emoji: "🐟" },
-      { espece: "Brème", poids: "1.4kg", date: "3 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",  poids: "9.7kg", date: "10 mai 2025", emoji: "🐟" },
+      { espece: "Brème",  poids: "1.4kg", date: "3 mai 2025",  emoji: "🐟" },
       { espece: "Gardon", poids: "0.3kg", date: "25 avr. 2025", emoji: "🐟" },
     ],
     equipements: ["Banc de pêche", "Table de montage", "Panneau espèces"],
-    zone_ha: 1.27,
-    note: "Zone de pêche à la nuitée — 1,27 ha",
+    zone_ha: 1.27, note: "Zone de pêche à la nuitée — 1,27 ha",
   },
   {
     id: 3,
@@ -70,22 +106,17 @@ const POSTES = [
     profondeur: "2–4m",
     fond: "Sableux / Vaseux",
     capacite: 2,
-    prix_jour: 40,
-    prix_nuit: 52,
-    prix_24h: 82,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.5,
-    avis: 27,
-    acces_pmr: false,
+    score: 4.5, avis: 27, acces_pmr: false,
     captures: [
-      { espece: "Sandre", poids: "3.8kg", date: "18 mai 2025", emoji: "🐟" },
+      { espece: "Sandre",  poids: "3.8kg", date: "18 mai 2025", emoji: "🐟" },
       { espece: "Brochet", poids: "4.2kg", date: "14 mai 2025", emoji: "🐟" },
-      { espece: "Perche", poids: "0.9kg", date: "8 mai 2025", emoji: "🐟" },
-      { espece: "Sandre", poids: "5.1kg", date: "1 mai 2025", emoji: "🐟" },
+      { espece: "Perche",  poids: "0.9kg", date: "8 mai 2025",  emoji: "🐟" },
+      { espece: "Sandre",  poids: "5.1kg", date: "1 mai 2025",  emoji: "🐟" },
     ],
     equipements: ["Banc de pêche", "Boîte à appâts", "Carnet captures"],
-    zone_ha: 1.22,
-    note: "Zone de pêche à la nuitée — 1,22 ha",
+    zone_ha: 1.22, note: "Zone de pêche à la nuitée — 1,22 ha",
   },
   {
     id: 4,
@@ -98,22 +129,17 @@ const POSTES = [
     profondeur: "2–3.5m",
     fond: "Vaseux / Herbeux",
     capacite: 2,
-    prix_jour: 35,
-    prix_nuit: 45,
-    prix_24h: 70,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.3,
-    avis: 44,
-    acces_pmr: true,
+    score: 4.3, avis: 44, acces_pmr: true,
     captures: [
-      { espece: "Carpe", poids: "7.6kg", date: "20 mai 2025", emoji: "🐟" },
-      { espece: "Brème", poids: "1.1kg", date: "16 mai 2025", emoji: "🐟" },
-      { espece: "Tanche", poids: "1.8kg", date: "12 mai 2025", emoji: "🐟" },
-      { espece: "Rotengle", poids: "0.25kg", date: "7 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",   poids: "7.6kg",  date: "20 mai 2025", emoji: "🐟" },
+      { espece: "Brème",   poids: "1.1kg",  date: "16 mai 2025", emoji: "🐟" },
+      { espece: "Tanche",  poids: "1.8kg",  date: "12 mai 2025", emoji: "🐟" },
+      { espece: "Rotengle",poids: "0.25kg", date: "7 mai 2025",  emoji: "🐟" },
     ],
     equipements: ["Banc de pêche", "Accès PMR", "Point d'eau proche"],
-    zone_ha: 1.33,
-    note: "Zone de pêche à la nuitée — 1,33 ha",
+    zone_ha: 1.33, note: "Zone de pêche à la nuitée — 1,33 ha",
   },
   {
     id: 5,
@@ -126,22 +152,17 @@ const POSTES = [
     profondeur: "2–5m",
     fond: "Herbeux / Vaseux",
     capacite: 2,
-    prix_jour: 42,
-    prix_nuit: 55,
-    prix_24h: 88,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: false,
-    score: 4.0,
-    avis: 5,
-    acces_pmr: false,
+    score: 4.0, avis: 5, acces_pmr: false,
     captures: [
-      { espece: "Carpe", poids: "10.2kg", date: "Test 2025", emoji: "🐟" },
-      { espece: "Amour blanc", poids: "8.5kg", date: "Test 2025", emoji: "🐟" },
-      { espece: "Tanche", poids: "2.1kg", date: "Test 2025", emoji: "🐟" },
-      { espece: "Carpe", poids: "13.0kg", date: "Test 2025", emoji: "🐟" },
+      { espece: "Carpe",       poids: "10.2kg", date: "Test 2025", emoji: "🐟" },
+      { espece: "Amour blanc", poids: "8.5kg",  date: "Test 2025", emoji: "🐟" },
+      { espece: "Tanche",      poids: "2.1kg",  date: "Test 2025", emoji: "🐟" },
+      { espece: "Carpe",       poids: "13.0kg", date: "Test 2025", emoji: "🐟" },
     ],
     equipements: ["En cours d'aménagement", "Ouverture prochaine"],
-    zone_ha: 1.82,
-    note: "Poste pas encore créé — Zone 1,82 ha",
+    zone_ha: 1.82, note: "Poste pas encore créé — Zone 1,82 ha",
     coming_soon: true,
   },
   {
@@ -155,22 +176,17 @@ const POSTES = [
     profondeur: "2.5–5m",
     fond: "Sableux / Vaseux",
     capacite: 3,
-    prix_jour: 45,
-    prix_nuit: 58,
-    prix_24h: 92,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.7,
-    avis: 61,
-    acces_pmr: false,
+    score: 4.7, avis: 61, acces_pmr: false,
     captures: [
-      { espece: "Carpe", poids: "14.8kg", date: "21 mai 2025", emoji: "🐟" },
-      { espece: "Sandre", poids: "4.7kg", date: "17 mai 2025", emoji: "🐟" },
-      { espece: "Brochet", poids: "5.2kg", date: "13 mai 2025", emoji: "🐟" },
-      { espece: "Amour blanc", poids: "11.3kg", date: "9 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",       poids: "14.8kg", date: "21 mai 2025", emoji: "🐟" },
+      { espece: "Sandre",      poids: "4.7kg",  date: "17 mai 2025", emoji: "🐟" },
+      { espece: "Brochet",     poids: "5.2kg",  date: "13 mai 2025", emoji: "🐟" },
+      { espece: "Amour blanc", poids: "11.3kg", date: "9 mai 2025",  emoji: "🐟" },
     ],
     equipements: ["Banc de pêche (2-3 pêcheurs)", "Grande zone de pose", "Épuisette géante"],
-    zone_ha: 2.52,
-    note: "Zone de pêche à la nuitée — 2,52 ha — 2 à 3 pêcheurs",
+    zone_ha: 2.52, note: "Zone de pêche à la nuitée — 2,52 ha — 2 à 3 pêcheurs",
   },
   {
     id: 7,
@@ -183,46 +199,37 @@ const POSTES = [
     profondeur: "1.5–3m",
     fond: "Vaseux",
     capacite: 2,
-    prix_jour: 42,
-    prix_nuit: 54,
-    prix_24h: 85,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.8,
-    avis: 73,
-    acces_pmr: true,
+    score: 4.8, avis: 73, acces_pmr: true,
     captures: [
-      { espece: "Carpe", poids: "12.1kg", date: "22 mai 2025", emoji: "🐟" },
-      { espece: "Tanche", poids: "2.4kg", date: "18 mai 2025", emoji: "🐟" },
-      { espece: "Brème", poids: "1.9kg", date: "14 mai 2025", emoji: "🐟" },
-      { espece: "Perche", poids: "0.8kg", date: "10 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",  poids: "12.1kg", date: "22 mai 2025", emoji: "🐟" },
+      { espece: "Tanche", poids: "2.4kg",  date: "18 mai 2025", emoji: "🐟" },
+      { espece: "Brème",  poids: "1.9kg",  date: "14 mai 2025", emoji: "🐟" },
+      { espece: "Perche", poids: "0.8kg",  date: "10 mai 2025", emoji: "🐟" },
     ],
     equipements: ["Ponton bois 22m²", "Accès PMR", "Anneau d'amarrage", "Éclairage nocturne", "Table de préparation"],
     note: "Ponton bois 22m² — Accès voiture possible",
-    premium: false,
   },
   {
     id: 8,
     nom: "Poste 8 — Des Barques",
     lat: 44.6533971, lng: -0.3515996,
     icon: "⛵",
-    description: "Poste situé près de l'aire des barques. En cours de finalisation. Accès aux embarcations (barques, canoës) à proximité immédiate. Zone idéale pour combiner pêche depuis la rive et depuis l'eau.",
+    description: "Poste situé près de l'aire des barques. En cours de finalisation. Accès aux embarcations (barques, canoës) à proximité immédiate.",
     poissons: ["Carpe", "Sandre", "Anguille"],
     difficulte: "Intermédiaire",
     profondeur: "2–4m",
     fond: "Vaseux / Limoneux",
     capacite: 2,
-    prix_jour: 40,
-    prix_nuit: 52,
-    prix_24h: 82,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: false,
-    score: 4.2,
-    avis: 12,
-    acces_pmr: false,
+    score: 4.2, avis: 12, acces_pmr: false,
     captures: [
-      { espece: "Carpe", poids: "9.3kg", date: "20 mai 2025", emoji: "🐟" },
-      { espece: "Sandre", poids: "3.6kg", date: "16 mai 2025", emoji: "🐟" },
-      { espece: "Anguille", poids: "1.7kg", date: "11 mai 2025", emoji: "🐍" },
-      { espece: "Carpe", poids: "7.8kg", date: "5 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",   poids: "9.3kg", date: "20 mai 2025", emoji: "🐟" },
+      { espece: "Sandre",  poids: "3.6kg", date: "16 mai 2025", emoji: "🐟" },
+      { espece: "Anguille",poids: "1.7kg", date: "11 mai 2025", emoji: "🐍" },
+      { espece: "Carpe",   poids: "7.8kg", date: "5 mai 2025",  emoji: "🐟" },
     ],
     equipements: ["En cours de finalisation", "Proximité barques & canoës", "Rampe de mise à l'eau à 50m"],
     note: "Poste pas encore terminé — proche de l'aire barques",
@@ -233,24 +240,20 @@ const POSTES = [
     nom: "Poste 9 — De la Cale",
     lat: 44.653821, lng: -0.3522097,
     icon: "🏗️",
-    description: "Poste accessible en voiture toute l'année grâce à sa rampe bétonnée (la cale). Idéal pour les pêcheurs qui amènent beaucoup de matériel. Proche des sanitaires et de la table de pique-nique.",
+    description: "Poste accessible en voiture toute l'année grâce à sa rampe bétonnée. Idéal pour les pêcheurs qui amènent beaucoup de matériel. Proche des sanitaires.",
     poissons: ["Carpe", "Tanche", "Brème", "Sandre"],
     difficulte: "Facile",
     profondeur: "1.5–3.5m",
     fond: "Sableux / Béton",
     capacite: 2,
-    prix_jour: 38,
-    prix_nuit: 50,
-    prix_24h: 78,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.5,
-    avis: 29,
-    acces_pmr: true,
+    score: 4.5, avis: 29, acces_pmr: true,
     captures: [
-      { espece: "Carpe", poids: "11.5kg", date: "23 mai 2025", emoji: "🐟" },
-      { espece: "Tanche", poids: "2.0kg", date: "19 mai 2025", emoji: "🐟" },
-      { espece: "Sandre", poids: "4.1kg", date: "15 mai 2025", emoji: "🐟" },
-      { espece: "Brème", poids: "1.6kg", date: "9 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",  poids: "11.5kg", date: "23 mai 2025", emoji: "🐟" },
+      { espece: "Tanche", poids: "2.0kg",  date: "19 mai 2025", emoji: "🐟" },
+      { espece: "Sandre", poids: "4.1kg",  date: "15 mai 2025", emoji: "🐟" },
+      { espece: "Brème",  poids: "1.6kg",  date: "9 mai 2025",  emoji: "🐟" },
     ],
     equipements: ["Accès voiture année", "Rampe de mise à l'eau", "WC à proximité", "Table pique-nique / BBQ", "Parking dédié"],
     note: "Accès possible toute l'année en voiture",
@@ -260,24 +263,20 @@ const POSTES = [
     nom: "Poste 10 — Des Iris",
     lat: 44.6541539, lng: -0.3527693,
     icon: "🌸",
-    description: "Poste nommé pour ses magnifiques iris en fleurs au printemps. Accès voiture à 30m. Zone de 'toutes pêches' à proximité — carnassiers et pêche de rive. L'un des postes les plus esthétiques du lac.",
+    description: "Poste nommé pour ses magnifiques iris en fleurs au printemps. Zone 'toutes pêches' à proximité — carnassiers et pêche de rive. L'un des plus esthétiques du lac.",
     poissons: ["Carpe", "Sandre", "Brochet", "Tanche", "Anguille"],
     difficulte: "Intermédiaire",
     profondeur: "2–5m",
     fond: "Herbeux / Vaseux",
     capacite: 2,
-    prix_jour: 42,
-    prix_nuit: 55,
-    prix_24h: 88,
+    prix_demi: 15, prix_jour: 20, prix_nuit: 35,
     disponible: true,
-    score: 4.9,
-    avis: 41,
-    acces_pmr: false,
+    score: 4.9, avis: 41, acces_pmr: false,
     captures: [
-      { espece: "Sandre", poids: "6.8kg", date: "22 mai 2025", emoji: "🐟" },
-      { espece: "Brochet", poids: "7.4kg", date: "17 mai 2025", emoji: "🐟" },
-      { espece: "Carpe", poids: "16.2kg", date: "12 mai 2025", emoji: "🏆" },
-      { espece: "Anguille", poids: "2.1kg", date: "6 mai 2025", emoji: "🐍" },
+      { espece: "Sandre",  poids: "6.8kg",  date: "22 mai 2025", emoji: "🐟" },
+      { espece: "Brochet", poids: "7.4kg",  date: "17 mai 2025", emoji: "🐟" },
+      { espece: "Carpe",   poids: "16.2kg", date: "12 mai 2025", emoji: "🏆" },
+      { espece: "Anguille",poids: "2.1kg",  date: "6 mai 2025",  emoji: "🐍" },
     ],
     equipements: ["Accès voiture à 30m", "Zone toutes pêches adjacente", "Panneau faune & flore", "Ambiance iris au printemps"],
     note: "Accès à 30m en voiture — Zone toutes pêches à proximité",
@@ -287,20 +286,21 @@ const POSTES = [
 
 // Équipements & points d'intérêt du lac
 const AMENITIES = [
-  { id: 'parking', nom: 'Parking', lat: 44.6529252, lng: -0.352212, icon: '🅿️', desc: 'Parking principal — Merci de garer vos véhicules ici' },
-  { id: 'wc', nom: 'Toilettes', lat: 44.6533223, lng: -0.3519412, icon: '🚻', desc: 'Sanitaires disponibles' },
-  { id: 'picnic1', nom: 'Table de pique-nique & BBQ', lat: 44.6532783, lng: -0.3513988, icon: '🍖', desc: 'Table de pique-nique avec barbecue' },
-  { id: 'picnic2', nom: 'Table de pique-nique', lat: 44.6537412, lng: -0.3522097, icon: '🌳', desc: 'Table de pique-nique' },
-  { id: 'barques', nom: 'Barques & Canoës', lat: 44.6535353, lng: -0.3515685, icon: '🛶', desc: 'Location de barques et canoës' },
-  { id: 'rampe', nom: 'Rampe de mise à l\'eau', lat: 44.6537339, lng: -0.3519588, icon: '⛵', desc: 'Rampe bétonnée — accès toute l\'année' },
+  { id: 'parking', nom: 'Parking',                   lat: 44.6529252, lng: -0.352212,  icon: '🅿️', desc: 'Parking principal — Merci de garer vos véhicules ici' },
+  { id: 'wc',      nom: 'Toilettes',                  lat: 44.6533223, lng: -0.3519412, icon: '🚻', desc: 'Sanitaires disponibles' },
+  { id: 'picnic1', nom: 'Table pique-nique & BBQ',    lat: 44.6532783, lng: -0.3513988, icon: '🍖', desc: 'Table de pique-nique avec barbecue' },
+  { id: 'picnic2', nom: 'Table de pique-nique',       lat: 44.6537412, lng: -0.3522097, icon: '🌳', desc: 'Table de pique-nique' },
+  { id: 'barques', nom: 'Barques & Canoës',           lat: 44.6535353, lng: -0.3515685, icon: '🛶', desc: 'Location de barques et canoës' },
+  { id: 'rampe',   nom: "Rampe de mise à l'eau",      lat: 44.6537339, lng: -0.3519588, icon: '⛵', desc: "Rampe bétonnée — accès toute l'année" },
 ];
 
-// Centre approximatif du lac
 const LAC_CENTER = [44.6528, -0.3470];
-const LAC_ZOOM = 15;
+const LAC_ZOOM   = 15;
 
-// Rend le tableau disponible globalement
-window.POSTES = POSTES;
-window.AMENITIES = AMENITIES;
-window.LAC_CENTER = LAC_CENTER;
-window.LAC_ZOOM = LAC_ZOOM;
+window.POSTES       = POSTES;
+window.AMENITIES    = AMENITIES;
+window.LAC_CENTER   = LAC_CENTER;
+window.LAC_ZOOM     = LAC_ZOOM;
+window.TARIFS_NUITS = TARIFS_NUITS;
+window.TARIF_JOUR   = TARIF_JOUR;
+window.TARIF_DEMI   = TARIF_DEMI;
