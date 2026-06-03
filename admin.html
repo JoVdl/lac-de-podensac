@@ -808,10 +808,11 @@
   });
 
   // ── Auth ──────────────────────────────────────────────────────
-  // Masquer les deux écrans pendant la vérification de session
+  // Masquer les deux écrans le temps de vérifier la session
   document.getElementById('login-screen').hidden = true;
   document.getElementById('admin-app').hidden = true;
 
+  // Auto-login si session active (case "Se souvenir de moi" cochée avant)
   auth.onAuthStateChanged(user => {
     if (user) {
       showDashboard(user);
@@ -833,13 +834,13 @@
     errEl.classList.remove('show');
 
     try {
-      // Persistance selon la case cochée
       const persistence = remember
         ? firebase.auth.Auth.Persistence.LOCAL
         : firebase.auth.Auth.Persistence.SESSION;
       await auth.setPersistence(persistence);
-      await auth.signInWithEmailAndPassword(email, password);
-      // onAuthStateChanged prend le relais automatiquement
+      const cred = await auth.signInWithEmailAndPassword(email, password);
+      // Afficher immédiatement le dashboard sans attendre onAuthStateChanged
+      showDashboard(cred.user);
     } catch (err) {
       console.error('[Auth]', err.code, err.message);
       const msgs = {
@@ -850,11 +851,10 @@
         'auth/too-many-requests':       'Trop de tentatives — réessayez dans quelques minutes.',
         'auth/network-request-failed':  'Erreur réseau — vérifiez votre connexion.',
         'auth/user-disabled':           'Ce compte a été désactivé.',
-        'auth/operation-not-allowed':   'Connexion par email non activée dans Firebase.',
+        'auth/operation-not-allowed':   'Connexion par email non activée dans Firebase. Active Email/Password dans la console.',
       };
       errEl.textContent = msgs[err.code] || `Erreur (${err.code}) : ${err.message}`;
       errEl.classList.add('show');
-    } finally {
       btn.disabled = false;
       btn.textContent = 'Se connecter';
     }
