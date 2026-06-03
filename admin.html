@@ -8,6 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="images/logo.svg" type="image/svg+xml">
   <style>
+    /* L'attribut hidden doit toujours prendre le dessus sur display:flex/grid */
+    [hidden] { display: none !important; }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
