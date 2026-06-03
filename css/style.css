@@ -1342,3 +1342,21 @@ p { margin-bottom: 0; }
 @media (max-width: 900px) {
   .materiel-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ================================================================
+   BOAT OPTIONS
+   ================================================================ */
+.boat-options-grid { display: flex; flex-direction: column; gap: 8px; }
+.boat-option-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border: 2px solid rgba(0,0,0,0.07);
+  border-radius: var(--radius); cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  background: var(--white);
+}
+.boat-option-item:has(input:checked) { border-color: var(--accent); background: rgba(232,149,30,0.05); }
+.boat-option-item input[type="checkbox"] { width:16px; height:16px; accent-color: var(--accent); flex-shrink:0; }
+.boat-option-item__icon { font-size: 1.2rem; flex-shrink: 0; }
+.boat-option-item__label { flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--dark); }
+.boat-option-item__price { font-size: 0.82rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+[data-theme="dark"] .boat-option-item { background: #162220; border-color: rgba(255,255,255,0.07); }
+[data-theme="dark"] .boat-option-item:has(input:checked) { background: rgba(232,149,30,0.08); }

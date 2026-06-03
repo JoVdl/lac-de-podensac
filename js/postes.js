@@ -45,6 +45,9 @@ const LOCATION_MATERIEL = [
   { id: 'bivouac',       label: 'Bivouac (abri de pêche)',      emoji: '⛺', prix_jour: 12, prix_nuit: 15, note: '' },
   { id: 'sac-couchage',  label: 'Sac de couchage',              emoji: '🛏️', prix_jour: 8,  prix_nuit: 10, note: '' },
   { id: 'kit-photo',     label: 'Kit photo (carton + marqueur)',emoji: '📸', prix_jour: 2,  prix_nuit: 2,  note: 'Inclus si demandé' },
+  { id: 'kayak',         label: 'Kayak',                        emoji: '🛶', prix_jour: 20, prix_demi: 15, prix_nuit: 20, note: '15€ demi-j.' },
+  { id: 'barque-moteur', label: 'Barque + moteur + batterie',   emoji: '⛵', prix_jour: 30, prix_demi: 20, prix_nuit: 30, note: '20€ demi-j. — dégressif multi-jours' },
+  { id: 'sondeur',       label: 'Sondeur de pêche',             emoji: '📡', prix_jour: 30, prix_nuit: 30, note: 'Journée uniquement' },
 ];
 window.LOCATION_MATERIEL = LOCATION_MATERIEL;
 

@@ -814,8 +814,9 @@
       return base + accomp + canne4;
     }
     if (r.type === 'bateau') {
-      const tarifs = { aperitif: 35, soiree: 65, journee: 95 };
-      return (tarifs[r.formule] || 0) * (parseInt(r.nb) || 1);
+      if (r.totalPrice) return r.totalPrice;
+      const tarifs = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
+      return tarifs[r.formule] || 0;
     }
     return 0;
   }
