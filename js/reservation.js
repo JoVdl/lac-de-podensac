@@ -34,26 +34,38 @@ document.addEventListener('DOMContentLoaded', function () {
     const sumTotal = document.getElementById('sum-total');
     const priceJour = document.getElementById('price-jour');
     const priceNuit = document.getElementById('price-nuit');
-    const price24h = document.getElementById('price-24h');
 
     if (poste) {
       if (sumPoste) sumPoste.textContent = `#${poste.id} ${poste.nom}`;
-      if (priceJour) priceJour.textContent = `${poste.prix_jour}€`;
-      if (priceNuit) priceNuit.textContent = `${poste.prix_nuit}€`;
-      if (price24h) price24h.textContent = `${poste.prix_24h}€`;
+      const priceDemiEl = document.getElementById('price-demi');
+      if (priceDemiEl) priceDemiEl.textContent = '15€';
+      if (priceJour) priceJour.textContent = '20€';
+      if (priceNuit) priceNuit.textContent = '35€';
     } else {
       if (sumPoste) sumPoste.textContent = '—';
     }
 
-    const formuleLabels = { 'jour': 'Journée', 'nuit': 'Nuit', '24h': '24 heures' };
+    const formuleLabels = { 'demi': 'Demi-journée', 'jour': 'Journée (12h)', 'nuit': 'Nuitée (24h)' };
     if (sumFormule) sumFormule.textContent = formuleLabels[formule] || '—';
     if (sumDate) sumDate.textContent = date ? formatDateFR(date) : '—';
-    if (sumDuree) sumDuree.textContent = `${duree} session${duree > 1 ? 's' : ''}`;
+    if (sumDuree) sumDuree.textContent = formule === 'nuit'
+      ? `${duree} nuit${duree > 1 ? 's' : ''}`
+      : `${duree} session${duree > 1 ? 's' : ''}`;
     if (sumNb) sumNb.textContent = `${nb} pêcheur${nb > 1 ? 's' : ''}`;
 
+    const priceDemi = document.getElementById('price-demi');
+    if (priceDemi) priceDemi.textContent = '15€';
+    if (priceJour) priceJour.textContent = '20€';
+    if (priceNuit) priceNuit.textContent = '35€';
+
     if (poste && formule) {
-      const unitPrice = formule === 'jour' ? poste.prix_jour : formule === 'nuit' ? poste.prix_nuit : poste.prix_24h;
-      const total = unitPrice * duree;
+      let total;
+      if (formule === 'nuit') {
+        const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+        total = tarifs[duree] || duree * 35;
+      } else {
+        total = (formule === 'demi' ? 15 : 20) * duree;
+      }
       if (sumTotal) sumTotal.textContent = `${total}€`;
     } else {
       if (sumTotal) sumTotal.textContent = '—';
@@ -75,10 +87,25 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSummary();
   }
 
+  // ── Calendrier — données réservées (Firebase temps réel) ──────
+  let _bookedDates = [];
+  let _calUnsubscribe = null;
+
+  function setupCalendarWatch(posteId) {
+    if (_calUnsubscribe) { _calUnsubscribe(); _calUnsubscribe = null; }
+    _bookedDates = [];
+    renderCalendar();
+    if (!posteId || typeof LacDB === 'undefined') return;
+    _calUnsubscribe = LacDB.watchPosteBookedDates(posteId, dates => {
+      _bookedDates = dates;
+      renderCalendar();
+    });
+  }
+
   // ── Soumission du formulaire de pêche ─────────────────────────
   const bookingForm = document.getElementById('booking-form');
   if (bookingForm) {
-    bookingForm.addEventListener('submit', function (e) {
+    bookingForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const prenom = document.getElementById('f-prenom').value.trim();
@@ -109,20 +136,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const booking = {
         type: 'peche',
+        status: 'pending',
         posteId, prenom, nom, email, tel, formule, dateDebut, duree, nb, message, dates,
       };
 
-      BookingSystem.saveBooking(booking);
+      const submitBtn = bookingForm.querySelector('[type="submit"]');
+      const origHtml = submitBtn?.innerHTML;
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Envoi en cours…</span>'; }
 
-      const formuleLabels = { 'jour': 'Journée', 'nuit': 'Nuit', '24h': '24h' };
-      const unitPrice = formule === 'jour' ? poste.prix_jour : formule === 'nuit' ? poste.prix_nuit : poste.prix_24h;
-      const total = unitPrice * duree;
+      try {
+        if (typeof LacDB !== 'undefined') {
+          await LacDB.addReservation(booking);
+        }
 
-      showToast(`✓ Réservation confirmée ! Poste #${posteId} — ${poste.nom} — ${total}€. Email de confirmation envoyé à ${email}.`, 'success', '🎣');
-      bookingForm.reset();
-      if (dateInput) { dateInput.value = new Date().toISOString().split('T')[0]; }
-      updateSummary();
-      renderCalendar();
+        const formuleLabels = { 'demi': 'Demi-journée', 'jour': 'Journée (12h)', 'nuit': 'Nuitée (24h)' };
+        const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+        const total = formule === 'nuit' ? (tarifs[duree] || duree * 35) : (formule === 'demi' ? 15 : 20) * duree;
+
+        showToast(`✓ Réservation enregistrée ! Poste #${posteId} — ${poste.nom} — ${total}€. Nous vous contacterons à ${email}.`, 'success', '🎣');
+        bookingForm.reset();
+        if (dateInput) { dateInput.value = new Date().toISOString().split('T')[0]; }
+        updateSummary();
+        // Le calendrier se met à jour automatiquement via onSnapshot
+
+      } catch (err) {
+        console.error('[Réservation pêche]', err);
+        showToast('Erreur de connexion. Veuillez réessayer ou nous appeler.', 'error', '⚠️');
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origHtml; }
+      }
     });
   }
 
@@ -157,9 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (startDow < 0) startDow = 6;
 
     const today = new Date().toISOString().split('T')[0];
-    const selectedPoste = parseInt(document.getElementById('f-poste')?.value);
-    const bookedDates = selectedPoste && typeof BookingSystem !== 'undefined'
-      ? BookingSystem.getBookedDates(selectedPoste) : [];
+    const bookedDates = _bookedDates;
     const selectedDate = document.getElementById('f-date-debut')?.value;
 
     // Cases vides début
@@ -199,14 +239,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
   renderCalendar();
 
-  // Rafraîchir le calendrier quand le poste change
+  // Rafraîchir le calendrier et démarrer l'écoute Firebase quand le poste change
   const posteSelectEl = document.getElementById('f-poste');
-  if (posteSelectEl) posteSelectEl.addEventListener('change', renderCalendar);
+  if (posteSelectEl) {
+    posteSelectEl.addEventListener('change', () => {
+      const id = parseInt(posteSelectEl.value);
+      if (id) setupCalendarWatch(id);
+      else renderCalendar();
+    });
+    // Démarrer sur le poste déjà sélectionné au chargement
+    const initialId = parseInt(posteSelectEl.value);
+    if (initialId) setupCalendarWatch(initialId);
+  }
 
   // ── Soumission formulaire bateau ──────────────────────────────
   const boatForm = document.getElementById('boat-booking-form');
   if (boatForm) {
-    boatForm.addEventListener('submit', function (e) {
+    boatForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const prenom = document.getElementById('bf-prenom')?.value.trim();
@@ -228,13 +277,28 @@ document.addEventListener('DOMContentLoaded', function () {
       const total = prix[formule] * parseInt(nb);
       const labels = { 'aperitif': 'Apéritif (2h)', 'soiree': 'Soirée BBQ (3h30)', 'journee': 'Journée (6h)' };
 
-      const booking = { type: 'bateau', prenom, nom, email, tel, bateau, formule, date, heure, nb };
-      BookingSystem.saveBooking(booking);
+      const booking = { type: 'bateau', status: 'pending', prenom, nom, email, tel, bateau, formule, date, heure, nb: parseInt(nb) };
 
-      showToast(`🔥 Réservation bateau confirmée ! ${labels[formule]} — ${total}€ pour ${nb} pers. Email envoyé à ${email}.`, 'success', '🔥');
-      boatForm.reset();
-      const bdate = document.getElementById('bf-date');
-      if (bdate) bdate.min = new Date().toISOString().split('T')[0];
+      const submitBtn = boatForm.querySelector('[type="submit"]');
+      const origHtml = submitBtn?.innerHTML;
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Envoi en cours…</span>'; }
+
+      try {
+        if (typeof LacDB !== 'undefined') {
+          await LacDB.addReservation(booking);
+        }
+
+        showToast(`🔥 Réservation bateau enregistrée ! ${labels[formule]} — ${total}€ pour ${nb} pers. Nous vous contacterons à ${email}.`, 'success', '🔥');
+        boatForm.reset();
+        const bdate = document.getElementById('bf-date');
+        if (bdate) bdate.min = new Date().toISOString().split('T')[0];
+
+      } catch (err) {
+        console.error('[Réservation bateau]', err);
+        showToast('Erreur de connexion. Veuillez réessayer ou nous appeler.', 'error', '⚠️');
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origHtml; }
+      }
     });
 
     const bdateInput = document.getElementById('bf-date');
