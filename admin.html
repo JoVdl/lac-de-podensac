@@ -612,6 +612,188 @@
     .modal-btns button { flex: 1; padding: 11px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; font-family: var(--font); }
     .modal-btn-cancel-del { background: var(--bg); color: var(--gray); }
     .modal-btn-confirm-del { background: var(--danger); color: #fff; }
+
+    /* ── VIEW TOGGLE ── */
+    .view-toggle-bar {
+      display: flex; gap: 6px; margin-bottom: 20px;
+    }
+    .view-toggle-btn {
+      padding: 9px 20px; border-radius: 10px;
+      font-family: var(--font-head); font-size: 0.82rem; font-weight: 700;
+      border: 2px solid var(--border); background: var(--white);
+      color: var(--gray); cursor: pointer; transition: all 0.15s;
+    }
+    .view-toggle-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .view-toggle-btn:not(.active):hover { border-color: var(--primary-light); color: var(--primary); }
+
+    /* ── CALENDAR SECTION ── */
+    .cal-section { display: none; }
+    .cal-section.visible { display: block; }
+
+    .cal-header {
+      background: var(--white); border-radius: 14px;
+      padding: 14px 18px; margin-bottom: 16px;
+      box-shadow: var(--card-shadow);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .cal-nav { display: flex; align-items: center; gap: 8px; }
+    .cal-nav-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--border); background: none; cursor: pointer;
+      font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+      color: var(--primary-dark); transition: all 0.15s;
+    }
+    .cal-nav-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .cal-today-btn {
+      padding: 6px 13px; border: 2px solid var(--border); border-radius: 8px;
+      background: none; font-size: 0.78rem; font-weight: 600;
+      color: var(--gray); cursor: pointer; transition: all 0.15s; font-family: var(--font);
+    }
+    .cal-today-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .cal-period-label {
+      font-family: var(--font-head); font-weight: 800; font-size: 1rem;
+      color: var(--primary-dark); flex: 1; text-align: center;
+    }
+    .cal-view-tabs { display: flex; gap: 4px; }
+    .cal-view-tab {
+      padding: 6px 12px; border-radius: 8px; border: 2px solid var(--border);
+      background: none; font-size: 0.78rem; font-weight: 600;
+      color: var(--gray); cursor: pointer; transition: all 0.15s; font-family: var(--font);
+    }
+    .cal-view-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* ── MONTH VIEW ── */
+    .cal-month-grid {
+      background: var(--white); border-radius: 14px;
+      box-shadow: var(--card-shadow); overflow: hidden;
+    }
+    .cal-month-dow-row {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      border-bottom: 2px solid var(--border);
+    }
+    .cal-month-dow {
+      padding: 10px 0; text-align: center; font-size: 0.72rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray);
+    }
+    .cal-month-days { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .cal-month-cell {
+      min-height: 88px; padding: 7px 5px 5px;
+      border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .cal-month-cell:nth-child(7n) { border-right: none; }
+    .cal-month-cell.other-month { background: rgba(0,0,0,0.018); }
+    .cal-month-cell.today { background: rgba(61,138,128,0.06); }
+    .cal-day-num {
+      font-size: 0.8rem; font-weight: 700; color: var(--primary-dark);
+      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; margin-bottom: 3px;
+    }
+    .cal-month-cell.today .cal-day-num { background: var(--primary); color: #fff; }
+    .cal-month-cell.other-month .cal-day-num { color: var(--gray-light); }
+    .cal-event-chip {
+      display: block; width: 100%; padding: 2px 5px; border-radius: 4px;
+      font-size: 0.67rem; font-weight: 600; margin-bottom: 2px;
+      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: opacity 0.15s; border: none; text-align: left;
+    }
+    .cal-event-chip:hover { opacity: 0.75; }
+    .peche-confirmed  { background: rgba(42,96,89,0.13);  color: var(--primary); }
+    .peche-pending    { background: rgba(176,120,0,0.12); color: var(--warning); }
+    .bateau-confirmed { background: rgba(232,149,30,0.14);color: #965800; }
+    .bateau-pending   { background: rgba(232,149,30,0.09);color: #b07000; }
+    .cancelled        { background: #f0f0f0; color: #999; }
+    .cal-more-link {
+      font-size: 0.64rem; color: var(--primary); font-weight: 700;
+      cursor: pointer; background: none; border: none; padding: 0;
+    }
+    .cal-more-link:hover { text-decoration: underline; }
+
+    /* ── WEEK VIEW ── */
+    .cal-week-scroll { overflow-x: auto; }
+    .cal-week-grid {
+      background: var(--white); border-radius: 14px;
+      box-shadow: var(--card-shadow); overflow: hidden;
+      display: grid; grid-template-columns: repeat(7, 1fr); min-width: 560px;
+    }
+    .cal-week-col { border-right: 1px solid var(--border); min-height: 280px; }
+    .cal-week-col:last-child { border-right: none; }
+    .cal-week-col-header {
+      padding: 10px 6px; border-bottom: 2px solid var(--border); text-align: center;
+    }
+    .cal-week-dow { font-size: 0.67rem; font-weight: 700; text-transform: uppercase; color: var(--gray); letter-spacing: 0.06em; }
+    .cal-week-day-num {
+      font-size: 1.25rem; font-weight: 800; color: var(--primary-dark);
+      font-family: var(--font-head); margin-top: 2px;
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; margin: 4px auto 0;
+    }
+    .cal-week-day-num.today { background: var(--primary); color: #fff; }
+    .cal-week-col-events { padding: 5px; display: flex; flex-direction: column; gap: 4px; }
+    .cal-week-event {
+      padding: 6px 7px; border-radius: 6px; cursor: pointer;
+      transition: opacity 0.15s; border: none; text-align: left; width: 100%;
+    }
+    .cal-week-event:hover { opacity: 0.75; }
+    .cal-week-event-name { font-size: 0.7rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cal-week-event-sub { font-size: 0.6rem; margin-top: 1px; opacity: 0.75; }
+
+    /* ── DAY VIEW ── */
+    .cal-day-view { background: var(--white); border-radius: 14px; box-shadow: var(--card-shadow); padding: 20px; }
+    .cal-day-event {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 15px; border-radius: 10px; cursor: pointer; margin-bottom: 10px;
+      transition: box-shadow 0.15s; border: 2px solid transparent;
+      background: var(--bg);
+    }
+    .cal-day-event:hover { box-shadow: 0 4px 16px rgba(42,96,89,0.12); border-color: var(--primary-light); }
+    .cal-day-event-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .cal-day-event-info { flex: 1; }
+    .cal-day-event-name { font-weight: 700; font-size: 0.88rem; color: var(--primary-dark); }
+    .cal-day-event-sub { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+    .cal-day-event-price { font-family: var(--font-head); font-weight: 800; color: var(--primary); font-size: 0.95rem; }
+    .cal-day-empty { text-align: center; padding: 40px 20px; color: var(--gray-light); font-size: 0.88rem; }
+
+    /* ── LEGEND ── */
+    .cal-legend {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 12px; padding: 10px 14px;
+      background: var(--white); border-radius: 10px;
+      box-shadow: var(--card-shadow); font-size: 0.75rem; color: var(--gray);
+    }
+    .cal-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+    /* ── DETAIL MODAL ── */
+    .detail-modal-overlay {
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .detail-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .detail-modal {
+      background: var(--white); border-radius: 20px;
+      width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+      transform: translateY(20px) scale(0.97); transition: transform 0.25s;
+    }
+    .detail-modal-overlay.open .detail-modal { transform: translateY(0) scale(1); }
+    .detail-modal__head {
+      padding: 18px 22px 14px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .detail-modal__title { font-family: var(--font-head); font-weight: 800; font-size: 1rem; color: var(--primary-dark); }
+    .detail-modal__close {
+      width: 30px; height: 30px; border-radius: 50%; border: none; flex-shrink: 0;
+      background: var(--bg); color: var(--gray); cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+    }
+    .detail-modal__close:hover { background: var(--border); }
+    .detail-modal__body { padding: 18px 22px; }
+    .detail-modal__footer {
+      padding: 14px 22px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -714,15 +896,48 @@
         </div>
       </div>
 
-      <!-- LIST -->
-      <div class="section-header">
-        <div class="section-title">Réservations</div>
-        <div class="results-count" id="results-count"></div>
+      <!-- VIEW TOGGLE -->
+      <div class="view-toggle-bar">
+        <button class="view-toggle-btn active" id="view-toggle-list">📋 Liste</button>
+        <button class="view-toggle-btn" id="view-toggle-cal">📅 Calendrier</button>
       </div>
-      <div class="res-grid" id="reservations-list">
-        <div class="loading-state" style="grid-column:1/-1;">
-          <div class="spinner"></div>
-          Chargement…
+
+      <!-- LIST SECTION -->
+      <div id="list-section">
+        <div class="section-header">
+          <div class="section-title">Réservations</div>
+          <div class="results-count" id="results-count"></div>
+        </div>
+        <div class="res-grid" id="reservations-list">
+          <div class="loading-state" style="grid-column:1/-1;">
+            <div class="spinner"></div>
+            Chargement…
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR SECTION -->
+      <div id="cal-section" class="cal-section">
+        <div class="cal-header">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="cal-prev">‹</button>
+            <button class="cal-today-btn" id="cal-today">Aujourd'hui</button>
+            <button class="cal-nav-btn" id="cal-next">›</button>
+          </div>
+          <div class="cal-period-label" id="cal-period-label">—</div>
+          <div class="cal-view-tabs">
+            <button class="cal-view-tab active" data-view="month">Mois</button>
+            <button class="cal-view-tab" data-view="week">Semaine</button>
+            <button class="cal-view-tab" data-view="day">Jour</button>
+          </div>
+        </div>
+        <div id="cal-container"></div>
+        <div class="cal-legend">
+          <span><span class="cal-legend-dot" style="background:rgba(42,96,89,0.5)"></span>🎣 Pêche confirmée</span>
+          <span><span class="cal-legend-dot" style="background:rgba(176,120,0,0.5)"></span>🎣 Pêche en attente</span>
+          <span><span class="cal-legend-dot" style="background:rgba(232,149,30,0.6)"></span>🔥 Bateau confirmé</span>
+          <span><span class="cal-legend-dot" style="background:rgba(232,149,30,0.35)"></span>🔥 Bateau en attente</span>
+          <span><span class="cal-legend-dot" style="background:#ccc"></span>Annulée</span>
         </div>
       </div>
 
@@ -739,6 +954,11 @@
         <button class="modal-btn-confirm-del" id="delete-modal-confirm">Supprimer</button>
       </div>
     </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="detail-modal-overlay" id="res-detail-modal">
+    <div class="detail-modal" id="detail-modal-content"></div>
   </div>
 
   <!-- TOASTS -->
@@ -908,6 +1128,7 @@
         allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         updateStats();
         renderList();
+        if (typeof currentViewMode !== 'undefined' && currentViewMode === 'calendar') renderCalendarView();
       }, err => {
         console.error('Firestore:', err);
         document.getElementById('reservations-list').innerHTML = `
@@ -1105,6 +1326,351 @@
       e.currentTarget.classList.remove('open');
     }
   });
+
+  // ── VIEW TOGGLE ───────────────────────────────────────────────
+  let currentViewMode = 'list';
+
+  document.getElementById('view-toggle-list').addEventListener('click', () => {
+    currentViewMode = 'list';
+    document.getElementById('list-section').style.display = '';
+    document.getElementById('cal-section').classList.remove('visible');
+    document.getElementById('view-toggle-list').classList.add('active');
+    document.getElementById('view-toggle-cal').classList.remove('active');
+  });
+
+  document.getElementById('view-toggle-cal').addEventListener('click', () => {
+    currentViewMode = 'calendar';
+    document.getElementById('list-section').style.display = 'none';
+    document.getElementById('cal-section').classList.add('visible');
+    document.getElementById('view-toggle-list').classList.remove('active');
+    document.getElementById('view-toggle-cal').classList.add('active');
+    renderCalendarView();
+  });
+
+  // ── CALENDAR LOGIC ────────────────────────────────────────────
+  let calView = 'month';
+  let calDate  = new Date();
+
+  const JOURS_CAL = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const MOIS_CAL  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  function toDateStr(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function getDow(d) { return (d.getDay() + 6) % 7; } // 0=Lun … 6=Dim
+
+  function getResDates(r) {
+    if (r.type === 'peche' && r.dates && r.dates.length) return r.dates;
+    if (r.date) return [r.date];
+    if (r.dateDebut) return [r.dateDebut];
+    return [];
+  }
+
+  function getResForDate(ds) {
+    return allReservations.filter(r => getResDates(r).includes(ds));
+  }
+
+  function chipClass(r) {
+    const s = r.status || 'pending';
+    if (s === 'cancelled') return 'cancelled';
+    return `${r.type}-${s}`;
+  }
+
+  function dotColor(r) {
+    const s = r.status || 'pending';
+    if (s === 'cancelled') return '#bbb';
+    if (r.type === 'peche') return s === 'confirmed' ? 'var(--primary)' : 'var(--warning)';
+    return s === 'confirmed' ? 'var(--accent)' : '#c08020';
+  }
+
+  function weekEventBg(r) {
+    const cls = chipClass(r);
+    if (cls === 'cancelled') return '#f0f0f0';
+    if (cls === 'peche-confirmed') return 'rgba(42,96,89,0.1)';
+    if (cls === 'peche-pending') return 'rgba(176,120,0,0.1)';
+    if (cls === 'bateau-confirmed') return 'rgba(232,149,30,0.13)';
+    return 'rgba(232,149,30,0.08)';
+  }
+
+  function weekEventColor(r) {
+    const cls = chipClass(r);
+    if (cls === 'cancelled') return '#999';
+    if (cls === 'peche-confirmed') return 'var(--primary)';
+    if (cls === 'peche-pending') return 'var(--warning)';
+    if (cls === 'bateau-confirmed') return '#965800';
+    return '#b07000';
+  }
+
+  function updateCalHeader() {
+    let label = '';
+    if (calView === 'month') {
+      label = `${MOIS_CAL[calDate.getMonth()]} ${calDate.getFullYear()}`;
+    } else if (calView === 'week') {
+      const mon = new Date(calDate);
+      mon.setDate(mon.getDate() - getDow(mon));
+      const sun = new Date(mon); sun.setDate(sun.getDate() + 6);
+      const fmt = d => `${d.getDate()} ${MOIS_CAL[d.getMonth()].slice(0,3)}.`;
+      label = `${fmt(mon)} — ${fmt(sun)} ${sun.getFullYear()}`;
+    } else {
+      label = `${JOURS_CAL[getDow(calDate)]} ${calDate.getDate()} ${MOIS_CAL[calDate.getMonth()]} ${calDate.getFullYear()}`;
+    }
+    document.getElementById('cal-period-label').textContent = label;
+    document.querySelectorAll('.cal-view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === calView));
+  }
+
+  function calNavigate(dir) {
+    const d = new Date(calDate);
+    if (calView === 'month') d.setMonth(d.getMonth() + dir);
+    else if (calView === 'week') d.setDate(d.getDate() + dir * 7);
+    else d.setDate(d.getDate() + dir);
+    calDate = d;
+    renderCalendarView();
+  }
+
+  function renderCalendarView() {
+    updateCalHeader();
+    const c = document.getElementById('cal-container');
+    if (calView === 'month') renderMonthView(c);
+    else if (calView === 'week') renderWeekView(c);
+    else renderDayView(c);
+  }
+
+  function renderMonthView(c) {
+    const year = calDate.getFullYear(), month = calDate.getMonth();
+    const today = toDateStr(new Date());
+    const first = new Date(year, month, 1);
+    const last  = new Date(year, month + 1, 0);
+    const startDow = getDow(first);
+
+    let html = `<div class="cal-month-grid">
+      <div class="cal-month-dow-row">${JOURS_CAL.map(j=>`<div class="cal-month-dow">${j}</div>`).join('')}</div>
+      <div class="cal-month-days">`;
+
+    // Padding before month
+    for (let i = 0; i < startDow; i++) {
+      const pd = new Date(year, month, 1 - startDow + i);
+      html += `<div class="cal-month-cell other-month"><div class="cal-day-num">${pd.getDate()}</div></div>`;
+    }
+
+    for (let d = 1; d <= last.getDate(); d++) {
+      const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = ds === today;
+      const dayRes = getResForDate(ds);
+
+      const chips = dayRes.slice(0, 3).map(r => {
+        const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
+        const icon = r.type === 'peche' ? '🎣' : '🔥';
+        return `<button class="cal-event-chip ${chipClass(r)}" onclick="openResDetail('${r.id}')">${icon} ${name}</button>`;
+      }).join('');
+
+      const more = dayRes.length - 3;
+      const moreHtml = more > 0 ? `<button class="cal-more-link" onclick="switchToDay('${ds}')">+${more} autre${more>1?'s':''}</button>` : '';
+
+      html += `<div class="cal-month-cell${isToday?' today':''}">
+        <div class="cal-day-num">${d}</div>
+        ${chips}${moreHtml}
+      </div>`;
+    }
+
+    // Trailing padding
+    const total = startDow + last.getDate();
+    const trail = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for (let i = 1; i <= trail; i++) {
+      html += `<div class="cal-month-cell other-month"><div class="cal-day-num">${i}</div></div>`;
+    }
+
+    html += `</div></div>`;
+    c.innerHTML = html;
+  }
+
+  function renderWeekView(c) {
+    const today = toDateStr(new Date());
+    const mon = new Date(calDate);
+    mon.setDate(mon.getDate() - getDow(mon));
+
+    let cols = '';
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(mon); day.setDate(day.getDate() + i);
+      const ds = toDateStr(day);
+      const isToday = ds === today;
+      const dayRes = getResForDate(ds);
+
+      const events = dayRes.map(r => {
+        const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
+        const icon = r.type === 'peche' ? '🎣' : '🔥';
+        const price = calculatePrice(r);
+        const status = r.status || 'pending';
+        const statusLabel = status === 'confirmed' ? '✓' : status === 'cancelled' ? '✗' : '⏳';
+        return `<button class="cal-week-event" onclick="openResDetail('${r.id}')"
+          style="background:${weekEventBg(r)};color:${weekEventColor(r)}">
+          <div class="cal-week-event-name">${icon} ${name}</div>
+          <div class="cal-week-event-sub">${statusLabel} ${price>0?price+'€':''}</div>
+        </button>`;
+      }).join('');
+
+      cols += `<div class="cal-week-col">
+        <div class="cal-week-col-header">
+          <div class="cal-week-dow">${JOURS_CAL[i]}</div>
+          <div class="cal-week-day-num${isToday?' today':''}">${day.getDate()}</div>
+        </div>
+        <div class="cal-week-col-events">
+          ${events || `<div style="padding:8px 4px;font-size:0.65rem;color:var(--gray-light);text-align:center;">—</div>`}
+        </div>
+      </div>`;
+    }
+
+    c.innerHTML = `<div class="cal-week-scroll"><div class="cal-week-grid">${cols}</div></div>`;
+  }
+
+  function renderDayView(c) {
+    const ds = toDateStr(calDate);
+    const dayRes = getResForDate(ds);
+
+    if (dayRes.length === 0) {
+      c.innerHTML = `<div class="cal-day-view"><div class="cal-day-empty">📅 Aucune réservation ce jour</div></div>`;
+      return;
+    }
+
+    const events = dayRes.map(r => {
+      const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
+      const icon = r.type === 'peche' ? '🎣' : '🔥';
+      const price = calculatePrice(r);
+      const status = r.status || 'pending';
+      const statusLabel = { confirmed:'✓ Confirmée', cancelled:'✗ Annulée', pending:'⏳ En attente' }[status];
+      const typeLabel = r.type === 'peche' ? 'Pêche' : 'Bateau BBQ';
+      const formuleLabel = r.formule || '—';
+      return `<div class="cal-day-event" onclick="openResDetail('${r.id}')">
+        <div class="cal-day-event-dot" style="background:${dotColor(r)}"></div>
+        <div class="cal-day-event-info">
+          <div class="cal-day-event-name">${icon} ${name}</div>
+          <div class="cal-day-event-sub">${typeLabel} · ${formuleLabel} · ${statusLabel}</div>
+        </div>
+        <div class="cal-day-event-price">${price>0?price+'€':'—'}</div>
+      </div>`;
+    }).join('');
+
+    c.innerHTML = `<div class="cal-day-view">${events}</div>`;
+  }
+
+  window.switchToDay = function(ds) {
+    calView = 'day';
+    calDate = new Date(ds + 'T12:00:00');
+    renderCalendarView();
+  };
+
+  // ── DETAIL MODAL ──────────────────────────────────────────────
+  window.openResDetail = function(id) {
+    const r = allReservations.find(x => x.id === id);
+    if (!r) return;
+
+    const status = r.status || 'pending';
+    const price  = calculatePrice(r);
+    const received = formatDateTime(r.createdAt);
+
+    const statusBadge = {
+      pending:   `<span class="status-badge pending">⏳ En attente</span>`,
+      confirmed: `<span class="status-badge confirmed">✓ Confirmé</span>`,
+      cancelled: `<span class="status-badge cancelled">✗ Annulé</span>`,
+    }[status] || '';
+
+    let detailsHtml = '';
+    if (r.type === 'peche') {
+      const poste = (typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === r.posteId) : null;
+      const fLabel = { demi:'Demi-journée', jour:'Journée (12h)', nuit:'Nuitée (24h)' }[r.formule] || r.formule;
+      const datesDisplay = r.dates && r.dates.length > 1
+        ? `Du ${formatDate(r.dates[0])} au ${formatDate(r.dates[r.dates.length-1])}`
+        : formatDate(r.dateDebut);
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Poste</span><span class="value">#${r.posteId} — ${poste?.nom||'?'}</span></div>
+        <div class="res-detail-row"><span class="label">Formule</span><span class="value">${fLabel}</span></div>
+        <div class="res-detail-row"><span class="label">Date(s)</span><span class="value">${datesDisplay}</span></div>
+        <div class="res-detail-row"><span class="label">Durée</span><span class="value">${r.duree||1} session${(r.duree||1)>1?'s':''}</span></div>
+        <div class="res-detail-row"><span class="label">Pêcheurs</span><span class="value">${r.nb||1}</span></div>
+        ${(r.nbAccompagnants||0)>0?`<div class="res-detail-row"><span class="label">Accompagnants</span><span class="value">${r.nbAccompagnants} pers.</span></div>`:''}
+        ${r.canne4?`<div class="res-detail-row"><span class="label">4ème canne</span><span class="value" style="color:var(--primary)">✓ Incluse</span></div>`:''}
+        ${r.technique?`<div class="res-detail-row"><span class="label">Technique</span><span class="value">${r.technique}</span></div>`:''}
+        ${r.materiel&&r.materiel.length?`<div class="res-detail-row"><span class="label">Matériel</span><span class="value">${r.materiel.join(', ')}</span></div>`:''}`;
+    } else if (r.type === 'bateau') {
+      const fLabel = { 'petit-dej':'Petit déj. 9h–10h30','midi':'Déjeuner 11h30–14h30','apres-midi':'Après-midi 15h30–17h30','soiree':'Soirée 18h–21h','demi-matin':'Demi-j. 10h–15h','demi-soir':'Demi-j. 16h–20h' }[r.formule] || r.formule;
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Bateau</span><span class="value">${r.bateau||'—'}</span></div>
+        <div class="res-detail-row"><span class="label">Formule</span><span class="value">${fLabel}</span></div>
+        <div class="res-detail-row"><span class="label">Date</span><span class="value">${formatDate(r.date)}</span></div>
+        <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb||1} pers.</span></div>
+        ${r.options&&r.options.length?`<div class="res-detail-row"><span class="label">Options</span><span class="value">${r.options.join(', ')}</span></div>`:''}`;
+    }
+
+    const btns = [];
+    if (status === 'pending') {
+      btns.push(`<button class="btn-action btn-confirm" onclick="updateStatusFromModal('${r.id}','confirmed')">✓ Confirmer</button>`);
+      btns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatusFromModal('${r.id}','cancelled')">✗ Annuler</button>`);
+    }
+    if (status === 'confirmed') btns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatusFromModal('${r.id}','cancelled')">✗ Annuler</button>`);
+    if (status === 'cancelled') btns.push(`<button class="btn-action btn-restore" onclick="updateStatusFromModal('${r.id}','confirmed')">↩ Rétablir</button>`);
+    btns.push(`<button class="btn-action btn-delete" onclick="deleteFromModal('${r.id}')">🗑 Supprimer</button>`);
+
+    const icon = r.type === 'peche' ? '🎣' : '🔥';
+    const typeLabel = r.type === 'peche' ? 'Pêche' : 'Bateau BBQ';
+
+    document.getElementById('detail-modal-content').innerHTML = `
+      <div class="detail-modal__head">
+        <div>
+          <div class="detail-modal__title">${icon} ${typeLabel} — ${r.prenom||''} ${(r.nom||'').toUpperCase()}</div>
+          <div style="font-size:0.73rem;color:var(--gray-light);margin-top:3px;">Reçu le ${received}</div>
+        </div>
+        <button class="detail-modal__close" onclick="closeResDetail()">✕</button>
+      </div>
+      <div class="detail-modal__body">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <span class="res-type-badge ${r.type}">${icon} ${typeLabel}</span>
+          ${statusBadge}
+        </div>
+        <div class="res-client" style="margin-bottom:14px;">
+          <div class="res-client__name">${r.prenom||''} ${(r.nom||'').toUpperCase()}</div>
+          <div class="res-client__contact">
+            ${r.tel?`<a href="tel:${r.tel}">📞 ${r.tel}</a>`:''}
+            ${r.email?`<a href="mailto:${r.email}">✉ ${r.email}</a>`:''}
+          </div>
+        </div>
+        <div class="res-details">${detailsHtml}</div>
+        ${r.message?`<div class="res-message">💬 ${r.message}</div>`:''}
+      </div>
+      <div class="detail-modal__footer">
+        <div class="res-total">${price>0?price+'€':'—'}</div>
+        <div class="res-actions">${btns.join('')}</div>
+      </div>`;
+
+    document.getElementById('res-detail-modal').classList.add('open');
+  };
+
+  window.closeResDetail = function() {
+    document.getElementById('res-detail-modal').classList.remove('open');
+  };
+
+  window.updateStatusFromModal = async function(id, status) {
+    await updateStatus(id, status);
+    closeResDetail();
+    if (currentViewMode === 'calendar') setTimeout(renderCalendarView, 300);
+  };
+
+  window.deleteFromModal = function(id) {
+    closeResDetail();
+    setTimeout(() => confirmDelete(id), 200);
+  };
+
+  document.getElementById('res-detail-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeResDetail();
+  });
+
+  // Calendar controls
+  document.getElementById('cal-prev').addEventListener('click', () => calNavigate(-1));
+  document.getElementById('cal-next').addEventListener('click', () => calNavigate(1));
+  document.getElementById('cal-today').addEventListener('click', () => { calDate = new Date(); renderCalendarView(); });
+  document.querySelectorAll('.cal-view-tab').forEach(tab => {
+    tab.addEventListener('click', () => { calView = tab.dataset.view; renderCalendarView(); });
+  });
+
   </script>
 </body>
 </html>
