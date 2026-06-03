@@ -61,7 +61,7 @@
       <div class="stats-bar__grid">
         <div class="stats-bar__item"><div class="stats-bar__value">3</div><div class="stats-bar__label">Bateaux disponibles</div></div>
         <div class="stats-bar__item"><div class="stats-bar__value">9 pers.</div><div class="stats-bar__label">Capacité max / bateau</div></div>
-        <div class="stats-bar__item"><div class="stats-bar__value">35€</div><div class="stats-bar__label">À partir de / personne</div></div>
+        <div class="stats-bar__item"><div class="stats-bar__value">70€</div><div class="stats-bar__label">À partir de / bateau</div></div>
         <div class="stats-bar__item"><div class="stats-bar__value">Permis</div><div class="stats-bar__label">Non requis</div></div>
       </div>
     </div>
@@ -206,77 +206,173 @@
         <h2 class="section-title">Choisissez votre formule</h2>
         <p class="section-subtitle">Toutes les formules incluent le bateau, le BBQ, le charbon, les gilets de sauvetage et la formation de navigation.</p>
       </div>
-      <div class="packages-grid">
+      <div class="packages-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        <!-- 1. Petit Déjeuner -->
         <div class="package-card">
           <div class="package-card__header">
-            <div class="package-card__icon">🥂</div>
-            <div class="package-card__name">Apéritif Coucher de Soleil</div>
-            <div class="package-card__duration">⏱️ 2 heures · De 18h à 20h</div>
-            <div class="package-card__price">35€ <small>/pers.</small></div>
-            <div class="package-card__min">Minimum 4 personnes</div>
+            <div class="package-card__featured-badge">☕ Idéal réveil gourmand</div>
+            <div class="package-card__icon">☕</div>
+            <div class="package-card__name">Petit Déjeuner</div>
+            <div class="package-card__duration">⏱️ 1h30 · 9h–10h30</div>
+            <div class="package-card__price">70€ <small>/ bateau</small></div>
           </div>
           <div class="package-card__divider"></div>
           <div class="package-card__includes">
             <div class="package-card__includes-title">Ce qui est inclus</div>
             <div class="package-card__item">Bateau + BBQ charbon</div>
-            <div class="package-card__item">Charbon (2kg fourni)</div>
             <div class="package-card__item">Gilets de sauvetage</div>
-            <div class="package-card__item">Formation navigation 15 min</div>
+            <div class="package-card__item">Charbon & allume-feu</div>
             <div class="package-card__item">Ustensiles BBQ</div>
           </div>
           <div class="package-card__footer">
             <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
           </div>
         </div>
-        <div class="package-card featured">
+        <!-- 2. Déjeuner -->
+        <div class="package-card">
           <div class="package-card__header">
-            <div class="package-card__featured-badge">⭐ Le plus populaire</div>
-            <div class="package-card__icon">🔥</div>
-            <div class="package-card__name">Soirée Barbecue</div>
-            <div class="package-card__duration">⏱️ 3h30 · Horaires flexibles</div>
-            <div class="package-card__price">65€ <small>/pers.</small></div>
-            <div class="package-card__min">Minimum 4 personnes</div>
+            <div class="package-card__icon">🍽️</div>
+            <div class="package-card__name">Déjeuner</div>
+            <div class="package-card__duration">⏱️ 3h · 11h30–14h30</div>
+            <div class="package-card__price">210€ <small>/ bateau</small></div>
           </div>
           <div class="package-card__divider"></div>
           <div class="package-card__includes">
             <div class="package-card__includes-title">Ce qui est inclus</div>
             <div class="package-card__item">Bateau + BBQ charbon</div>
-            <div class="package-card__item">Charbon (3kg fourni)</div>
             <div class="package-card__item">Gilets de sauvetage</div>
-            <div class="package-card__item">Formation navigation 15 min</div>
-            <div class="package-card__item">Plateau apéritif (chips, olives)</div>
-            <div class="package-card__item">Ustensiles BBQ complets</div>
-            <div class="package-card__item">Vaisselle & couverts</div>
+            <div class="package-card__item">Charbon & allume-feu</div>
+            <div class="package-card__item">Ustensiles BBQ</div>
+          </div>
+          <div class="package-card__footer">
+            <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
+          </div>
+        </div>
+        <!-- 3. Après-midi -->
+        <div class="package-card">
+          <div class="package-card__header">
+            <div class="package-card__icon">☀️</div>
+            <div class="package-card__name">Après-midi</div>
+            <div class="package-card__duration">⏱️ 2h · 15h30–17h30</div>
+            <div class="package-card__price">110€ <small>/ bateau</small></div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__includes-title">Ce qui est inclus</div>
+            <div class="package-card__item">Bateau + BBQ charbon</div>
+            <div class="package-card__item">Gilets de sauvetage</div>
+            <div class="package-card__item">Charbon & allume-feu</div>
+            <div class="package-card__item">Ustensiles BBQ</div>
+          </div>
+          <div class="package-card__footer">
+            <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
+          </div>
+        </div>
+        <!-- 4. Soirée -->
+        <div class="package-card featured">
+          <div class="package-card__header">
+            <div class="package-card__featured-badge">⭐ Le plus populaire</div>
+            <div class="package-card__icon">🔥</div>
+            <div class="package-card__name">Soirée</div>
+            <div class="package-card__duration">⏱️ 3h · 18h00–21h00</div>
+            <div class="package-card__price">210€ <small>/ bateau</small></div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__includes-title">Ce qui est inclus</div>
+            <div class="package-card__item">Bateau + BBQ charbon</div>
+            <div class="package-card__item">Gilets de sauvetage</div>
+            <div class="package-card__item">Charbon & allume-feu</div>
+            <div class="package-card__item">Ustensiles BBQ</div>
           </div>
           <div class="package-card__footer">
             <a href="#reservation" class="btn btn--primary btn--lg" style="background:var(--accent);width:100%;justify-content:center;">Choisir cette formule</a>
           </div>
         </div>
+        <!-- 5. Demi-journée Matin -->
         <div class="package-card">
           <div class="package-card__header">
-            <div class="package-card__icon">☀️</div>
-            <div class="package-card__name">Journée Complète</div>
-            <div class="package-card__duration">⏱️ 6 heures · De 11h à 17h</div>
-            <div class="package-card__price">95€ <small>/pers.</small></div>
-            <div class="package-card__min">Minimum 4 personnes</div>
+            <div class="package-card__icon">🌅</div>
+            <div class="package-card__name">Demi-journée Matin</div>
+            <div class="package-card__duration">⏱️ 5h · 10h–15h</div>
+            <div class="package-card__price">270€ <small>/ bateau</small></div>
           </div>
           <div class="package-card__divider"></div>
           <div class="package-card__includes">
             <div class="package-card__includes-title">Ce qui est inclus</div>
             <div class="package-card__item">Bateau + BBQ charbon</div>
-            <div class="package-card__item">Charbon illimité</div>
             <div class="package-card__item">Gilets de sauvetage</div>
-            <div class="package-card__item">Formation navigation 15 min</div>
-            <div class="package-card__item">Plateau apéritif premium</div>
-            <div class="package-card__item">Ustensiles BBQ & vaisselle</div>
-            <div class="package-card__item">Bouteille de vin offerte</div>
-            <div class="package-card__item">Photos souvenir par notre équipe</div>
+            <div class="package-card__item">Charbon & allume-feu</div>
+            <div class="package-card__item">Ustensiles BBQ</div>
+          </div>
+          <div class="package-card__footer">
+            <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
+          </div>
+        </div>
+        <!-- 6. Demi-journée Soir -->
+        <div class="package-card">
+          <div class="package-card__header">
+            <div class="package-card__icon">🌇</div>
+            <div class="package-card__name">Demi-journée Soir</div>
+            <div class="package-card__duration">⏱️ 4h · 16h–20h</div>
+            <div class="package-card__price">270€ <small>/ bateau</small></div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__includes-title">Ce qui est inclus</div>
+            <div class="package-card__item">Bateau + BBQ charbon</div>
+            <div class="package-card__item">Gilets de sauvetage</div>
+            <div class="package-card__item">Charbon & allume-feu</div>
+            <div class="package-card__item">Ustensiles BBQ</div>
           </div>
           <div class="package-card__footer">
             <a href="#reservation" class="btn btn--outline-dark btn--lg" style="width:100%;justify-content:center;">Choisir cette formule</a>
           </div>
         </div>
       </div>
+
+      <!-- OPTIONS À BORD -->
+      <div class="section-header text-center" style="margin-top:48px;margin-bottom:24px;">
+        <span class="section-label">Options à bord</span>
+        <h3 style="font-size:1.3rem;font-weight:700;color:var(--dark);margin:8px 0;">Enrichissez votre expérience</h3>
+        <p style="color:var(--gray);font-size:0.95rem;">Par personne, en supplément de la location du bateau</p>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;">
+        <div class="package-card" style="flex:1;min-width:220px;max-width:320px;">
+          <div class="package-card__header">
+            <div class="package-card__icon">☕</div>
+            <div class="package-card__name">Option petit déjeuner</div>
+            <div class="package-card__price">12€ <small>/ pers.</small></div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__item">Viennoiseries, jus, café</div>
+          </div>
+        </div>
+        <div class="package-card" style="flex:1;min-width:220px;max-width:320px;">
+          <div class="package-card__header">
+            <div class="package-card__icon">🧀</div>
+            <div class="package-card__name">Plateau apéro</div>
+            <div class="package-card__price">12€ <small>/ pers.</small></div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__item">Fromages, charcuterie, tapenades</div>
+          </div>
+        </div>
+        <div class="package-card" style="flex:1;min-width:220px;max-width:320px;">
+          <div class="package-card__header">
+            <div class="package-card__icon">🥩</div>
+            <div class="package-card__name">Plateau viande BBQ</div>
+            <div class="package-card__price">20€ <small>/ pers.</small></div>
+          </div>
+          <div class="package-card__divider"></div>
+          <div class="package-card__includes">
+            <div class="package-card__item">Viandes marinées, sauces, pain</div>
+          </div>
+        </div>
+      </div>
+
       <div style="margin-top:36px;background:rgba(232,149,30,0.08);border:1px solid rgba(232,149,30,0.2);border-radius:16px;padding:24px;text-align:center;">
         <p style="font-size:0.95rem;color:var(--gray-dark);">
           🎂 <strong>Événements & groupes</strong> — Pour les anniversaires, EVG/EVJF, team building ou groupes de 20+ personnes, nous proposons des tarifs négociés et des formules sur-mesure. <a href="contact.html" style="color:var(--accent);font-weight:700;">Contactez-nous</a>.
@@ -391,38 +487,36 @@
             </div>
             <div class="form-group">
               <label>Formule *</label>
-              <div class="form-radio-group">
+              <div class="form-radio-group" style="grid-template-columns:repeat(3,1fr);">
                 <label class="form-radio">
-                  <input type="radio" name="bformule" value="aperitif" required>
-                  <div class="form-radio__label"><div class="form-radio__price">35€</div><div class="form-radio__name">Apéritif 2h</div></div>
+                  <input type="radio" name="bformule" value="petit-dej" required>
+                  <div class="form-radio__label"><div class="form-radio__price">70€</div><div class="form-radio__name">Petit Déj. 9h-10h30</div></div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="bformule" value="midi">
+                  <div class="form-radio__label"><div class="form-radio__price">210€</div><div class="form-radio__name">Midi 11h30-14h30</div></div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="bformule" value="apres-midi">
+                  <div class="form-radio__label"><div class="form-radio__price">110€</div><div class="form-radio__name">Après-midi 15h30-17h30</div></div>
                 </label>
                 <label class="form-radio">
                   <input type="radio" name="bformule" value="soiree">
-                  <div class="form-radio__label"><div class="form-radio__price">65€</div><div class="form-radio__name">Soirée 3h30</div></div>
+                  <div class="form-radio__label"><div class="form-radio__price">210€</div><div class="form-radio__name">Soirée 18h00-21h00</div></div>
                 </label>
                 <label class="form-radio">
-                  <input type="radio" name="bformule" value="journee">
-                  <div class="form-radio__label"><div class="form-radio__price">95€</div><div class="form-radio__name">Journée 6h</div></div>
+                  <input type="radio" name="bformule" value="demi-matin">
+                  <div class="form-radio__label"><div class="form-radio__price">270€</div><div class="form-radio__name">Demi-j. 10h-15h</div></div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="bformule" value="demi-soir">
+                  <div class="form-radio__label"><div class="form-radio__price">270€</div><div class="form-radio__name">Demi-j. 16h-20h</div></div>
                 </label>
               </div>
             </div>
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label>Date souhaitée *</label>
-                <input type="date" class="form-control" id="bf-date" required>
-              </div>
-              <div class="form-group">
-                <label>Heure de départ souhaitée</label>
-                <select class="form-control" id="bf-heure">
-                  <option value="10:00">10h00</option>
-                  <option value="11:00">11h00</option>
-                  <option value="12:00">12h00</option>
-                  <option value="14:00">14h00</option>
-                  <option value="16:00">16h00</option>
-                  <option value="18:00">18h00 (coucher de soleil)</option>
-                  <option value="19:00">19h00</option>
-                </select>
-              </div>
+            <div class="form-group">
+              <label>Date souhaitée *</label>
+              <input type="date" class="form-control" id="bf-date" required>
             </div>
             <div class="form-group">
               <label>Nombre de personnes *</label>
@@ -436,6 +530,29 @@
                 <option value="8">8 personnes</option>
                 <option value="9">9 personnes (maximum)</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label>Options à bord</label>
+              <div class="boat-options-grid">
+                <label class="boat-option-item">
+                  <input type="checkbox" class="boat-opt-cb" data-price="12" id="bopt-petit-dej">
+                  <span class="boat-option-item__icon">☕</span>
+                  <span class="boat-option-item__label">Petit déjeuner</span>
+                  <span class="boat-option-item__price" id="bopt-petit-dej-price">+12 €/pers.</span>
+                </label>
+                <label class="boat-option-item">
+                  <input type="checkbox" class="boat-opt-cb" data-price="12" id="bopt-apero">
+                  <span class="boat-option-item__icon">🧀</span>
+                  <span class="boat-option-item__label">Plateau apéro</span>
+                  <span class="boat-option-item__price" id="bopt-apero-price">+12 €/pers.</span>
+                </label>
+                <label class="boat-option-item">
+                  <input type="checkbox" class="boat-opt-cb" data-price="20" id="bopt-viande">
+                  <span class="boat-option-item__icon">🥩</span>
+                  <span class="boat-option-item__label">Plateau viande BBQ</span>
+                  <span class="boat-option-item__price" id="bopt-viande-price">+20 €/pers.</span>
+                </label>
+              </div>
             </div>
             <div class="form-group">
               <label>Occasion spéciale ?</label>
@@ -470,6 +587,7 @@
             <div class="summary-line"><span>Date</span><span id="bsum-date">—</span></div>
             <div class="summary-line"><span>Personnes</span><span id="bsum-nb">—</span></div>
             <div class="summary-line"><span>Détail</span><span id="bsum-unitaire">—</span></div>
+            <div class="summary-line" id="bsum-opts-line" style="display:none;"><span>Options</span><span id="bsum-opts">—</span></div>
             <div class="summary-total">
               <span>Total</span>
               <span id="bsum-total" style="color:var(--accent);">—</span>

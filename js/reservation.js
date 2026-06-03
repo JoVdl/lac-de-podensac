@@ -273,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const nb        = parseInt(document.getElementById('f-nb').value);
       const nbAccomp  = parseInt(document.getElementById('f-accompagnant')?.value || 0);
       const has4canne = document.getElementById('f-4canne')?.checked || false;
+      const technique = document.getElementById('f-technique')?.value || '';
       const message   = document.getElementById('f-message')?.value;
 
       if (!prenom || !nom || !email || !tel || !posteId || !formule || !dateDebut) {
@@ -305,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
         posteId, prenom, nom, email, tel, formule, dateDebut, duree, nb, message, dates,
         nbAccompagnants: nbAccomp,
         canne4: has4canne && formule !== 'demi',
+        technique,
         materiel: selectedMateriel,
         totalPrice: total,
       };
@@ -426,7 +428,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const bateau  = document.getElementById('bf-bateau')?.value;
       const formule = document.querySelector('input[name="bformule"]:checked')?.value;
       const date    = document.getElementById('bf-date')?.value;
-      const heure   = document.getElementById('bf-heure')?.value;
       const nb      = document.getElementById('bf-nb')?.value;
 
       if (!prenom || !nom || !email || !tel || !bateau || !formule || !date) {
@@ -434,11 +435,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      const prix   = { 'aperitif': 35, 'soiree': 65, 'journee': 95 };
-      const total  = prix[formule] * parseInt(nb);
-      const labels = { 'aperitif': 'Apéritif (2h)', 'soiree': 'Soirée BBQ (3h30)', 'journee': 'Journée (6h)' };
+      const BPRIX = { 'petit-dej':70, 'midi':210, 'apres-midi':110, 'soiree':210, 'demi-matin':270, 'demi-soir':270 };
+      const BLABELS = { 'petit-dej':'Petit déj. 9h–10h30','midi':'Déjeuner 11h30–14h30','apres-midi':'Après-midi 15h30–17h30','soiree':'Soirée 18h–21h','demi-matin':'Demi-j. 10h–15h','demi-soir':'Demi-j. 16h–20h' };
+      const basePrice = BPRIX[formule] || 0;
+      const nbPers = parseInt(nb);
+      const optCbs = document.querySelectorAll('.boat-opt-cb:checked');
+      const optionsTotal = Array.from(optCbs).reduce((sum, cb) => sum + (parseInt(cb.dataset.price) || 0) * nbPers, 0);
+      const total = basePrice + optionsTotal;
+      const selectedOpts = Array.from(optCbs).map(cb => cb.id);
 
-      const booking = { type:'bateau', status:'pending', prenom, nom, email, tel, bateau, formule, date, heure, nb: parseInt(nb) };
+      const booking = { type:'bateau', status:'pending', prenom, nom, email, tel, bateau, formule, date, nb: nbPers, options: selectedOpts, optionsPrice: optionsTotal, totalPrice: total };
 
       const submitBtn = boatForm.querySelector('[type="submit"]');
       const origHtml  = submitBtn?.innerHTML;
@@ -447,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         if (typeof LacDB !== 'undefined') await LacDB.addReservation(booking);
 
-        showToast(`🔥 Réservation bateau enregistrée ! ${labels[formule]} — ${total} € pour ${nb} pers. Nous vous contacterons à ${email}.`, 'success', '🔥');
+        showToast(`🔥 Réservation bateau enregistrée ! ${BLABELS[formule]} — ${total} € (${nbPers} pers.). Nous vous contacterons à ${email}.`, 'success', '🔥');
         boatForm.reset();
         const bdate = document.getElementById('bf-date');
         if (bdate) bdate.min = new Date().toISOString().split('T')[0];
@@ -471,19 +477,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const bateau  = document.getElementById('bf-bateau')?.value;
     const date    = document.getElementById('bf-date')?.value;
 
-    const prix   = { 'aperitif': 35, 'soiree': 65, 'journee': 95 };
-    const labels = { 'aperitif': 'Apéritif 2h', 'soiree': 'Soirée BBQ 3h30', 'journee': 'Journée 6h' };
+    const BPRIX   = { 'petit-dej':70, 'midi':210, 'apres-midi':110, 'soiree':210, 'demi-matin':270, 'demi-soir':270 };
+    const BLABELS = { 'petit-dej':'Petit déj. 9h–10h30','midi':'Déjeuner 11h30–14h30','apres-midi':'Après-midi 15h30–17h30','soiree':'Soirée 18h–21h','demi-matin':'Demi-j. 10h–15h','demi-soir':'Demi-j. 16h–20h' };
 
     const el = id => document.getElementById(id);
     if (el('bsum-bateau'))  el('bsum-bateau').textContent  = bateau || '—';
-    if (el('bsum-formule')) el('bsum-formule').textContent = formule ? labels[formule] : '—';
+    if (el('bsum-formule')) el('bsum-formule').textContent = formule ? BLABELS[formule] : '—';
     if (el('bsum-date'))    el('bsum-date').textContent    = date ? formatDateFR(date) : '—';
     if (el('bsum-nb'))      el('bsum-nb').textContent      = `${nb} personnes`;
 
     if (formule) {
-      const total = prix[formule] * nb;
+      const basePrice = BPRIX[formule] || 0;
+      const optCbs = document.querySelectorAll('.boat-opt-cb:checked');
+      const optionsTotal = Array.from(optCbs).reduce((sum, cb) => sum + (parseInt(cb.dataset.price) || 0) * nb, 0);
+      const total = basePrice + optionsTotal;
       if (el('bsum-total'))    el('bsum-total').textContent    = `${total} €`;
-      if (el('bsum-unitaire')) el('bsum-unitaire').textContent = `${nb} × ${prix[formule]} €`;
+      if (el('bsum-unitaire')) el('bsum-unitaire').textContent = `${basePrice} € / bateau`;
+      const optsLine = el('bsum-opts-line');
+      if (optsLine) optsLine.style.display = optionsTotal > 0 ? '' : 'none';
+      if (el('bsum-opts')) el('bsum-opts').textContent = optionsTotal > 0 ? `+${optionsTotal} €` : '—';
     }
   }
 
@@ -492,4 +504,5 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e) e.addEventListener('change', updateBoatSummary);
   });
   document.querySelectorAll('input[name="bformule"]').forEach(r => r.addEventListener('change', updateBoatSummary));
+  document.querySelectorAll('.boat-opt-cb').forEach(cb => cb.addEventListener('change', updateBoatSummary));
 });
