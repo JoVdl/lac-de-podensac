@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const filtered = POSTES.filter(p => {
       if (filter === 'available') return p.disponible && !p.coming_soon;
-      if (filter === 'carpe') return p.poissons.some(f => f.toLowerCase().includes('carpe'));
+      if (filter === 'carpe') return p.id >= 1 && p.id <= 6 && p.poissons.some(f => f.toLowerCase().includes('carpe'));
       if (filter === 'brochet') return p.poissons.some(f => f.toLowerCase().includes('brochet') || f.toLowerCase().includes('sandre'));
       if (filter === 'facile') return p.difficulte === 'Facile';
       if (filter === 'premium') return p.premium;
@@ -242,9 +242,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderAllGrid(species = 'all') {
     if (!allGrid) return;
     allGrid.innerHTML = '';
-    const filtered = species === 'all' ? POSTES : POSTES.filter(p =>
-      p.poissons.some(f => f.toLowerCase().includes(species.toLowerCase()))
-    );
+    const filtered = species === 'all' ? POSTES : POSTES.filter(p => {
+      const match = p.poissons.some(f => f.toLowerCase().includes(species.toLowerCase()));
+      if (species.toLowerCase() === 'carpe') return match && p.id >= 1 && p.id <= 6;
+      return match;
+    });
     filtered.forEach(p => {
       const avail = p.disponible && !p.coming_soon ? 'available' : 'busy';
       const avlbl = p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Disponible' : '● Complet';
