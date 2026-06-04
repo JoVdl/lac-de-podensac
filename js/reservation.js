@@ -203,7 +203,12 @@ document.addEventListener('DOMContentLoaded', function () {
       fType === 'jour' ? 'Journée (12h)' :
       fType === 'nuit' ? `${duree} nuit${duree > 1 ? 's' : ''}` : rawFormule
     ) : '—';
-    if (el('sum-formule')) el('sum-formule').textContent = formuleLabel;
+    const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+    const unitPrice = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
+    const formuleWithPrice = rawFormule && cfg.peche && nb > 1
+      ? `${formuleLabel} · ${unitPrice} € × ${nb} pêcheurs`
+      : formuleLabel;
+    if (el('sum-formule')) el('sum-formule').textContent = formuleWithPrice;
     if (el('sum-date'))    el('sum-date').textContent    = date ? formatDateFR(date) : '—';
     if (el('sum-duree'))   el('sum-duree').textContent   = formuleLabel !== '—' ? formuleLabel : '—';
     if (el('sum-nb'))      el('sum-nb').textContent      = `${nb} pêcheur${nb > 1 ? 's' : ''}`;
@@ -242,9 +247,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const tarifs   = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
     const hasPoste = cfg.poste ? !!poste : true;
     if (hasPoste && rawFormule) {
-      let basePrice = fType === 'nuit'
-        ? (tarifs[duree] || duree * 35)
-        : (fType === 'demi' ? 15 : 20);
+      const unitPrice = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
+      let basePrice   = unitPrice * nb;
       const opts = cfg.optionsPeche ? calcOptionsPrice(fType, duree, nbAccomp, has4canne) : { accompPrice:0, canne4Price:0 };
       const materielPrice = calcMaterielPrice();
       const total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
@@ -594,8 +598,8 @@ document.addEventListener('DOMContentLoaded', function () {
           dates.push(new Date(d.getTime() + i * 86400000).toISOString().split('T')[0]);
         }
 
-        const tarifs      = window.TARIFS_NUITS || {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
-        let basePrice     = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
+        const tarifs       = window.TARIFS_NUITS || {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
+        const unitPrice    = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
         const formuleLabel = fType === 'demi' ? 'Demi-journée' : fType === 'jour' ? 'Journée' : `${duree} nuit${duree>1?'s':''}`;
         const materielPrice    = calcMaterielPrice();
         const selectedMateriel = Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id);
@@ -606,6 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const nbAccomp  = parseInt(el('f-accompagnant')?.value || 0);
           const has4canne = el('f-4canne')?.checked || false;
           const opts      = calcOptionsPrice(fType, duree, nbAccomp, has4canne);
+          const basePrice = unitPrice * nb;
           total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
 
           Object.assign(booking, {
@@ -619,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const poste = typeof POSTES !== 'undefined' ? POSTES.find(p => p.id === posteId) : null;
           toastMsg = `🎣 Réservation enregistrée ! Poste #${posteId}${poste ? ' — ' + poste.nom : ''} — ${total} €. Confirmation à ${email}.`;
         } else {
-          total = basePrice + materielPrice;
+          total = unitPrice + materielPrice;
           Object.assign(booking, {
             type:'location', formule: rawFormule, formuleLabel, fType, dateDebut, duree, dates,
             materiel: selectedMateriel, materielPrice,
