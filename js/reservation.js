@@ -68,8 +68,12 @@ document.addEventListener('DOMContentLoaded', function () {
     filtered.forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = `#${p.id} — ${p.nom} (${p.disponible ? '✓ Disponible' : '● Complet'})`;
-      if (!p.disponible) opt.disabled = true;
+      const statusLabel = p.disponible
+        ? '✓ Disponible'
+        : p.complet_jusqu_au
+          ? `📅 Dispo à partir du ${p.complet_jusqu_au}`
+          : '● Sur demande';
+      opt.textContent = `#${p.id} — ${p.nom} (${statusLabel})`;
       posteSelect.appendChild(opt);
     });
     posteSelect.value = '';
