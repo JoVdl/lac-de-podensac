@@ -99,6 +99,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.27, note: "Zone de pêche à la nuitée — 1,27 ha",
+    complet_jusqu_au: "8 juin 2026",
   },
   {
     id: 3,

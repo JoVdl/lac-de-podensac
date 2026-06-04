@@ -205,9 +205,12 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
         <div class="map-spot-item__meta">
           <div class="map-spot-item__price">${p.prix_jour}€<small style="font-weight:400;color:#6c7a89;font-size:0.72rem;">/j</small></div>
-          <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
-            ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : '● Complet'}
-          </span>
+          <div style="text-align:right;">
+            <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
+              ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : '● Complet'}
+            </span>
+            ${!p.disponible && !p.coming_soon && p.complet_jusqu_au ? `<div class="complet-date" style="font-size:0.65rem;color:#c0392b;margin-top:2px;">jusqu'au ${p.complet_jusqu_au}</div>` : '<div class="complet-date"></div>'}
+          </div>
         </div>
       `;
       item.addEventListener('click', () => {
@@ -453,6 +456,8 @@ document.addEventListener('DOMContentLoaded', function () {
           badge.className = `map-spot-item__avail ${isAvail ? 'available' : 'busy'}`;
           badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : '● Complet';
         }
+        const dateEl = item.querySelector('.complet-date');
+        if (dateEl) dateEl.textContent = (!isAvail && !isSoon && poste.complet_jusqu_au) ? `jusqu'au ${poste.complet_jusqu_au}` : '';
       });
     });
   }
