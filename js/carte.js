@@ -355,11 +355,28 @@ document.addEventListener('DOMContentLoaded', function () {
         <div style="display:flex;gap:8px;flex-wrap:wrap;">${p.equipements.map(e=>`<span style="background:var(--gray-bg);padding:6px 12px;border-radius:8px;font-size:0.8rem;color:var(--gray-dark);">✓ ${e}</span>`).join('')}</div>
       </div>
       <div class="modal__section">
-        <div class="modal__section-title">Tarifs</div>
-        <div class="modal__pricing">
-          <div class="modal__price-card"><div class="modal__price-label">Journée (6h–20h)</div><div class="modal__price-amount">${p.prix_jour}€<span>/session</span></div><div class="modal__price-note">jusqu'à ${p.capacite} pêcheur${p.capacite>1?'s':''}</div></div>
-          <div class="modal__price-card featured"><div class="modal__price-label">Nuit (20h–8h)</div><div class="modal__price-amount">${p.prix_nuit}€<span>/session</span></div><div class="modal__price-note">Bivouac autorisé</div></div>
-          <div class="modal__price-card"><div class="modal__price-label">24 heures</div><div class="modal__price-amount">${p.prix_24h}€<span>/session</span></div><div class="modal__price-note">Meilleur rapport</div></div>
+        <div class="modal__section-title">Tarifs <span style="font-size:0.75rem;font-weight:400;color:var(--gray);">— par pêcheur</span></div>
+        <div class="modal__pricing" style="grid-template-columns:repeat(2,1fr);">
+          <div class="modal__price-card">
+            <div class="modal__price-label">☀️ Journée</div>
+            <div class="modal__price-amount">20€<span>/pêcheur</span></div>
+            <div class="modal__price-note">Lever → coucher du soleil</div>
+          </div>
+          <div class="modal__price-card featured">
+            <div class="modal__price-label">🌙 24 heures</div>
+            <div class="modal__price-amount">35€<span>/pêcheur</span></div>
+            <div class="modal__price-note">De 12h00 à 12h00</div>
+          </div>
+          <div class="modal__price-card">
+            <div class="modal__price-label">🌙🌙 48 heures</div>
+            <div class="modal__price-amount">70€<span>/pêcheur</span></div>
+            <div class="modal__price-note">De 12h00 à 12h00</div>
+          </div>
+          <div class="modal__price-card">
+            <div class="modal__price-label">➕ 24h supplémentaires</div>
+            <div class="modal__price-amount">+20€<span>/pêcheur</span></div>
+            <div class="modal__price-note">Par tranche de 24h en plus</div>
+          </div>
         </div>
       </div>
       <div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap;">
