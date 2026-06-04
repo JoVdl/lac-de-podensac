@@ -502,10 +502,10 @@
         const availLabel = p.disponible ? '✓ Disponible' : '● Complet';
         previewGrid.innerHTML += `
           <div class="spot-card" onclick="location.href='peche.html#poste-${p.id}'">
-            <div class="spot-card__header">
+            <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url("${p.image}") center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
               <span class="spot-card__number">${p.id}</span>
               <span class="spot-card__avail ${avail}">${availLabel}</span>
-              <div class="spot-card__illustration">${p.icon}</div>
+              <div class="spot-card__illustration">${p.image ? '' : p.icon}</div>
             </div>
             <div class="spot-card__body">
               <div class="spot-card__name">${p.nom}</div>
@@ -529,10 +529,10 @@
         const availLabel = p.disponible ? '✓ Disponible' : '● Complet';
         previewGrid.innerHTML += `
           <div class="spot-card fade-up" onclick="location.href='peche.html#poste-${p.id}'" style="cursor:pointer;">
-            <div class="spot-card__header">
+            <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url("${p.image}") center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
               <span class="spot-card__number">${p.id}</span>
               <span class="spot-card__avail ${avail}">${availLabel}</span>
-              <div class="spot-card__illustration">${p.icon}</div>
+              <div class="spot-card__illustration">${p.image ? '' : p.icon}</div>
             </div>
             <div class="spot-card__body">
               <div class="spot-card__name">${p.nom}</div>
