@@ -732,7 +732,6 @@ p { margin-bottom: 0; }
 .form-radio__name { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
 .booking-summary {
   background: var(--primary); border-radius: var(--radius-xl); padding: 32px; color: var(--white);
-  position: sticky; top: 90px; align-self: start;
 }
 .booking-summary__title { font-size: 1.1rem; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 16px; }
 .summary-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.88rem; }
