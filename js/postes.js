@@ -75,6 +75,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.20, note: "Zone de pêche à la nuitée — 1,20 ha",
+    complet_jusqu_au: null,
   },
   {
     id: 2,
@@ -124,6 +125,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.22, note: "Zone de pêche à la nuitée — 1,22 ha",
+    complet_jusqu_au: null,
   },
   {
     id: 4,
@@ -148,6 +150,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.33, note: "Zone de pêche à la nuitée — 1,33 ha",
+    complet_jusqu_au: null,
   },
   {
     id: 5,
@@ -172,6 +175,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.82, note: "Zone 1,82 ha",
+    complet_jusqu_au: null,
   },
   {
     id: 6,
@@ -196,6 +200,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 2.52, note: "Zone de pêche à la nuitée — 2,52 ha — 2 à 3 pêcheurs",
+    complet_jusqu_au: null,
   },
   {
     id: 7,
@@ -220,6 +225,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Ponton bois 22m² — Accès voiture possible",
+    complet_jusqu_au: null,
   },
   {
     id: 8,
@@ -244,6 +250,7 @@ const POSTES = [
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Poste pas encore terminé — proche de l'aire barques",
     coming_soon: true,
+    complet_jusqu_au: null,
   },
   {
     id: 9,
@@ -268,6 +275,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Accès possible toute l'année en voiture",
+    complet_jusqu_au: null,
   },
   {
     id: 10,
@@ -293,6 +301,7 @@ const POSTES = [
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Accès à 30m en voiture — Zone toutes pêches à proximité",
     premium: true,
+    complet_jusqu_au: null,
   },
 ];
 
