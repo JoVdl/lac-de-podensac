@@ -12,7 +12,7 @@ const ACTIVITY_SECTIONS = {
   'canoe':               { location:true, formule:true, calendar:true, materiel:true },
   'barque-sans-peche':   { location:true, formule:true, calendar:true, materiel:true },
   'barbecue-boat':       { bateau:true, materiel:true },
-  'emplacement-bbq':     { emplacement:true, materiel:true },
+  'emplacement-bbq':     { emplacementBBQ:true },
   'emplacement-camping': { emplacement:true, materiel:true },
 };
 
@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
     el('sec-nb-pecheurs').hidden   = !cfg.nbPecheurs;
     el('sec-bateau').hidden        = !cfg.bateau;
     el('sec-emplacement').hidden   = !cfg.emplacement;
+    const secEmplBBQ = el('sec-emplacement-bbq'); if (secEmplBBQ) secEmplBBQ.hidden = !cfg.emplacementBBQ;
     el('sec-options-peche').hidden = !cfg.optionsPeche;
     el('sec-materiel').hidden      = !cfg.materiel;
 
@@ -129,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Reset activité sélectionnée et sections
     document.querySelectorAll('input[name="activity"]').forEach(r => r.checked = false);
-    ['sec-poste','sec-formule','sec-calendar','sec-nb-pecheurs','sec-bateau','sec-emplacement','sec-options-peche','sec-materiel'].forEach(id => {
+    ['sec-poste','sec-formule','sec-calendar','sec-nb-pecheurs','sec-bateau','sec-emplacement','sec-emplacement-bbq','sec-options-peche','sec-materiel'].forEach(id => {
       const s = el(id); if (s) s.hidden = true;
     });
     if (el('sum-activite')) el('sum-activite').textContent = '—';
@@ -207,6 +208,26 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         if (el('sum-total')) el('sum-total').textContent = '—';
       }
+      return;
+    }
+
+    // ── Emplacement BBQ ──
+    if (cfg.emplacementBBQ) {
+      const date   = el('f-bbq-date')?.value;
+      const creneau = el('f-bbq-creneau')?.value || '';
+      const nb     = parseInt(el('f-bbq-nb')?.value || 1);
+      const basePrice = 5 * nb;
+
+      const optCbs = document.querySelectorAll('.bbq-opt-cb:checked');
+      const optsPrice = Array.from(optCbs).reduce((s, cb) => s + (parseInt(cb.dataset.price) || 0), 0);
+      const total = basePrice + optsPrice;
+
+      if (el('sum-date'))  el('sum-date').textContent  = date ? formatDateFR(date) : '—';
+      if (el('sum-duree')) el('sum-duree').textContent = creneau || '—';
+      if (el('sum-total')) el('sum-total').textContent = `${total} €`;
+      const matLine = el('sum-materiel-line');
+      if (matLine) matLine.style.display = optsPrice > 0 ? '' : 'none';
+      if (el('sum-materiel')) el('sum-materiel').textContent = optsPrice > 0 ? `+${optsPrice} €` : '—';
       return;
     }
 
@@ -433,6 +454,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const e = el(id);
     if (e) e.addEventListener('change', updateSummary);
   });
+  ['f-bbq-date','f-bbq-creneau','f-bbq-nb'].forEach(id => {
+    const e = el(id);
+    if (e) e.addEventListener('change', updateSummary);
+  });
+  document.querySelectorAll('.bbq-opt-cb').forEach(cb => cb.addEventListener('change', updateSummary));
   const f4c = el('f-4canne');
   if (f4c) f4c.addEventListener('change', updateSummary);
 
@@ -600,6 +626,33 @@ document.addEventListener('DOMContentLoaded', function () {
           totalPrice: total,
         });
         toastMsg = `🔥 Réservation enregistrée ! ${BLABELS[formule]} — ${total} € (${nb} pers.). Confirmation à ${email}.`;
+
+      } else if (cfg.emplacementBBQ) {
+        const date    = el('f-bbq-date')?.value;
+        const creneau = el('f-bbq-creneau')?.value || '';
+        const nb      = parseInt(el('f-bbq-nb')?.value || 1);
+
+        if (!date) {
+          showToast('Veuillez choisir une date.', 'error', '⚠️');
+          return;
+        }
+        if (!creneau) {
+          showToast('Veuillez choisir un créneau (journée ou après-midi).', 'error', '⚠️');
+          return;
+        }
+
+        const optCbs    = document.querySelectorAll('.bbq-opt-cb:checked');
+        const optsPrice = Array.from(optCbs).reduce((s, cb) => s + (parseInt(cb.dataset.price) || 0), 0);
+        const basePrice = 5 * nb;
+        total = basePrice + optsPrice;
+
+        Object.assign(booking, {
+          type: 'emplacement-bbq', date, creneau, nb,
+          options: Array.from(optCbs).map(cb => cb.dataset.label || cb.id),
+          optionsPrice: optsPrice,
+          totalPrice: total,
+        });
+        toastMsg = `🔥 Réservation enregistrée ! Emplacement BBQ — ${creneau}, ${nb} pers. — ${total} €. Confirmation à ${email}.`;
 
       } else if (cfg.emplacement) {
         const date  = el('f-empl-date')?.value;
