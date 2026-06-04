@@ -378,6 +378,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('.materiel-cb').forEach(cb => cb.addEventListener('change', () => { updateMaterielUI(); updateSummary(); }));
 
+  document.querySelectorAll('.materiel-opt-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.option-toggle')) return;
+      const cb = card.querySelector('.materiel-cb');
+      if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+    });
+  });
+
   function calcMaterielPrice() {
     const { duree } = parseFormule(document.querySelector('input[name="formule"]:checked')?.value);
     let total = 0;

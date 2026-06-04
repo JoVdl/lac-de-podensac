@@ -1274,7 +1274,9 @@ p { margin-bottom: 0; }
   padding: 11px 12px; border: 2px solid rgba(0,0,0,0.08);
   border-radius: var(--radius); background: var(--white);
   transition: border-color 0.2s, background 0.2s;
+  cursor: pointer; user-select: none;
 }
+.materiel-opt-card:hover { border-color: rgba(61,138,128,0.4); }
 .materiel-opt-card:has(.materiel-cb:checked) {
   border-color: var(--primary); background: rgba(61,138,128,0.05);
 }
