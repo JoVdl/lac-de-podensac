@@ -422,12 +422,28 @@ document.addEventListener('DOMContentLoaded', function () {
   // ── Disponibilité temps réel via Firebase ────────────────────
   if (typeof LacDB !== 'undefined') {
     const today = new Date().toISOString().split('T')[0];
+
+    function nextDayFR(dateStr) {
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + 1);
+      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
     LacDB.watchAllReservations(function (reservations) {
-      const bookedToday = new Set(
-        reservations
-          .filter(r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today))
-          .map(r => r.posteId)
+      const pescheResaToday = reservations.filter(
+        r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today)
       );
+
+      const bookedToday = new Set(pescheResaToday.map(r => r.posteId));
+
+      // Pour chaque poste réservé, calculer la prochaine dispo (lendemain de la dernière date)
+      const nextDispoMap = {};
+      pescheResaToday.forEach(r => {
+        const lastDate = [...r.dates].sort().pop();
+        if (!nextDispoMap[r.posteId] || lastDate > nextDispoMap[r.posteId]) {
+          nextDispoMap[r.posteId] = lastDate;
+        }
+      });
 
       // Mettre à jour les couleurs des polygones
       Object.entries(polygonLayers).forEach(([pid, poly]) => {
@@ -460,18 +476,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const badge = item.querySelector('.map-spot-item__avail');
         if (badge) {
           badge.className = `map-spot-item__avail ${isAvail ? 'available' : 'busy'}`;
-          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : poste.complet_jusqu_au ? '📅' : '●';
+          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : (poste.complet_jusqu_au || nextDispoMap[id]) ? '📅' : '●';
         }
         const dateEl = item.querySelector('.complet-date');
         if (dateEl) {
           if (isAvail && poste.libre_jusqu_au) {
             dateEl.textContent = `libre jusqu'au ${poste.libre_jusqu_au}`;
             dateEl.style.color = '#27ae60';
+          } else if (!isAvail && !isSoon && bookedToday.has(id) && nextDispoMap[id]) {
+            dateEl.textContent = `dispo à partir du ${nextDayFR(nextDispoMap[id])}`;
+            dateEl.style.color = '#e8951e';
           } else if (!isAvail && !isSoon && poste.complet_jusqu_au) {
             dateEl.textContent = `dispo à partir du ${poste.complet_jusqu_au}`;
             dateEl.style.color = '#e8951e';
           } else if (!isAvail && !isSoon) {
-            dateEl.textContent = 'indisponible';
+            dateEl.textContent = 'dispo sur demande';
             dateEl.style.color = '#c0392b';
           } else {
             dateEl.textContent = '';
