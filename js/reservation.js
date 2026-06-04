@@ -3,7 +3,7 @@
 // ================================================================
 
 const ACTIVITY_SECTIONS = {
-  'carnassier-bord':     { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carnassier-bord':     { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carnassier-barque':   { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,2,3,4,5,6], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'coup':                { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
