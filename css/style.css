@@ -909,7 +909,9 @@ p { margin-bottom: 0; }
 .calendar-day.today { font-weight: 700; border: 2px solid var(--primary); }
 .calendar-day.available { background: rgba(39,174,96,0.1); color: var(--success); }
 .calendar-day.booked { background: rgba(231,76,60,0.1); color: var(--danger); cursor: not-allowed; text-decoration: line-through; }
-.calendar-day.selected { background: var(--primary); color: var(--white); }
+.calendar-day.selected { background: var(--primary); color: var(--white); font-weight: 700; }
+.calendar-day.in-range { background: rgba(61,138,128,0.18); color: var(--primary-dark); font-weight: 600; cursor: pointer; }
+.calendar-day.range-end { background: var(--primary-dark); color: var(--white); font-weight: 700; }
 .calendar-day.other-month { opacity: 0.3; }
 
 /* ================================================================

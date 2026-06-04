@@ -335,25 +335,43 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── Date de départ auto-calculée ─────────────────────────────
+  // ── Sync bidirectionnel dates ↔ formule ──────────────────────
   function updateDepartureDate() {
-    const dateDebut = el('f-date-debut')?.value;
+    const dateDebut  = el('f-date-debut')?.value;
     const rawFormule = document.querySelector('input[name="formule"]:checked')?.value;
     const finInput   = el('f-date-fin');
     if (!finInput) return;
     if (!dateDebut || !rawFormule || rawFormule === 'demi') { finInput.value = ''; return; }
     const { type: fType, duree } = parseFormule(rawFormule);
-    const start = new Date(dateDebut + 'T12:00:00');
-    let days = fType === 'jour' ? 1 : fType === 'nuit' ? duree : 0;
+    const days = fType === 'jour' ? 1 : fType === 'nuit' ? duree : 0;
     if (!days) { finInput.value = ''; return; }
-    const end = new Date(start.getTime() + days * 86400000);
-    finInput.value = end.toISOString().split('T')[0];
+    finInput.value = new Date(new Date(dateDebut + 'T12:00:00').getTime() + days * 86400000).toISOString().split('T')[0];
+    renderCalendar();
+  }
+
+  function updateFormuleFromDates() {
+    const debut    = el('f-date-debut')?.value;
+    const fin      = el('f-date-fin')?.value;
+    const finInput = el('f-date-fin');
+    if (!debut || !fin) return;
+    const days = Math.round((new Date(fin + 'T12:00:00') - new Date(debut + 'T12:00:00')) / 86400000);
+    if (days <= 0) return;
+    const value = days === 1 ? 'nuit-1' : `nuit-${Math.min(days, 7)}`;
+    const radio  = document.querySelector(`input[name="formule"][value="${value}"]`);
+    if (radio && !radio.checked) {
+      radio.checked = true;
+      updateMaterielUI();
+      updateSummary();
+    }
+    renderCalendar();
   }
 
   ['f-poste','f-nb','f-date-debut'].forEach(id => {
     const e = el(id);
     if (e) e.addEventListener('change', () => { updateMaterielUI(); updateSummary(); updateDepartureDate(); });
   });
+  const finInput = el('f-date-fin');
+  if (finInput) finInput.addEventListener('change', updateFormuleFromDates);
   document.querySelectorAll('input[name="formule"]').forEach(r => r.addEventListener('change', () => { updateMaterielUI(); updateSummary(); updateDepartureDate(); }));
   document.querySelectorAll('input[name="bformule"]').forEach(r => r.addEventListener('change', updateSummary));
   ['f-bateau-date','f-bateau-nb'].forEach(id => {
@@ -426,7 +444,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const today          = new Date().toISOString().split('T')[0];
     const confirmedDates = Array.isArray(_bookedDates) ? _bookedDates : (_bookedDates.confirmed || []);
     const pendingDates   = Array.isArray(_bookedDates) ? [] : (_bookedDates.pending || []);
-    const selectedDate   = el('f-date-debut')?.value;
+    const selectedDate = el('f-date-debut')?.value;
+    const dateFin      = el('f-date-fin')?.value;
 
     for (let i = 0; i < startDow; i++) {
       const blank = document.createElement('div');
@@ -447,11 +466,15 @@ document.addEventListener('DOMContentLoaded', function () {
         cell.classList.add('pending'); cell.title = 'En attente de confirmation';
       } else if (dateStr === selectedDate) {
         cell.classList.add('selected');
+      } else if (selectedDate && dateFin && dateStr > selectedDate && dateStr < dateFin) {
+        cell.classList.add('in-range');
+      } else if (dateStr === dateFin && dateFin !== selectedDate) {
+        cell.classList.add('selected', 'range-end');
       } else if (dateStr >= today) {
         cell.classList.add('available');
         cell.addEventListener('click', () => {
           const di = el('f-date-debut');
-          if (di) { di.value = dateStr; di.dispatchEvent(new Event('change')); renderCalendar(); }
+          if (di) { di.value = dateStr; di.dispatchEvent(new Event('change')); updateDepartureDate(); }
         });
       }
       grid.appendChild(cell);
