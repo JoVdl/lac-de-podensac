@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Total
-    const hasPoste = cfg.poste ? !!poste : true;
+    const hasPoste = cfg.poste ? !!(poste || zoneLabel) : true;
     if (hasPoste && rawFormule) {
       let basePrice   = unitPrice * nb;
       const opts = cfg.optionsPeche ? calcOptionsPrice(fType, duree, nbAccomp, has4canne) : { accompPrice:0, canne4Price:0 };
