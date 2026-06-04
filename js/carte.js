@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
               ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : '● Complet'}
             </span>
-            ${!p.disponible && !p.coming_soon && p.complet_jusqu_au ? `<div class="complet-date" style="font-size:0.65rem;color:#c0392b;margin-top:2px;">jusqu'au ${p.complet_jusqu_au}</div>` : '<div class="complet-date"></div>'}
+            ${p.disponible && p.libre_jusqu_au ? `<div class="complet-date" style="font-size:0.65rem;color:#27ae60;margin-top:2px;">libre jusqu'au ${p.libre_jusqu_au}</div>` : !p.disponible && !p.coming_soon && p.complet_jusqu_au ? `<div class="complet-date" style="font-size:0.65rem;color:#c0392b;margin-top:2px;">complet jusqu'au ${p.complet_jusqu_au}</div>` : '<div class="complet-date"></div>'}
           </div>
         </div>
       `;
@@ -457,7 +457,17 @@ document.addEventListener('DOMContentLoaded', function () {
           badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : '● Complet';
         }
         const dateEl = item.querySelector('.complet-date');
-        if (dateEl) dateEl.textContent = (!isAvail && !isSoon && poste.complet_jusqu_au) ? `jusqu'au ${poste.complet_jusqu_au}` : '';
+        if (dateEl) {
+          if (isAvail && poste.libre_jusqu_au) {
+            dateEl.textContent = `libre jusqu'au ${poste.libre_jusqu_au}`;
+            dateEl.style.color = '#27ae60';
+          } else if (!isAvail && !isSoon && poste.complet_jusqu_au) {
+            dateEl.textContent = `complet jusqu'au ${poste.complet_jusqu_au}`;
+            dateEl.style.color = '#c0392b';
+          } else {
+            dateEl.textContent = '';
+          }
+        }
       });
     });
   }

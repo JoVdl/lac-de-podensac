@@ -75,6 +75,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.20, note: "Zone de pêche à la nuitée — 1,20 ha",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -100,6 +101,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.27, note: "Zone de pêche à la nuitée — 1,27 ha",
+    libre_jusqu_au: null,
     complet_jusqu_au: "8 juin 2026",
   },
   {
@@ -125,6 +127,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.22, note: "Zone de pêche à la nuitée — 1,22 ha",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -150,6 +153,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.33, note: "Zone de pêche à la nuitée — 1,33 ha",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -175,6 +179,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.82, note: "Zone 1,82 ha",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -200,6 +205,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 2.52, note: "Zone de pêche à la nuitée — 2,52 ha — 2 à 3 pêcheurs",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -225,6 +231,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Ponton bois 22m² — Accès voiture possible",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -249,6 +256,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Proche de l'aire des barques",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -274,6 +282,7 @@ const POSTES = [
     ],
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Accès possible toute l'année en voiture",
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
   {
@@ -300,6 +309,7 @@ const POSTES = [
     equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     note: "Accès à 30m en voiture — Zone toutes pêches à proximité",
     premium: true,
+    libre_jusqu_au: null,
     complet_jusqu_au: null,
   },
 ];
