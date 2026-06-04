@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (formule) {
         const basePrice     = BPRIX[formule] || 0;
         const optCbs        = document.querySelectorAll('.boat-opt-cb:checked');
-        const optionsTotal  = Array.from(optCbs).reduce((sum, cb) => sum + (parseInt(cb.dataset.price) || 0) * nb, 0);
+        const optionsTotal  = Array.from(optCbs).reduce((sum, cb) => { const p = parseInt(cb.dataset.price)||0; return sum + (cb.dataset.flat==='true'?p:p*nb); }, 0);
         const materielPrice = calcMaterielPrice();
         const total = basePrice + optionsTotal + materielPrice;
         if (el('sum-total')) el('sum-total').textContent = `${total} €`;
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const optCbs       = document.querySelectorAll('.boat-opt-cb:checked');
-        const optionsTotal = Array.from(optCbs).reduce((sum, cb) => sum + (parseInt(cb.dataset.price) || 0) * nb, 0);
+        const optionsTotal = Array.from(optCbs).reduce((sum, cb) => { const p = parseInt(cb.dataset.price)||0; return sum + (cb.dataset.flat==='true'?p:p*nb); }, 0);
         const materielPrice = calcMaterielPrice();
         total = (BPRIX[formule] || 0) + optionsTotal + materielPrice;
 
@@ -729,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const basePrice    = BPRIX[formule] || 0;
       const nbPers       = parseInt(nb);
       const optCbs       = document.querySelectorAll('.boat-opt-cb:checked');
-      const optionsTotal = Array.from(optCbs).reduce((sum, cb) => sum + (parseInt(cb.dataset.price) || 0) * nbPers, 0);
+      const optionsTotal = Array.from(optCbs).reduce((sum, cb) => { const p = parseInt(cb.dataset.price)||0; return sum + (cb.dataset.flat==='true'?p:p*nbPers); }, 0);
       const total        = basePrice + optionsTotal;
       const selectedOpts = Array.from(optCbs).map(cb => cb.id);
 
@@ -772,7 +772,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (formule) {
       const basePrice    = BPRIX[formule] || 0;
       const optCbs       = document.querySelectorAll('.boat-opt-cb:checked');
-      const optionsTotal = Array.from(optCbs).reduce((sum, cb) => sum + (parseInt(cb.dataset.price) || 0) * nb, 0);
+      const optionsTotal = Array.from(optCbs).reduce((sum, cb) => {
+        const price = parseInt(cb.dataset.price) || 0;
+        return sum + (cb.dataset.flat === 'true' ? price : price * nb);
+      }, 0);
       const total        = basePrice + optionsTotal;
       if (el('bsum-total'))    el('bsum-total').textContent    = `${total} €`;
       if (el('bsum-unitaire')) el('bsum-unitaire').textContent = `${basePrice} € / bateau`;
