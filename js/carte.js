@@ -254,10 +254,10 @@ document.addEventListener('DOMContentLoaded', function () {
       card.className = 'spot-card fade-up';
       card.style.cursor = 'pointer';
       card.innerHTML = `
-        <div class="spot-card__header" style="background:linear-gradient(135deg,#2a6059,#3d8a80);">
+        <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url("${p.image}") center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
           <span class="spot-card__number">${p.id}</span>
           <span class="spot-card__avail ${avail}">${avlbl}</span>
-          <div class="spot-card__illustration" style="font-size:2rem;">${p.icon}</div>
+          <div class="spot-card__illustration" style="font-size:2rem;">${p.image ? '' : p.icon}</div>
           ${p.premium ? '<div style="position:absolute;bottom:12px;left:16px;background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:50px;">⭐ PREMIUM</div>' : ''}
           ${p.coming_soon ? '<div style="position:absolute;bottom:12px;left:16px;background:#7f8c8d;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:50px;">🚧 BIENTÔT</div>' : ''}
         </div>
@@ -306,6 +306,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const p = POSTES.find(x => x.id === id);
     if (!p) return;
 
+    const modalHeader = document.getElementById('modal-header');
+    if (p.image) {
+      modalHeader.style.background = `linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.55)),url("${p.image}") center/cover no-repeat`;
+      modalHeader.style.minHeight = '160px';
+    } else {
+      modalHeader.style.background = '';
+      modalHeader.style.minHeight = '';
+    }
     document.getElementById('modal-title').textContent = `${p.icon} ${p.nom}`;
     document.getElementById('modal-badge').innerHTML = `
       Poste #${p.id} · ${p.zone_ha ? p.zone_ha + ' ha · ' : ''}

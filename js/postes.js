@@ -55,6 +55,7 @@ const POSTES = [
   {
     id: 1,
     nom: "Poste 1",
+    image: 'images/poste 1.jpg',
     lat: 44.6513675, lng: -0.3413005,
     icon: "🌿",
     description: "Premier poste sur la rive, idéal pour 1 à 2 pêcheurs. Accès facile depuis le parking principal. Accessible en véhicule à la belle saison.",
@@ -78,6 +79,7 @@ const POSTES = [
   {
     id: 2,
     nom: "Poste 2",
+    image: 'images/poste 2.jpg',
     lat: 44.6518999, lng: -0.342419,
     icon: "🪴",
     description: "Poste spacieux entouré de végétation, excellent pour la pêche à la carpe de nuit. Zone de 1,27 ha réservée.",
@@ -101,6 +103,7 @@ const POSTES = [
   {
     id: 3,
     nom: "Poste 3",
+    image: 'images/Poste 3.jpg',
     lat: 44.6525002, lng: -0.3434805,
     icon: "🦆",
     description: "Poste en rive nord avec une belle vue sur le lac. Idéal pour les carnassiers le soir et tôt le matin. Zone de 1,22 ha.",
@@ -124,6 +127,7 @@ const POSTES = [
   {
     id: 4,
     nom: "Poste 4",
+    image: 'poste 4.jpg',
     lat: 44.6530008, lng: -0.3446801,
     icon: "⚓",
     description: "Poste bien équipé, fond favorable à la carpe. Zone de 1,33 ha, idéale pour les séances longues.",
@@ -147,6 +151,7 @@ const POSTES = [
   {
     id: 5,
     nom: "Poste 5",
+    image: 'images/poste 5.jpg',
     lat: 44.6534109, lng: -0.3455524,
     icon: "🚧",
     description: "Grand poste de 1,82 ha, actuellement en cours d'aménagement. Ouverture prévue prochainement. Zone prometteuse avec de belles perspectives de captures.",
@@ -171,6 +176,7 @@ const POSTES = [
   {
     id: 6,
     nom: "Poste 6",
+    image: 'images/poste 6 (3).jpg',
     lat: 44.6539859, lng: -0.3473511,
     icon: "🌊",
     description: "Grand poste de 2,52 ha, le plus vaste du lac. Vue panoramique sur toute la longueur du lac. Zone à la nuitée.",
@@ -194,6 +200,7 @@ const POSTES = [
   {
     id: 7,
     nom: "Poste 7 — Ponton Bois",
+    image: 'images/poste 7 ponton.jpg',
     lat: 44.6526519, lng: -0.3495224,
     icon: "🪵",
     description: "Poste avec ponton en bois de 22m². Plateforme stable et confortable surplombant l'eau. Accès direct depuis le parking central.",
@@ -241,6 +248,7 @@ const POSTES = [
   {
     id: 9,
     nom: "Poste 9 — De la Cale",
+    image: 'images/poste de la cale.jpg',
     lat: 44.653821, lng: -0.3522097,
     icon: "🏗️",
     description: "Poste accessible en voiture toute l'année grâce à sa rampe bétonnée. Idéal pour les pêcheurs qui amènent beaucoup de matériel. Proche des sanitaires.",
@@ -264,6 +272,7 @@ const POSTES = [
   {
     id: 10,
     nom: "Poste 10 — Des Iris",
+    image: 'images/poste des iris.jpg',
     lat: 44.6541539, lng: -0.3527693,
     icon: "🌸",
     description: "Poste nommé pour ses magnifiques iris en fleurs au printemps. Zone 'toutes pêches' à proximité — carnassiers et pêche de rive. L'un des plus esthétiques du lac.",
