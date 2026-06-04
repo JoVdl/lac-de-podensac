@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (el('sum-creneau')) el('sum-creneau').textContent = formule ? (BLABELS[formule] || formule) : '—';
       if (el('sum-date'))    el('sum-date').textContent    = date ? formatDateFR(date) : '—';
       if (el('sum-nbpers'))  el('sum-nbpers').textContent  = `${nb} personne${nb > 1 ? 's' : ''}`;
+      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = 'none';
 
       if (formule) {
         const basePrice     = BPRIX[formule] || 0;
@@ -228,6 +229,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const matLine = el('sum-materiel-line');
       if (matLine) matLine.style.display = optsPrice > 0 ? '' : 'none';
       if (el('sum-materiel')) el('sum-materiel').textContent = optsPrice > 0 ? `+${optsPrice} €` : '—';
+      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = '';
+      if (el('sum-par-pers')) el('sum-par-pers').textContent = '5 €/pers.';
       return;
     }
 
@@ -244,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const matLine = el('sum-materiel-line');
       if (matLine) matLine.style.display = materielPrice > 0 ? '' : 'none';
       if (el('sum-materiel')) el('sum-materiel').textContent = materielPrice > 0 ? `+${materielPrice} €` : '—';
+      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = 'none';
       return;
     }
 
@@ -314,6 +318,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
       if (el('sum-total')) el('sum-total').textContent = `${total} €`;
 
+      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = '';
+      if (el('sum-par-pers')) el('sum-par-pers').textContent = `${unitPrice} €/pêcheur`;
+
       const accompLine = el('sum-accompagnant-line');
       if (accompLine) {
         accompLine.style.display = nbAccomp > 0 ? 'flex' : 'none';
@@ -332,6 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } else {
       if (el('sum-total')) el('sum-total').textContent = '—';
+      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = 'none';
     }
   }
 
