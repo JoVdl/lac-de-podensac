@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (cfg.calendar) {
-      const posteId = cfg.poste ? parseInt(el('f-poste')?.value) : null;
+      const posteId = cfg.poste ? (parseInt(el('f-poste')?.value) || null) : null;
       setupCalendarWatch(posteId);
     } else {
       if (_calUnsubscribe) { _calUnsubscribe(); _calUnsubscribe = null; }
@@ -229,14 +229,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Pêche + location nautique ──
     const rawFormule   = document.querySelector('input[name="formule"]:checked')?.value;
     const { type: fType, duree } = parseFormule(rawFormule);
-    const posteId  = cfg.poste ? parseInt(el('f-poste')?.value) : null;
+    const posteRaw  = cfg.poste ? (el('f-poste')?.value || '') : '';
+    const posteId   = parseInt(posteRaw) || null;
+    const zoneLabel = (cfg.poste && !posteId) ? (el('f-poste')?.options[el('f-poste').selectedIndex]?.text || '') : null;
     const nb       = parseInt(el('f-nb')?.value || 1);
     const date     = el('f-date-debut')?.value;
     const nbAccomp = cfg.optionsPeche ? parseInt(el('f-accompagnant')?.value || 0) : 0;
     const has4canne = cfg.optionsPeche ? (el('f-4canne')?.checked || false) : false;
-    const poste    = (cfg.poste && typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === posteId) : null;
+    const poste    = (posteId && typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === posteId) : null;
 
-    if (el('sum-poste')) el('sum-poste').textContent = poste ? `#${poste.id} ${poste.nom}` : '—';
+    if (el('sum-poste')) el('sum-poste').textContent = poste ? `#${poste.id} ${poste.nom}` : (zoneLabel || '—');
     const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
     const formuleLabel = rawFormule ? (
       fType === 'demi' ? 'Demi-journée' :
@@ -631,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        if (cfg.poste && !parseInt(el('f-poste')?.value)) {
+        if (cfg.poste && !el('f-poste')?.value) {
           showToast('Veuillez choisir un poste de pêche.', 'error', '⚠️');
           return;
         }
@@ -649,7 +651,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedMateriel = Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id);
 
         if (cfg.poste) {
-          const posteId   = parseInt(el('f-poste')?.value);
+          const posteRaw  = el('f-poste')?.value || '';
+          const posteId   = parseInt(posteRaw) || null;
+          const zoneLabel = posteId ? null : el('f-poste')?.options[el('f-poste').selectedIndex]?.text || posteRaw;
           const nb        = parseInt(el('f-nb')?.value || 1);
           const nbAccomp  = parseInt(el('f-accompagnant')?.value || 0);
           const has4canne = el('f-4canne')?.checked || false;
@@ -658,15 +662,16 @@ document.addEventListener('DOMContentLoaded', function () {
           total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
 
           Object.assign(booking, {
-            type:'peche', posteId, formule: rawFormule, formuleLabel, fType, dateDebut, duree, nb, dates,
+            type:'peche', posteId, zone: zoneLabel, formule: rawFormule, formuleLabel, fType, dateDebut, duree, nb, dates,
             nbAccompagnants: nbAccomp,
             canne4: has4canne && fType !== 'demi',
             materiel: selectedMateriel, materielPrice,
             totalPrice: total,
           });
 
-          const poste = typeof POSTES !== 'undefined' ? POSTES.find(p => p.id === posteId) : null;
-          toastMsg = `🎣 Réservation enregistrée ! Poste #${posteId}${poste ? ' — ' + poste.nom : ''} — ${total} €. Confirmation à ${email}.`;
+          const poste = posteId && typeof POSTES !== 'undefined' ? POSTES.find(p => p.id === posteId) : null;
+          const posteLabel = poste ? `Poste #${posteId} — ${poste.nom}` : (zoneLabel || posteRaw);
+          toastMsg = `🎣 Réservation enregistrée ! ${posteLabel} — ${total} €. Confirmation à ${email}.`;
         } else {
           total = unitPrice + materielPrice;
           Object.assign(booking, {
