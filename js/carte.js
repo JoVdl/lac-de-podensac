@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
       card.className = 'spot-card fade-up';
       card.style.cursor = 'pointer';
       card.innerHTML = `
-        <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url("${p.image}") center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
+        <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url('${p.image}') center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
           <span class="spot-card__number">${p.id}</span>
           <span class="spot-card__avail ${avail}">${avlbl}</span>
           <div class="spot-card__illustration" style="font-size:2rem;">${p.image ? '' : p.icon}</div>
