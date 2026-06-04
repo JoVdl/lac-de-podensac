@@ -477,13 +477,84 @@
     <div class="container">
       <div class="section-header text-center">
         <span class="section-label">Réservation en ligne</span>
-        <h2 class="section-title">Réservez votre poste</h2>
-        <p class="section-subtitle">Remplissez le formulaire ci-dessous. Confirmation immédiate par email.</p>
+        <h2 class="section-title">Réservez votre activité</h2>
+        <p class="section-subtitle">Choisissez votre activité, remplissez le formulaire. Confirmation immédiate par email.</p>
       </div>
       <div class="booking-layout">
         <div class="booking-form-card">
           <h3 class="booking-form-card__title">Détails de la réservation</h3>
           <form id="booking-form">
+
+            <!-- ── 1. SÉLECTEUR D'ACTIVITÉ ─────────────────────── -->
+            <div class="form-group">
+              <label>Type d'activité *</label>
+              <div class="act-grid">
+                <div class="act-group-label">🎣 Pêche</div>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="carnassier-bord">
+                  <span class="act-card__icon">🦈</span>
+                  <span class="act-card__body"><span class="act-card__name">Carnassier du bord</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="carnassier-barque">
+                  <span class="act-card__icon">⛵</span>
+                  <span class="act-card__body"><span class="act-card__name">Carnassier en barque équipée</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="carpe-batterie">
+                  <span class="act-card__icon">🎣</span>
+                  <span class="act-card__body"><span class="act-card__name">Carpe en batterie</span><span class="act-card__note">Postes 1 et 6 uniquement</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="coup">
+                  <span class="act-card__icon">🎣</span>
+                  <span class="act-card__body"><span class="act-card__name">Pêche au coup</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="feeder">
+                  <span class="act-card__icon">🪱</span>
+                  <span class="act-card__body"><span class="act-card__name">Pêche au feeder</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="carnassier-pose">
+                  <span class="act-card__icon">🦈</span>
+                  <span class="act-card__body"><span class="act-card__name">Carnassier au posé</span></span>
+                </label>
+
+                <div class="act-group-label">🚣 Location nautique</div>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="canoe">
+                  <span class="act-card__icon">🛶</span>
+                  <span class="act-card__body"><span class="act-card__name">Canoé</span><span class="act-card__note">2 adultes + 1 enfant</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="barque-sans-peche">
+                  <span class="act-card__icon">⛵</span>
+                  <span class="act-card__body"><span class="act-card__name">Barque sans pêche</span></span>
+                </label>
+
+                <div class="act-group-label">🔥 Barbecue-boat</div>
+                <label class="act-card act-card--fire">
+                  <input type="radio" name="activity" value="barbecue-boat">
+                  <span class="act-card__icon">🔥</span>
+                  <span class="act-card__body"><span class="act-card__name">Barbecue-boat</span></span>
+                </label>
+
+                <div class="act-group-label">🏕️ Hébergement &amp; emplacement</div>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="emplacement-bbq">
+                  <span class="act-card__icon">🍖</span>
+                  <span class="act-card__body"><span class="act-card__name">Emplacement barbecue</span></span>
+                </label>
+                <label class="act-card">
+                  <input type="radio" name="activity" value="emplacement-camping">
+                  <span class="act-card__icon">⛺</span>
+                  <span class="act-card__body"><span class="act-card__name">Tente / Van / Camping-car</span><span class="act-card__note">10 emplacements</span></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- ── 2. COORDONNÉES ──────────────────────────────── -->
             <div class="form-grid-2">
               <div class="form-group">
                 <label>Prénom *</label>
@@ -502,42 +573,47 @@
               <label>Téléphone *</label>
               <input type="tel" class="form-control" id="f-tel" placeholder="06 XX XX XX XX" required>
             </div>
-            <div class="form-group">
+
+            <!-- ── 3. POSTE (pêche uniquement) ─────────────────── -->
+            <div class="form-group" id="sec-poste" hidden>
               <label>Poste de pêche *</label>
-              <select class="form-control" id="f-poste" required>
+              <select class="form-control" id="f-poste">
                 <option value="">— Choisissez un poste —</option>
               </select>
             </div>
-            <div class="form-group">
+
+            <!-- ── 4. FORMULE (pêche + location) ──────────────── -->
+            <div class="form-group" id="sec-formule" hidden>
               <label>Formule *</label>
               <div class="form-radio-group" id="f-formule-group">
-                <label class="form-radio">
-                  <input type="radio" name="formule" value="demi" required>
+                <label class="form-radio" id="formule-demi-wrap">
+                  <input type="radio" name="formule" value="demi">
                   <div class="form-radio__label">
-                    <div class="form-radio__price" id="price-demi">15€</div>
+                    <div class="form-radio__price" id="price-demi">15 €</div>
                     <div class="form-radio__name">Demi-journée</div>
                   </div>
                 </label>
-                <label class="form-radio">
+                <label class="form-radio" id="formule-jour-wrap">
                   <input type="radio" name="formule" value="jour">
                   <div class="form-radio__label">
-                    <div class="form-radio__price" id="price-jour">20€</div>
+                    <div class="form-radio__price" id="price-jour">20 €</div>
                     <div class="form-radio__name">Journée (12h)</div>
                   </div>
                 </label>
-                <label class="form-radio">
+                <label class="form-radio" id="formule-nuit-wrap">
                   <input type="radio" name="formule" value="nuit">
                   <div class="form-radio__label">
-                    <div class="form-radio__price" id="price-nuit">35€</div>
+                    <div class="form-radio__price" id="price-nuit">35 €</div>
                     <div class="form-radio__name">Nuitée (24h)</div>
                   </div>
                 </label>
               </div>
             </div>
-            <!-- ── CALENDRIER DISPONIBILITÉS ──────────────────── -->
-            <div class="form-group">
+
+            <!-- ── 5. CALENDRIER (pêche + location) ───────────── -->
+            <div class="form-group" id="sec-calendar" hidden>
               <label>Date d'arrivée *</label>
-              <input type="date" class="form-control" id="f-date-debut" required>
+              <input type="date" class="form-control" id="f-date-debut">
               <div class="calendar-widget" style="margin-top:12px;">
                 <div class="calendar-header">
                   <button type="button" class="calendar-nav" id="cal-prev">‹</button>
@@ -553,8 +629,10 @@
                 </p>
               </div>
             </div>
-            <div class="form-group">
-              <label>Nombre de nuits / jours</label>
+
+            <!-- ── 6. DURÉE (pêche + location) ────────────────── -->
+            <div class="form-group" id="sec-duree" hidden>
+              <label>Nombre de sessions</label>
               <select class="form-control" id="f-duree">
                 <option value="1">1 session</option>
                 <option value="2">2 sessions</option>
@@ -565,7 +643,9 @@
                 <option value="7">7 sessions / 1 semaine</option>
               </select>
             </div>
-            <div class="form-group">
+
+            <!-- ── 7. NB PÊCHEURS (pêche uniquement) ──────────── -->
+            <div class="form-group" id="sec-nb-pecheurs" hidden>
               <label>Nombre de pêcheurs</label>
               <select class="form-control" id="f-nb">
                 <option value="1">1 pêcheur</option>
@@ -573,29 +653,176 @@
                 <option value="3">3 pêcheurs</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>Technique de pêche *</label>
-              <select class="form-control" id="f-technique" required>
-                <option value="">— Sélectionnez votre technique —</option>
-                <option value="batterie-carpe">🎣 Pêche en batterie à la carpe</option>
-                <option value="carpe-coup">🐟 Pêche à la carpe au coup</option>
-                <option value="feeder">🪱 Pêche au feeder</option>
-                <option value="leurres-carnassiers">🦈 Pêche aux leurres aux carnassiers</option>
-                <option value="blanc-coup">🪶 Pêche au blanc au coup</option>
-              </select>
+
+            <!-- ── 8. BARBECUE-BOAT ────────────────────────────── -->
+            <div id="sec-bateau" hidden>
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" class="form-control" id="f-bateau-date">
+              </div>
+              <div class="form-group">
+                <label>Créneau *</label>
+                <div class="form-radio-group" style="grid-template-columns:1fr 1fr;">
+                  <label class="form-radio">
+                    <input type="radio" name="bformule" value="petit-dej">
+                    <div class="form-radio__label">
+                      <div class="form-radio__price">70 €</div>
+                      <div class="form-radio__name">Petit déjeuner</div>
+                      <span class="form-radio__sub">9h – 10h30</span>
+                    </div>
+                  </label>
+                  <label class="form-radio">
+                    <input type="radio" name="bformule" value="midi">
+                    <div class="form-radio__label">
+                      <div class="form-radio__price">210 €</div>
+                      <div class="form-radio__name">Déjeuner</div>
+                      <span class="form-radio__sub">11h30 – 14h30</span>
+                    </div>
+                  </label>
+                  <label class="form-radio">
+                    <input type="radio" name="bformule" value="apres-midi">
+                    <div class="form-radio__label">
+                      <div class="form-radio__price">110 €</div>
+                      <div class="form-radio__name">Après-midi</div>
+                      <span class="form-radio__sub">15h30 – 17h30</span>
+                    </div>
+                  </label>
+                  <label class="form-radio">
+                    <input type="radio" name="bformule" value="soiree">
+                    <div class="form-radio__label">
+                      <div class="form-radio__price">210 €</div>
+                      <div class="form-radio__name">Soirée</div>
+                      <span class="form-radio__sub">18h – 21h</span>
+                    </div>
+                  </label>
+                  <label class="form-radio">
+                    <input type="radio" name="bformule" value="demi-matin">
+                    <div class="form-radio__label">
+                      <div class="form-radio__price">270 €</div>
+                      <div class="form-radio__name">Demi-j. matin</div>
+                      <span class="form-radio__sub">10h – 15h</span>
+                    </div>
+                  </label>
+                  <label class="form-radio">
+                    <input type="radio" name="bformule" value="demi-soir">
+                    <div class="form-radio__label">
+                      <div class="form-radio__price">270 €</div>
+                      <div class="form-radio__name">Demi-j. soir</div>
+                      <span class="form-radio__sub">16h – 20h</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Nombre de personnes *</label>
+                <select class="form-control" id="f-bateau-nb">
+                  <option value="2">2 personnes</option>
+                  <option value="3">3 personnes</option>
+                  <option value="4">4 personnes</option>
+                  <option value="5">5 personnes</option>
+                  <option value="6">6 personnes</option>
+                  <option value="7">7 personnes</option>
+                  <option value="8">8 personnes</option>
+                  <option value="9">9 personnes</option>
+                  <option value="10">10 personnes</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Options BBQ</label>
+                <div class="options-grid">
+                  <div class="option-card" id="opt-bopt-petit-dej-card">
+                    <div class="option-card__icon">🥐</div>
+                    <div class="option-card__content">
+                      <div class="option-card__title">Petit déjeuner</div>
+                      <div class="option-card__desc">+12 € / pers.</div>
+                    </div>
+                    <div class="option-card__controls">
+                      <label class="option-toggle">
+                        <input type="checkbox" class="boat-opt-cb" id="bopt-petit-dej" data-price="12">
+                        <span class="option-toggle__sw"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="option-card" id="opt-bopt-apero-card">
+                    <div class="option-card__icon">🍷</div>
+                    <div class="option-card__content">
+                      <div class="option-card__title">Plateau apéro</div>
+                      <div class="option-card__desc">+12 € / pers.</div>
+                    </div>
+                    <div class="option-card__controls">
+                      <label class="option-toggle">
+                        <input type="checkbox" class="boat-opt-cb" id="bopt-apero" data-price="12">
+                        <span class="option-toggle__sw"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="option-card" id="opt-bopt-viande-card">
+                    <div class="option-card__icon">🥩</div>
+                    <div class="option-card__content">
+                      <div class="option-card__title">Plateau viande BBQ</div>
+                      <div class="option-card__desc">+20 € / pers.</div>
+                    </div>
+                    <div class="option-card__controls">
+                      <label class="option-toggle">
+                        <input type="checkbox" class="boat-opt-cb" id="bopt-viande" data-price="20">
+                        <span class="option-toggle__sw"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- ── OPTIONS ─────────────────────────────────────── -->
-            <div class="form-group">
+            <!-- ── 9. EMPLACEMENT ──────────────────────────────── -->
+            <div id="sec-emplacement" hidden>
+              <div class="form-group">
+                <label>Date d'arrivée *</label>
+                <input type="date" class="form-control" id="f-empl-date">
+              </div>
+              <div class="form-group">
+                <label>Nombre de nuits</label>
+                <select class="form-control" id="f-empl-duree">
+                  <option value="1">1 nuit</option>
+                  <option value="2">2 nuits</option>
+                  <option value="3">3 nuits</option>
+                  <option value="4">4 nuits</option>
+                  <option value="5">5 nuits</option>
+                  <option value="6">6 nuits</option>
+                  <option value="7">7 nuits</option>
+                  <option value="8">8 nuits</option>
+                  <option value="9">9 nuits</option>
+                  <option value="10">10 nuits</option>
+                  <option value="11">11 nuits</option>
+                  <option value="12">12 nuits</option>
+                  <option value="13">13 nuits</option>
+                  <option value="14">14 nuits</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Nombre de personnes</label>
+                <select class="form-control" id="f-empl-nb">
+                  <option value="1">1 personne</option>
+                  <option value="2">2 personnes</option>
+                  <option value="3">3 personnes</option>
+                  <option value="4">4 personnes</option>
+                  <option value="5">5 personnes</option>
+                  <option value="6">6 personnes</option>
+                  <option value="7">7 personnes</option>
+                  <option value="8">8 personnes</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ── 10. OPTIONS PÊCHE (accompagnant + 4ème canne) ── -->
+            <div class="form-group" id="sec-options-peche" hidden>
               <label>Options</label>
               <div class="options-grid">
-                <!-- Accompagnant(s) -->
                 <div class="option-card" id="opt-accompagnant-card">
                   <div class="option-card__icon">👥</div>
                   <div class="option-card__content">
                     <div class="option-card__title">Accompagnant(s)</div>
                     <div class="option-card__desc">Conjoint, ami, enfant non-pêcheur</div>
-                    <div class="option-card__price" id="opt-accompagnant-price">+5 € / pers.</div>
+                    <div class="option-card__price" id="opt-accompagnant-price">+5–10 € / pers.</div>
                   </div>
                   <div class="option-card__controls">
                     <div class="option-stepper">
@@ -612,7 +839,6 @@
                     </select>
                   </div>
                 </div>
-                <!-- 4ème canne -->
                 <div class="option-card" id="opt-4canne-card">
                   <div class="option-card__icon">🎣</div>
                   <div class="option-card__content">
@@ -630,49 +856,89 @@
               </div>
             </div>
 
-            <!-- ── LOCATION DE MATÉRIEL ────────────────────────── -->
-            <div class="form-group">
+            <!-- ── 11. MATÉRIEL (tous types) ──────────────────── -->
+            <div class="form-group" id="sec-materiel" hidden>
               <label>Location de matériel <span id="materiel-total-badge" style="display:none;background:var(--primary);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:50px;margin-left:8px;vertical-align:middle;"></span></label>
               <p style="font-size:0.78rem;color:var(--gray);margin-bottom:12px;">Prix par session — adapté automatiquement selon la formule et la durée choisies.</p>
               <div class="materiel-cards-section">
-                <div class="materiel-cards-group">
-                  <div class="materiel-cards-group__title">🎣 Cannes à pêche</div>
-                  <div class="materiel-cards-grid">
-                    <div class="materiel-opt-card" id="mcard-canne-carpe"><div class="materiel-opt-card__icon">🎣</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Canne carpe + moulinet</div><div class="materiel-opt-card__note">12ft, 3lb TC</div><div class="materiel-opt-card__price" id="mprice-canne-carpe">8 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="canne-carpe" data-jour="8" data-nuit="12"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-canne-carnass"><div class="materiel-opt-card__icon">🎣</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Canne carnassier + moulinet</div><div class="materiel-opt-card__note">Sans leurres</div><div class="materiel-opt-card__price" id="mprice-canne-carnass">8 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="canne-carnass" data-jour="8" data-nuit="12"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-canne-feeder"><div class="materiel-opt-card__icon">🎣</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Canne feeder complète</div><div class="materiel-opt-card__note">Feeder fourni</div><div class="materiel-opt-card__price" id="mprice-canne-feeder">5 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="canne-feeder" data-jour="5" data-nuit="8"><span class="option-toggle__sw"></span></label></div>
+                <div class="materiel-cards-grid">
+                  <div class="materiel-opt-card" id="mcard-sondeur-live">
+                    <div class="materiel-opt-card__icon">📡</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Sondeur live</div>
+                      <div class="materiel-opt-card__note">1 unité disponible</div>
+                      <div class="materiel-opt-card__price" id="mprice-sondeur-live">30 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="sondeur-live" data-jour="30"><span class="option-toggle__sw"></span></label>
                   </div>
-                </div>
-                <div class="materiel-cards-group">
-                  <div class="materiel-cards-group__title">⚙️ Accessoires de pêche</div>
-                  <div class="materiel-cards-grid">
-                    <div class="materiel-opt-card" id="mcard-epuisette"><div class="materiel-opt-card__icon">🪣</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Épuisette carpe</div><div class="materiel-opt-card__note">Grande taille</div><div class="materiel-opt-card__price" id="mprice-epuisette">3 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="epuisette" data-jour="3" data-nuit="5"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-tapis"><div class="materiel-opt-card__icon">🟫</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Tapis de réception</div><div class="materiel-opt-card__note">Obligatoire carpe</div><div class="materiel-opt-card__price" id="mprice-tapis">2 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="tapis" data-jour="2" data-nuit="3"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-sac-garde"><div class="materiel-opt-card__icon">🫙</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Sac de conservation</div><div class="materiel-opt-card__note">No-kill</div><div class="materiel-opt-card__price" id="mprice-sac-garde">3 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="sac-garde" data-jour="3" data-nuit="5"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-pod"><div class="materiel-opt-card__icon">⚙️</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Pod + 3 repose-cannes</div><div class="materiel-opt-card__note"></div><div class="materiel-opt-card__price" id="mprice-pod">5 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="pod" data-jour="5" data-nuit="8"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-detecteurs"><div class="materiel-opt-card__icon">🔔</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Détecteurs × 3 + boîtier</div><div class="materiel-opt-card__note"></div><div class="materiel-opt-card__price" id="mprice-detecteurs">8 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="detecteurs" data-jour="8" data-nuit="12"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-kit-photo"><div class="materiel-opt-card__icon">📸</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Kit photo souvenir</div><div class="materiel-opt-card__note">Carton + marqueur</div><div class="materiel-opt-card__price" id="mprice-kit-photo">2 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="kit-photo" data-jour="2" data-nuit="2"><span class="option-toggle__sw"></span></label></div>
+                  <div class="materiel-opt-card" id="mcard-canne-carnassier">
+                    <div class="materiel-opt-card__icon">🎣</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Canne carnassier + leurres</div>
+                      <div class="materiel-opt-card__note">Boîte de leurres incluse</div>
+                      <div class="materiel-opt-card__price" id="mprice-canne-carnassier">20 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="canne-carnassier" data-jour="20"><span class="option-toggle__sw"></span></label>
                   </div>
-                </div>
-                <div class="materiel-cards-group">
-                  <div class="materiel-cards-group__title">⛺ Campement & confort</div>
-                  <div class="materiel-cards-grid">
-                    <div class="materiel-opt-card" id="mcard-chaise"><div class="materiel-opt-card__icon">🪑</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Chaise inclinable</div><div class="materiel-opt-card__note">Longue session</div><div class="materiel-opt-card__price" id="mprice-chaise">5 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="chaise" data-jour="5" data-nuit="8"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-bivouac"><div class="materiel-opt-card__icon">⛺</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Bivouac</div><div class="materiel-opt-card__note">Abri de pêche</div><div class="materiel-opt-card__price" id="mprice-bivouac">12 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="bivouac" data-jour="12" data-nuit="15"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-sac-couchage"><div class="materiel-opt-card__icon">🛏️</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Sac de couchage</div><div class="materiel-opt-card__note">3 saisons</div><div class="materiel-opt-card__price" id="mprice-sac-couchage">8 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="sac-couchage" data-jour="8" data-nuit="10"><span class="option-toggle__sw"></span></label></div>
+                  <div class="materiel-opt-card" id="mcard-canne-carpe-bat">
+                    <div class="materiel-opt-card__icon">🎣</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Canne carpe batterie</div>
+                      <div class="materiel-opt-card__note"></div>
+                      <div class="materiel-opt-card__price" id="mprice-canne-carpe-bat">20 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="canne-carpe-bat" data-jour="20"><span class="option-toggle__sw"></span></label>
                   </div>
-                </div>
-                <div class="materiel-cards-group">
-                  <div class="materiel-cards-group__title">🛶 Navigation & détection</div>
-                  <div class="materiel-cards-grid">
-                    <div class="materiel-opt-card" id="mcard-kayak"><div class="materiel-opt-card__icon">🛶</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Kayak</div><div class="materiel-opt-card__note">15€ demi-j.</div><div class="materiel-opt-card__price" id="mprice-kayak">20 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="kayak" data-jour="20" data-nuit="20"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-barque-moteur"><div class="materiel-opt-card__icon">⛵</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Barque + moteur</div><div class="materiel-opt-card__note">Dégressif 2j+/3j+</div><div class="materiel-opt-card__price" id="mprice-barque-moteur">30 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="barque-moteur" data-jour="30" data-nuit="30"><span class="option-toggle__sw"></span></label></div>
-                    <div class="materiel-opt-card" id="mcard-sondeur"><div class="materiel-opt-card__icon">📡</div><div class="materiel-opt-card__body"><div class="materiel-opt-card__name">Sondeur de pêche</div><div class="materiel-opt-card__note">À la journée</div><div class="materiel-opt-card__price" id="mprice-sondeur">30 €</div></div><label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="sondeur" data-jour="30" data-nuit="30"><span class="option-toggle__sw"></span></label></div>
+                  <div class="materiel-opt-card" id="mcard-canne-coup">
+                    <div class="materiel-opt-card__icon">🎣</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Canne au coup + 1 ligne</div>
+                      <div class="materiel-opt-card__note"></div>
+                      <div class="materiel-opt-card__price" id="mprice-canne-coup">20 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="canne-coup" data-jour="20"><span class="option-toggle__sw"></span></label>
+                  </div>
+                  <div class="materiel-opt-card" id="mcard-batterie-lithium">
+                    <div class="materiel-opt-card__icon">🔋</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Batterie lithium</div>
+                      <div class="materiel-opt-card__note">3 disponibles</div>
+                      <div class="materiel-opt-card__price" id="mprice-batterie-lithium">10 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="batterie-lithium" data-jour="10"><span class="option-toggle__sw"></span></label>
+                  </div>
+                  <div class="materiel-opt-card" id="mcard-moteur-electrique">
+                    <div class="materiel-opt-card__icon">⚡</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Moteur électrique</div>
+                      <div class="materiel-opt-card__note">3 disponibles</div>
+                      <div class="materiel-opt-card__price" id="mprice-moteur-electrique">10 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="moteur-electrique" data-jour="10"><span class="option-toggle__sw"></span></label>
+                  </div>
+                  <div class="materiel-opt-card" id="mcard-epuisette">
+                    <div class="materiel-opt-card__icon">🪣</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Épuisette</div>
+                      <div class="materiel-opt-card__note">1 disponible</div>
+                      <div class="materiel-opt-card__price" id="mprice-epuisette">10 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="epuisette" data-jour="10"><span class="option-toggle__sw"></span></label>
+                  </div>
+                  <div class="materiel-opt-card" id="mcard-tapis">
+                    <div class="materiel-opt-card__icon">🟫</div>
+                    <div class="materiel-opt-card__body">
+                      <div class="materiel-opt-card__name">Tapis de réception</div>
+                      <div class="materiel-opt-card__note">1 disponible</div>
+                      <div class="materiel-opt-card__price" id="mprice-tapis">10 €/j</div>
+                    </div>
+                    <label class="option-toggle"><input type="checkbox" class="materiel-cb" data-id="tapis" data-jour="10"><span class="option-toggle__sw"></span></label>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- ── 12. MESSAGE + SUBMIT ───────────────────────── -->
             <div class="form-group">
               <label>Message / demande particulière</label>
               <textarea class="form-control" id="f-message" rows="3" placeholder="Accessibilité PMR, demande spéciale, etc."></textarea>
@@ -685,34 +951,31 @@
             </p>
           </form>
         </div>
+
+        <!-- SIDEBAR RÉCAPITULATIF -->
         <div>
           <div class="booking-summary" id="booking-summary">
             <h4 class="booking-summary__title">📋 Récapitulatif</h4>
-            <div class="summary-line"><span>Poste</span><span id="sum-poste">—</span></div>
-            <div class="summary-line"><span>Formule</span><span id="sum-formule">—</span></div>
+            <div class="summary-line"><span>Activité</span><span id="sum-activite">—</span></div>
+            <div class="summary-line" id="sum-poste-line" style="display:none;"><span>Poste</span><span id="sum-poste">—</span></div>
+            <div class="summary-line" id="sum-formule-line" style="display:none;"><span>Formule</span><span id="sum-formule">—</span></div>
+            <div class="summary-line" id="sum-creneau-line" style="display:none;"><span>Créneau</span><span id="sum-creneau">—</span></div>
             <div class="summary-line"><span>Date</span><span id="sum-date">—</span></div>
-            <div class="summary-line"><span>Durée</span><span id="sum-duree">1 session</span></div>
-            <div class="summary-line"><span>Pêcheurs</span><span id="sum-nb">1</span></div>
-            <div class="summary-line" id="sum-accompagnant-line" style="display:none;">
-              <span>Accompagnant(s)</span><span id="sum-accompagnant">—</span>
-            </div>
-            <div class="summary-line" id="sum-4canne-line" style="display:none;">
-              <span>4ème canne</span><span id="sum-4canne">—</span>
-            </div>
-            <div class="summary-line" id="sum-materiel-line" style="display:none;">
-              <span>Matériel</span><span id="sum-materiel">—</span>
-            </div>
+            <div class="summary-line" id="sum-duree-line" style="display:none;"><span>Durée</span><span id="sum-duree">—</span></div>
+            <div class="summary-line" id="sum-nb-line" style="display:none;"><span>Pêcheurs</span><span id="sum-nb">—</span></div>
+            <div class="summary-line" id="sum-nbpers-line" style="display:none;"><span>Personnes</span><span id="sum-nbpers">—</span></div>
+            <div class="summary-line" id="sum-accompagnant-line" style="display:none;"><span>Accomp.</span><span id="sum-accompagnant">—</span></div>
+            <div class="summary-line" id="sum-4canne-line" style="display:none;"><span>4ème canne</span><span id="sum-4canne">—</span></div>
+            <div class="summary-line" id="sum-opts-boat-line" style="display:none;"><span>Options BBQ</span><span id="sum-opts-boat">—</span></div>
+            <div class="summary-line" id="sum-materiel-line" style="display:none;"><span>Matériel</span><span id="sum-materiel">—</span></div>
             <div class="summary-total">
-              <span>Total</span>
+              <span>Total estimé</span>
               <span id="sum-total">—</span>
             </div>
             <div class="summary-included">
               <div class="summary-included__title">Inclus dans la réservation</div>
-              <div class="summary-included__item">Accès au poste aménagé</div>
+              <div class="summary-included__item">Accès au site aménagé</div>
               <div class="summary-included__item">Parking sur site</div>
-              <div class="summary-included__item">Tapis de réception</div>
-              <div class="summary-included__item">Balance de pesée</div>
-              <div class="summary-included__item">Kit photo (carton + marqueur)</div>
               <div class="summary-included__item">Confirmation email</div>
             </div>
           </div>
