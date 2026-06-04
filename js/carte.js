@@ -395,9 +395,9 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
       </div>
       <div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap;">
-        ${p.disponible && !p.coming_soon
-          ? `<button onclick="selectPosteAndBook(${p.id});closeModal();" class="btn btn--success btn--lg" style="flex:1;justify-content:center;">📅 Réserver ce poste</button>`
-          : `<button class="btn btn--lg" style="flex:1;justify-content:center;background:#6c7a89;color:#fff;cursor:not-allowed;" disabled>${p.coming_soon ? '🚧 Ouverture prochaine' : p.complet_jusqu_au ? `📅 Disponible à partir du ${p.complet_jusqu_au}` : '● Indisponible'}</button>`
+        ${p.coming_soon
+          ? `<button class="btn btn--lg" style="flex:1;justify-content:center;background:#6c7a89;color:#fff;cursor:not-allowed;" disabled>🚧 Ouverture prochaine</button>`
+          : `<button onclick="selectPosteAndBook(${p.id});closeModal();" class="btn btn--success btn--lg" style="flex:1;justify-content:center;">📅 Réserver ce poste</button>`
         }
         <button onclick="closeModal();const z=ZONES_COORDS[${p.id}];if(z){const b=L.latLngBounds(z);window._leafletMap.fitBounds(b,{padding:[40,40],maxZoom:17});}document.getElementById('carte').scrollIntoView({behavior:'smooth'});" class="btn btn--outline-dark btn--lg">🗺️ Voir sur la carte</button>
       </div>
