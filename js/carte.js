@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <strong style="font-family:'Montserrat',sans-serif;">${poste.icon} ${poste.nom}</strong><br>
           <span style="font-size:0.78rem;color:#6c7a89;">${poste.poissons.slice(0,3).join(' · ')}</span><br>
           <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:0.78rem;color:${poste.disponible?'#27ae60':'#e74c3c'};font-weight:700;">${poste.disponible?'✓ Disponible':'● Complet'}</span>
+            <span style="font-size:0.78rem;color:${poste.disponible?'#27ae60':'#e8951e'};font-weight:700;">${poste.disponible?'✓ Disponible': poste.complet_jusqu_au ? `📅 Dispo à partir du ${poste.complet_jusqu_au}` : '● Indisponible'}</span>
             <strong style="font-size:1rem;color:#3d8a80;">${poste.prix_jour}€<span style="font-weight:400;font-size:0.75rem;">/jour</span></strong>
           </div>
           <button onclick="openSpotModal(${poste.id})" style="margin-top:8px;width:100%;padding:8px;background:#3d8a80;color:#fff;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:600;font-size:0.8rem;cursor:pointer;">
@@ -207,9 +207,15 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="map-spot-item__price">${p.prix_jour}€<small style="font-weight:400;color:#6c7a89;font-size:0.72rem;">/j</small></div>
           <div style="text-align:right;">
             <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
-              ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : '● Complet'}
+              ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : p.complet_jusqu_au ? '📅' : '●'}
             </span>
-            ${p.disponible && p.libre_jusqu_au ? `<div class="complet-date" style="font-size:0.65rem;color:#27ae60;margin-top:2px;">libre jusqu'au ${p.libre_jusqu_au}</div>` : !p.disponible && !p.coming_soon && p.complet_jusqu_au ? `<div class="complet-date" style="font-size:0.65rem;color:#c0392b;margin-top:2px;">complet jusqu'au ${p.complet_jusqu_au}</div>` : '<div class="complet-date"></div>'}
+            ${p.disponible && p.libre_jusqu_au
+              ? `<div class="complet-date" style="font-size:0.65rem;color:#27ae60;margin-top:2px;">libre jusqu'au ${p.libre_jusqu_au}</div>`
+              : !p.disponible && !p.coming_soon && p.complet_jusqu_au
+                ? `<div class="complet-date" style="font-size:0.65rem;color:#e8951e;margin-top:2px;">dispo à partir du ${p.complet_jusqu_au}</div>`
+                : !p.disponible && !p.coming_soon
+                  ? `<div class="complet-date" style="font-size:0.65rem;color:#c0392b;margin-top:2px;">indisponible</div>`
+                  : '<div class="complet-date"></div>'}
           </div>
         </div>
       `;
@@ -258,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     filtered.forEach(p => {
       const avail = p.disponible && !p.coming_soon ? 'available' : 'busy';
-      const avlbl = p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Disponible' : '● Complet';
+      const avlbl = p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Disponible' : p.complet_jusqu_au ? `📅 Dispo à partir du ${p.complet_jusqu_au}` : '● Indisponible';
       const card = document.createElement('div');
       card.className = 'spot-card fade-up';
       card.style.cursor = 'pointer';
@@ -327,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('modal-badge').innerHTML = `
       Poste #${p.id} · ${p.zone_ha ? p.zone_ha + ' ha · ' : ''}
       <span style="color:${p.disponible && !p.coming_soon ? '#7ecfa0' : '#f0a09a'};">
-        ${p.coming_soon ? '🚧 En cours d\'aménagement' : p.disponible ? '✓ Disponible' : '● Complet'}
+        ${p.coming_soon ? '🚧 En cours d\'aménagement' : p.disponible ? '✓ Disponible' : p.complet_jusqu_au ? `📅 Disponible à partir du ${p.complet_jusqu_au}` : '● Indisponible'}
       </span>
       ${p.premium ? ' · ⭐ Premium' : ''}
     `;
@@ -391,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
       <div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap;">
         ${p.disponible && !p.coming_soon
           ? `<button onclick="selectPosteAndBook(${p.id});closeModal();" class="btn btn--success btn--lg" style="flex:1;justify-content:center;">📅 Réserver ce poste</button>`
-          : `<button class="btn btn--lg" style="flex:1;justify-content:center;background:#6c7a89;color:#fff;cursor:not-allowed;" disabled>${p.coming_soon ? '🚧 Ouverture prochaine' : '● Complet — Liste d\'attente'}</button>`
+          : `<button class="btn btn--lg" style="flex:1;justify-content:center;background:#6c7a89;color:#fff;cursor:not-allowed;" disabled>${p.coming_soon ? '🚧 Ouverture prochaine' : p.complet_jusqu_au ? `📅 Disponible à partir du ${p.complet_jusqu_au}` : '● Indisponible'}</button>`
         }
         <button onclick="closeModal();const z=ZONES_COORDS[${p.id}];if(z){const b=L.latLngBounds(z);window._leafletMap.fitBounds(b,{padding:[40,40],maxZoom:17});}document.getElementById('carte').scrollIntoView({behavior:'smooth'});" class="btn btn--outline-dark btn--lg">🗺️ Voir sur la carte</button>
       </div>
@@ -454,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const badge = item.querySelector('.map-spot-item__avail');
         if (badge) {
           badge.className = `map-spot-item__avail ${isAvail ? 'available' : 'busy'}`;
-          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : '● Complet';
+          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : poste.complet_jusqu_au ? '📅' : '●';
         }
         const dateEl = item.querySelector('.complet-date');
         if (dateEl) {
@@ -462,7 +468,10 @@ document.addEventListener('DOMContentLoaded', function () {
             dateEl.textContent = `libre jusqu'au ${poste.libre_jusqu_au}`;
             dateEl.style.color = '#27ae60';
           } else if (!isAvail && !isSoon && poste.complet_jusqu_au) {
-            dateEl.textContent = `complet jusqu'au ${poste.complet_jusqu_au}`;
+            dateEl.textContent = `dispo à partir du ${poste.complet_jusqu_au}`;
+            dateEl.style.color = '#e8951e';
+          } else if (!isAvail && !isSoon) {
+            dateEl.textContent = 'indisponible';
             dateEl.style.color = '#c0392b';
           } else {
             dateEl.textContent = '';
