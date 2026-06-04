@@ -843,11 +843,14 @@ document.addEventListener('DOMContentLoaded', function () {
         return sum + (cb.dataset.flat === 'true' ? price : price * nb);
       }, 0);
       const total        = basePrice + optionsTotal;
+      const perPers      = nb > 0 ? Math.round(total / nb) : 0;
       if (el('bsum-total'))    el('bsum-total').textContent    = `${total} €`;
       if (el('bsum-unitaire')) el('bsum-unitaire').textContent = `${basePrice} € / bateau`;
       const optsLine = el('bsum-opts-line');
       if (optsLine) optsLine.style.display = optionsTotal > 0 ? '' : 'none';
       if (el('bsum-opts')) el('bsum-opts').textContent = optionsTotal > 0 ? `+${optionsTotal} €` : '—';
+      if (el('bsum-par-pers-line')) el('bsum-par-pers-line').style.display = '';
+      if (el('bsum-par-pers')) el('bsum-par-pers').textContent = `≈ ${perPers} €/pers.`;
     }
   }
 
