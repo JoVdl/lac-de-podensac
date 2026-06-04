@@ -54,9 +54,15 @@ document.addEventListener('DOMContentLoaded', function () {
     dashArray: '6 4',
     fillColor: '#e8951e',
     fillOpacity: 0.08,
-  }).addTo(map).bindPopup(`
+  }).addTo(map)
+    .bindTooltip('🎣 Zone Carnassiers', {
+      permanent: true,
+      direction: 'center',
+      className: 'zone-carnassier-label',
+    })
+    .bindPopup(`
     <div style="font-family:'Inter',sans-serif;min-width:200px;">
-      <strong style="font-family:'Montserrat',sans-serif;">🎣 Zone Toutes Pêches</strong><br>
+      <strong style="font-family:'Montserrat',sans-serif;">🎣 Zone Carnassiers</strong><br>
       <span style="font-size:0.8rem;color:#6c7a89;">7 hectares · Carnassiers & pêche de rive</span><br>
       <p style="font-size:0.82rem;margin-top:8px;color:#2c3e50;">Zone dédiée aux spécialistes des carnassiers et à la pêche de rive. Navigation de barques autorisée.</p>
     </div>
