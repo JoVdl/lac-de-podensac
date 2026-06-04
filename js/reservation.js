@@ -3,14 +3,14 @@
 // ================================================================
 
 const ACTIVITY_SECTIONS = {
-  'carnassier-bord':     { peche:true, poste:true, formule:true, calendar:true, duree:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'carnassier-barque':   { peche:true, poste:true, formule:true, calendar:true, duree:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,6], formule:true, calendar:true, duree:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'coup':                { peche:true, poste:true, formule:true, calendar:true, duree:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'feeder':              { peche:true, poste:true, formule:true, calendar:true, duree:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'carnassier-pose':     { peche:true, poste:true, formule:true, calendar:true, duree:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'canoe':               { location:true, formule:true, calendar:true, duree:true, materiel:true },
-  'barque-sans-peche':   { location:true, formule:true, calendar:true, duree:true, materiel:true },
+  'carnassier-bord':     { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carnassier-barque':   { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,2,3,4,5,6], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'coup':                { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'feeder':              { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carnassier-pose':     { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'canoe':               { location:true, formule:true, calendar:true, materiel:true },
+  'barque-sans-peche':   { location:true, formule:true, calendar:true, materiel:true },
   'barbecue-boat':       { bateau:true, materiel:true },
   'emplacement-bbq':     { emplacement:true, materiel:true },
   'emplacement-camping': { emplacement:true, materiel:true },
@@ -32,6 +32,14 @@ const ACTIVITY_LABELS = {
 
 const BPRIX   = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
 const BLABELS = { 'petit-dej':'Petit déj. 9h–10h30','midi':'Déjeuner 11h30–14h30','apres-midi':'Après-midi 15h30–17h30','soiree':'Soirée 18h–21h','demi-matin':'Demi-j. matin 10h–15h','demi-soir':'Demi-j. soir 16h–20h' };
+
+function parseFormule(formule) {
+  if (!formule) return { type: null, duree: 1 };
+  if (formule === 'demi') return { type: 'demi', duree: 1 };
+  if (formule === 'jour') return { type: 'jour', duree: 1 };
+  if (formule.startsWith('nuit-')) return { type: 'nuit', duree: parseInt(formule.split('-')[1]) || 1 };
+  return { type: formule, duree: 1 };
+}
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -61,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     el('sec-poste').hidden         = !cfg.poste;
     el('sec-formule').hidden       = !cfg.formule;
     el('sec-calendar').hidden      = !cfg.calendar;
-    el('sec-duree').hidden         = !cfg.duree;
+    const secDuree = el('sec-duree'); if (secDuree) secDuree.hidden = true;
     el('sec-nb-pecheurs').hidden   = !cfg.nbPecheurs;
     el('sec-bateau').hidden        = !cfg.bateau;
     el('sec-emplacement').hidden   = !cfg.emplacement;
@@ -81,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (el('sum-poste-line'))  el('sum-poste-line').style.display  = cfg.poste ? '' : 'none';
     if (el('sum-formule-line'))el('sum-formule-line').style.display = cfg.formule ? '' : 'none';
     if (el('sum-creneau-line'))el('sum-creneau-line').style.display = cfg.bateau ? '' : 'none';
-    if (el('sum-duree-line'))  el('sum-duree-line').style.display   = (cfg.duree || cfg.emplacement) ? '' : 'none';
+    if (el('sum-duree-line'))  el('sum-duree-line').style.display   = (cfg.formule || cfg.emplacement) ? '' : 'none';
     if (el('sum-nb-line'))     el('sum-nb-line').style.display      = cfg.nbPecheurs ? '' : 'none';
     if (el('sum-nbpers-line')) el('sum-nbpers-line').style.display  = cfg.bateau ? '' : 'none';
 
@@ -94,17 +102,17 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ── Calcul prix options pêche ─────────────────────────────────
-  function calcOptionsPrice(formule, duree, nbAccomp, has4canne) {
+  function calcOptionsPrice(fType, duree, nbAccomp, has4canne) {
     const accomp = window.TARIF_ACCOMPAGNANT || { demi:5, jour:10, nuit:10 };
     let accompPrice = 0, canne4Price = 0;
-    if (formule === 'demi') {
+    if (fType === 'demi') {
       accompPrice = accomp.demi * nbAccomp;
-    } else if (formule === 'jour') {
+    } else if (fType === 'jour') {
       accompPrice = accomp.jour * nbAccomp;
       canne4Price = has4canne ? 10 : 0;
-    } else if (formule === 'nuit') {
+    } else if (fType === 'nuit') {
       accompPrice = accomp.nuit * duree * nbAccomp;
-      canne4Price = has4canne ? Math.max(20, duree * 10) : 0;
+      canne4Price = has4canne ? 10 * duree : 0;
     }
     return { accompPrice, canne4Price, total: accompPrice + canne4Price };
   }
@@ -162,67 +170,64 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Pêche + location nautique ──
+    const rawFormule   = document.querySelector('input[name="formule"]:checked')?.value;
+    const { type: fType, duree } = parseFormule(rawFormule);
     const posteId  = cfg.poste ? parseInt(el('f-poste')?.value) : null;
-    const formule  = document.querySelector('input[name="formule"]:checked')?.value;
-    const duree    = parseInt(el('f-duree')?.value || 1);
     const nb       = parseInt(el('f-nb')?.value || 1);
     const date     = el('f-date-debut')?.value;
     const nbAccomp = cfg.optionsPeche ? parseInt(el('f-accompagnant')?.value || 0) : 0;
     const has4canne = cfg.optionsPeche ? (el('f-4canne')?.checked || false) : false;
     const poste    = (cfg.poste && typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === posteId) : null;
 
-    if (el('sum-poste'))   el('sum-poste').textContent   = poste ? `#${poste.id} ${poste.nom}` : '—';
-    const formuleLabels = { 'demi':'Demi-journée','jour':'Journée (12h)','nuit':'Nuitée (24h)' };
-    if (el('sum-formule')) el('sum-formule').textContent = formuleLabels[formule] || '—';
+    if (el('sum-poste')) el('sum-poste').textContent = poste ? `#${poste.id} ${poste.nom}` : '—';
+    const formuleLabel = rawFormule ? (
+      fType === 'demi' ? 'Demi-journée' :
+      fType === 'jour' ? 'Journée (12h)' :
+      fType === 'nuit' ? `${duree} nuit${duree > 1 ? 's' : ''}` : rawFormule
+    ) : '—';
+    if (el('sum-formule')) el('sum-formule').textContent = formuleLabel;
     if (el('sum-date'))    el('sum-date').textContent    = date ? formatDateFR(date) : '—';
-    if (el('sum-duree'))   el('sum-duree').textContent   = formule === 'nuit'
-      ? `${duree} nuit${duree > 1 ? 's' : ''}`
-      : `${duree} session${duree > 1 ? 's' : ''}`;
+    if (el('sum-duree'))   el('sum-duree').textContent   = formuleLabel !== '—' ? formuleLabel : '—';
     if (el('sum-nb'))      el('sum-nb').textContent      = `${nb} pêcheur${nb > 1 ? 's' : ''}`;
-
-    // Prix des radios formule
-    const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
-    if (el('price-demi')) el('price-demi').textContent = '15 €';
-    if (el('price-jour')) el('price-jour').textContent = '20 €';
-    if (el('price-nuit')) el('price-nuit').textContent = formule === 'nuit' ? `${tarifs[duree] || 35} €` : '35 €';
 
     // Options accompagnant / 4ème canne
     if (cfg.optionsPeche) {
       const accomp = window.TARIF_ACCOMPAGNANT || { demi:5, jour:10, nuit:10 };
       const optAccompPrice = el('opt-accompagnant-price');
       if (optAccompPrice) {
-        if (!formule)              optAccompPrice.textContent = '+5–10 € / pers.';
-        else if (formule==='demi') optAccompPrice.textContent = `+${accomp.demi} € / pers.`;
-        else if (formule==='jour') optAccompPrice.textContent = `+${accomp.jour} € / pers.`;
-        else                       optAccompPrice.textContent = `+${accomp.nuit} € / pers. / nuit`;
+        if (!rawFormule)         optAccompPrice.textContent = '+5–10 € / pers.';
+        else if (fType==='demi') optAccompPrice.textContent = `+${accomp.demi} € / pers.`;
+        else if (fType==='jour') optAccompPrice.textContent = `+${accomp.jour} € / pers.`;
+        else                     optAccompPrice.textContent = `+${accomp.nuit} € / pers. / nuit`;
       }
       const opt4canneCard  = el('opt-4canne-card');
       const opt4cannePrice = el('opt-4canne-price');
       const f4canne        = el('f-4canne');
       if (opt4canneCard) {
-        if (formule === 'demi' || !formule) {
+        if (fType === 'demi' || !rawFormule) {
           opt4canneCard.classList.add('disabled');
           if (f4canne) f4canne.checked = false;
           if (opt4cannePrice) opt4cannePrice.textContent = 'Non disponible';
         } else {
           opt4canneCard.classList.remove('disabled');
-          if (opt4cannePrice) opt4cannePrice.textContent = formule === 'jour'
+          if (opt4cannePrice) opt4cannePrice.textContent = fType === 'jour'
             ? '+10 €'
-            : `+${Math.max(20, duree * 10)} € (${duree} nuit${duree > 1 ? 's' : ''})`;
+            : `+${10 * duree} € (${duree} × 10 €/nuit)`;
         }
       }
       const accompCard = el('opt-accompagnant-card');
       if (accompCard) accompCard.classList.toggle('has-value', nbAccomp > 0);
-      if (opt4canneCard) opt4canneCard.classList.toggle('has-value', has4canne && formule !== 'demi');
+      if (opt4canneCard) opt4canneCard.classList.toggle('has-value', has4canne && fType !== 'demi');
     }
 
     // Total
+    const tarifs   = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
     const hasPoste = cfg.poste ? !!poste : true;
-    if (hasPoste && formule) {
-      let basePrice = formule === 'nuit'
+    if (hasPoste && rawFormule) {
+      let basePrice = fType === 'nuit'
         ? (tarifs[duree] || duree * 35)
-        : (formule === 'demi' ? 15 : 20) * duree;
-      const opts = cfg.optionsPeche ? calcOptionsPrice(formule, duree, nbAccomp, has4canne) : { accompPrice:0, canne4Price:0 };
+        : (fType === 'demi' ? 15 : 20);
+      const opts = cfg.optionsPeche ? calcOptionsPrice(fType, duree, nbAccomp, has4canne) : { accompPrice:0, canne4Price:0 };
       const materielPrice = calcMaterielPrice();
       const total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
       if (el('sum-total')) el('sum-total').textContent = `${total} €`;
@@ -280,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.materiel-cb').forEach(cb => cb.addEventListener('change', () => { updateMaterielUI(); updateSummary(); }));
 
   function calcMaterielPrice() {
-    const duree = parseInt(el('f-duree')?.value || 1);
+    const { duree } = parseFormule(document.querySelector('input[name="formule"]:checked')?.value);
     let total = 0;
     document.querySelectorAll('.materiel-cb:checked').forEach(cb => {
       total += (parseInt(cb.dataset.jour) || 0) * duree;
@@ -289,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateMaterielUI() {
-    const duree   = parseInt(el('f-duree')?.value || 1);
+    const { duree } = parseFormule(document.querySelector('input[name="formule"]:checked')?.value);
     const checked = document.querySelectorAll('.materiel-cb:checked').length;
     const price   = calcMaterielPrice();
 
@@ -312,11 +317,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  ['f-poste','f-duree','f-nb','f-date-debut'].forEach(id => {
+  // ── Date de départ auto-calculée ─────────────────────────────
+  function updateDepartureDate() {
+    const dateDebut = el('f-date-debut')?.value;
+    const rawFormule = document.querySelector('input[name="formule"]:checked')?.value;
+    const finInput   = el('f-date-fin');
+    if (!finInput) return;
+    if (!dateDebut || !rawFormule || rawFormule === 'demi') { finInput.value = ''; return; }
+    const { type: fType, duree } = parseFormule(rawFormule);
+    const start = new Date(dateDebut + 'T12:00:00');
+    let days = fType === 'jour' ? 1 : fType === 'nuit' ? duree : 0;
+    if (!days) { finInput.value = ''; return; }
+    const end = new Date(start.getTime() + days * 86400000);
+    finInput.value = end.toISOString().split('T')[0];
+  }
+
+  ['f-poste','f-nb','f-date-debut'].forEach(id => {
     const e = el(id);
-    if (e) e.addEventListener('change', () => { updateMaterielUI(); updateSummary(); });
+    if (e) e.addEventListener('change', () => { updateMaterielUI(); updateSummary(); updateDepartureDate(); });
   });
-  document.querySelectorAll('input[name="formule"]').forEach(r => r.addEventListener('change', () => { updateMaterielUI(); updateSummary(); }));
+  document.querySelectorAll('input[name="formule"]').forEach(r => r.addEventListener('change', () => { updateMaterielUI(); updateSummary(); updateDepartureDate(); }));
   document.querySelectorAll('input[name="bformule"]').forEach(r => r.addEventListener('change', updateSummary));
   ['f-bateau-date','f-bateau-nb'].forEach(id => {
     const e = el(id);
@@ -513,11 +533,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       } else {
         // Pêche + location nautique
-        const formule   = document.querySelector('input[name="formule"]:checked')?.value;
+        const rawFormule = document.querySelector('input[name="formule"]:checked')?.value;
+        const { type: fType, duree } = parseFormule(rawFormule);
         const dateDebut = el('f-date-debut')?.value;
-        const duree     = parseInt(el('f-duree')?.value || 1);
 
-        if (!formule || !dateDebut) {
+        if (!rawFormule || !dateDebut) {
           showToast('Veuillez choisir une formule et une date.', 'error', '⚠️');
           return;
         }
@@ -528,17 +548,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const dates = [];
-        const d = new Date(dateDebut);
+        const d = new Date(dateDebut + 'T12:00:00');
         for (let i = 0; i < duree; i++) {
           dates.push(new Date(d.getTime() + i * 86400000).toISOString().split('T')[0]);
         }
 
-        const tarifs   = window.TARIFS_NUITS || {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
-        let basePrice  = formule === 'nuit'
-          ? (tarifs[duree] || duree * 35)
-          : (formule === 'demi' ? 15 : 20) * duree;
-
-        const materielPrice = calcMaterielPrice();
+        const tarifs      = window.TARIFS_NUITS || {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
+        let basePrice     = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
+        const formuleLabel = fType === 'demi' ? 'Demi-journée' : fType === 'jour' ? 'Journée' : `${duree} nuit${duree>1?'s':''}`;
+        const materielPrice    = calcMaterielPrice();
         const selectedMateriel = Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id);
 
         if (cfg.poste) {
@@ -546,13 +564,13 @@ document.addEventListener('DOMContentLoaded', function () {
           const nb        = parseInt(el('f-nb')?.value || 1);
           const nbAccomp  = parseInt(el('f-accompagnant')?.value || 0);
           const has4canne = el('f-4canne')?.checked || false;
-          const opts      = calcOptionsPrice(formule, duree, nbAccomp, has4canne);
+          const opts      = calcOptionsPrice(fType, duree, nbAccomp, has4canne);
           total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
 
           Object.assign(booking, {
-            type:'peche', posteId, formule, dateDebut, duree, nb, dates,
+            type:'peche', posteId, formule: rawFormule, formuleLabel, fType, dateDebut, duree, nb, dates,
             nbAccompagnants: nbAccomp,
-            canne4: has4canne && formule !== 'demi',
+            canne4: has4canne && fType !== 'demi',
             materiel: selectedMateriel, materielPrice,
             totalPrice: total,
           });
@@ -562,12 +580,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           total = basePrice + materielPrice;
           Object.assign(booking, {
-            type:'location', formule, dateDebut, duree, dates,
+            type:'location', formule: rawFormule, formuleLabel, fType, dateDebut, duree, dates,
             materiel: selectedMateriel, materielPrice,
             totalPrice: total,
           });
-          const formuleLabels = { 'demi':'Demi-journée','jour':'Journée','nuit':'Nuitée' };
-          toastMsg = `✓ Réservation enregistrée ! ${ACTIVITY_LABELS[activity]} — ${formuleLabels[formule] || formule} — ${total} €. Confirmation à ${email}.`;
+          toastMsg = `✓ Réservation enregistrée ! ${ACTIVITY_LABELS[activity]} — ${formuleLabel} — ${total} €. Confirmation à ${email}.`;
         }
       }
 

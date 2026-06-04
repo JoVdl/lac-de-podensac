@@ -585,26 +585,71 @@
             <!-- ── 4. FORMULE (pêche + location) ──────────────── -->
             <div class="form-group" id="sec-formule" hidden>
               <label>Formule *</label>
-              <div class="form-radio-group" id="f-formule-group">
-                <label class="form-radio" id="formule-demi-wrap">
+              <div class="form-radio-group" id="f-formule-group" style="grid-template-columns:repeat(3,1fr);">
+                <label class="form-radio">
                   <input type="radio" name="formule" value="demi">
                   <div class="form-radio__label">
-                    <div class="form-radio__price" id="price-demi">15 €</div>
+                    <div class="form-radio__price">15 €</div>
                     <div class="form-radio__name">Demi-journée</div>
                   </div>
                 </label>
-                <label class="form-radio" id="formule-jour-wrap">
+                <label class="form-radio">
                   <input type="radio" name="formule" value="jour">
                   <div class="form-radio__label">
-                    <div class="form-radio__price" id="price-jour">20 €</div>
-                    <div class="form-radio__name">Journée (12h)</div>
+                    <div class="form-radio__price">20 €</div>
+                    <div class="form-radio__name">Journée</div>
+                    <span class="form-radio__sub">12h</span>
                   </div>
                 </label>
-                <label class="form-radio" id="formule-nuit-wrap">
-                  <input type="radio" name="formule" value="nuit">
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-1">
                   <div class="form-radio__label">
-                    <div class="form-radio__price" id="price-nuit">35 €</div>
-                    <div class="form-radio__name">Nuitée (24h)</div>
+                    <div class="form-radio__price">35 €</div>
+                    <div class="form-radio__name">1 nuit</div>
+                    <span class="form-radio__sub">24h</span>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-2">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price">70 €</div>
+                    <div class="form-radio__name">2 nuits</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-3">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price">90 €</div>
+                    <div class="form-radio__name">3 nuits</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-4">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price">110 €</div>
+                    <div class="form-radio__name">4 nuits</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-5">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price">130 €</div>
+                    <div class="form-radio__name">5 nuits</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-6">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price">150 €</div>
+                    <div class="form-radio__name">6 nuits</div>
+                  </div>
+                </label>
+                <label class="form-radio">
+                  <input type="radio" name="formule" value="nuit-7">
+                  <div class="form-radio__label">
+                    <div class="form-radio__price">170 €</div>
+                    <div class="form-radio__name">Semaine</div>
+                    <span class="form-radio__sub">7 nuits</span>
                   </div>
                 </label>
               </div>
@@ -612,8 +657,16 @@
 
             <!-- ── 5. CALENDRIER (pêche + location) ───────────── -->
             <div class="form-group" id="sec-calendar" hidden>
-              <label>Date d'arrivée *</label>
-              <input type="date" class="form-control" id="f-date-debut">
+              <div class="form-grid-2" style="margin-bottom:12px;">
+                <div>
+                  <label>Date d'arrivée *</label>
+                  <input type="date" class="form-control" id="f-date-debut">
+                </div>
+                <div>
+                  <label>Date de départ</label>
+                  <input type="date" class="form-control" id="f-date-fin" readonly style="background:var(--gray-bg);cursor:default;" placeholder="Auto">
+                </div>
+              </div>
               <div class="calendar-widget" style="margin-top:12px;">
                 <div class="calendar-header">
                   <button type="button" class="calendar-nav" id="cal-prev">‹</button>
@@ -630,19 +683,6 @@
               </div>
             </div>
 
-            <!-- ── 6. DURÉE (pêche + location) ────────────────── -->
-            <div class="form-group" id="sec-duree" hidden>
-              <label>Nombre de sessions</label>
-              <select class="form-control" id="f-duree">
-                <option value="1">1 session</option>
-                <option value="2">2 sessions</option>
-                <option value="3">3 sessions</option>
-                <option value="4">4 sessions</option>
-                <option value="5">5 sessions</option>
-                <option value="6">6 sessions</option>
-                <option value="7">7 sessions / 1 semaine</option>
-              </select>
-            </div>
 
             <!-- ── 7. NB PÊCHEURS (pêche uniquement) ──────────── -->
             <div class="form-group" id="sec-nb-pecheurs" hidden>
@@ -651,6 +691,18 @@
                 <option value="1">1 pêcheur</option>
                 <option value="2">2 pêcheurs</option>
                 <option value="3">3 pêcheurs</option>
+                <option value="4">4 pêcheurs</option>
+                <option value="5">5 pêcheurs</option>
+                <option value="6">6 pêcheurs</option>
+                <option value="7">7 pêcheurs</option>
+                <option value="8">8 pêcheurs</option>
+                <option value="9">9 pêcheurs</option>
+                <option value="10">10 pêcheurs</option>
+                <option value="11">11 pêcheurs</option>
+                <option value="12">12 pêcheurs</option>
+                <option value="13">13 pêcheurs</option>
+                <option value="14">14 pêcheurs</option>
+                <option value="15">15 pêcheurs</option>
               </select>
             </div>
 
