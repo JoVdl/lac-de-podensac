@@ -73,7 +73,7 @@ const POSTES = [
       { espece: "Carpe",  poids: "11.3kg", date: "28 avr. 2025", emoji: "🐟" },
       { espece: "Brème",  poids: "0.8kg",  date: "20 avr. 2025", emoji: "🐟" },
     ],
-    equipements: ["Banc de pêche", "Anneau d'amarrage", "Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
+    equipements: ["Accessible en véhicule (belle saison)", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.20, note: "Zone de pêche à la nuitée — 1,20 ha",
   },
   {
@@ -97,7 +97,7 @@ const POSTES = [
       { espece: "Brème",  poids: "1.4kg", date: "3 mai 2025",  emoji: "🐟" },
       { espece: "Gardon", poids: "0.3kg", date: "25 avr. 2025", emoji: "🐟" },
     ],
-    equipements: ["Banc de pêche", "Table de montage", "Panneau espèces", "Barbecue sur demande à l'accueil"],
+    equipements: ["Table de montage", "Panneau espèces", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.27, note: "Zone de pêche à la nuitée — 1,27 ha",
   },
   {
@@ -121,7 +121,7 @@ const POSTES = [
       { espece: "Perche",  poids: "0.9kg", date: "8 mai 2025",  emoji: "🐟" },
       { espece: "Sandre",  poids: "5.1kg", date: "1 mai 2025",  emoji: "🐟" },
     ],
-    equipements: ["Banc de pêche", "Boîte à appâts", "Carnet captures", "Barbecue sur demande à l'accueil"],
+    equipements: ["Boîte à appâts", "Carnet captures", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.22, note: "Zone de pêche à la nuitée — 1,22 ha",
   },
   {
@@ -145,7 +145,7 @@ const POSTES = [
       { espece: "Tanche",  poids: "1.8kg",  date: "12 mai 2025", emoji: "🐟" },
       { espece: "Sandre",  poids: "3.2kg",  date: "7 mai 2025",  emoji: "🐟" },
     ],
-    equipements: ["Banc de pêche", "Point d'eau proche", "Barbecue sur demande à l'accueil"],
+    equipements: ["Point d'eau proche", "Barbecue sur demande à l'accueil"],
     zone_ha: 1.33, note: "Zone de pêche à la nuitée — 1,33 ha",
   },
   {
@@ -194,7 +194,7 @@ const POSTES = [
       { espece: "Brochet",     poids: "5.2kg",  date: "13 mai 2025", emoji: "🐟" },
       { espece: "Silure",      poids: "18.5kg", date: "9 mai 2025",  emoji: "🐟" },
     ],
-    equipements: ["Banc de pêche (2-3 pêcheurs)", "Grande zone de pose", "Épuisette géante", "Barbecue sur demande à l'accueil"],
+    equipements: ["Grande zone de pose", "Épuisette géante", "Barbecue sur demande à l'accueil"],
     zone_ha: 2.52, note: "Zone de pêche à la nuitée — 2,52 ha — 2 à 3 pêcheurs",
   },
   {
@@ -218,7 +218,7 @@ const POSTES = [
       { espece: "Brème",  poids: "1.9kg",  date: "14 mai 2025", emoji: "🐟" },
       { espece: "Perche", poids: "0.8kg",  date: "10 mai 2025", emoji: "🐟" },
     ],
-    equipements: ["Ponton bois 22m²", "Accès PMR", "Anneau d'amarrage", "Éclairage nocturne", "Table de préparation", "Barbecue sur demande à l'accueil"],
+    equipements: ["Ponton bois 22m²", "Accès PMR", "Éclairage nocturne", "Table de préparation", "Barbecue sur demande à l'accueil"],
     note: "Ponton bois 22m² — Accès voiture possible",
   },
   {
