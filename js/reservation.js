@@ -4,7 +4,7 @@
 
 const ACTIVITY_SECTIONS = {
   'carnassier-bord':     { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'carnassier-barque':   { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carnassier-barque':   { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,2,3,4,5,6], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'coup':                { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'feeder':              { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
@@ -46,10 +46,24 @@ document.addEventListener('DOMContentLoaded', function () {
   const el = id => document.getElementById(id);
 
   // ── Peuplement du select des postes ──────────────────────────
-  function updatePosteOptions(filter) {
+  function updatePosteOptions(filter, zones) {
     const posteSelect = el('f-poste');
-    if (!posteSelect || typeof POSTES === 'undefined') return;
+    if (!posteSelect) return;
     while (posteSelect.options.length > 1) posteSelect.remove(1);
+
+    if (zones) {
+      // Zone mode (ex: Zone carnassier)
+      zones.forEach(z => {
+        const opt = document.createElement('option');
+        opt.value = z.id;
+        opt.textContent = z.label;
+        posteSelect.appendChild(opt);
+      });
+      if (zones.length === 1) posteSelect.value = zones[0].id;
+      return;
+    }
+
+    if (typeof POSTES === 'undefined') return;
     const filtered = filter ? POSTES.filter(p => filter.includes(p.id)) : POSTES;
     filtered.forEach(p => {
       const opt = document.createElement('option');
@@ -76,7 +90,11 @@ document.addEventListener('DOMContentLoaded', function () {
     el('sec-options-peche').hidden = !cfg.optionsPeche;
     el('sec-materiel').hidden      = !cfg.materiel;
 
-    if (cfg.poste) updatePosteOptions(cfg.posteFilter || null);
+    if (cfg.poste) {
+      updatePosteOptions(cfg.posteFilter || null, cfg.zones || null);
+      const lbl = el('sec-poste-label');
+      if (lbl) lbl.textContent = cfg.zones ? 'Zone de pêche *' : 'Poste de pêche *';
+    }
 
     if (cfg.calendar) {
       const posteId = cfg.poste ? parseInt(el('f-poste')?.value) : null;
