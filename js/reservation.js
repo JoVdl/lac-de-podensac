@@ -198,12 +198,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const poste    = (cfg.poste && typeof POSTES !== 'undefined') ? POSTES.find(p => p.id === posteId) : null;
 
     if (el('sum-poste')) el('sum-poste').textContent = poste ? `#${poste.id} ${poste.nom}` : '—';
+    const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
     const formuleLabel = rawFormule ? (
       fType === 'demi' ? 'Demi-journée' :
       fType === 'jour' ? 'Journée (12h)' :
       fType === 'nuit' ? `${duree} nuit${duree > 1 ? 's' : ''}` : rawFormule
     ) : '—';
-    const tarifs = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
     const unitPrice = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
     const formuleWithPrice = rawFormule && cfg.peche && nb > 1
       ? `${formuleLabel} · ${unitPrice} € × ${nb} pêcheurs`
@@ -244,10 +244,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Total
-    const tarifs   = window.TARIFS_NUITS || { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
     const hasPoste = cfg.poste ? !!poste : true;
     if (hasPoste && rawFormule) {
-      const unitPrice = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
       let basePrice   = unitPrice * nb;
       const opts = cfg.optionsPeche ? calcOptionsPrice(fType, duree, nbAccomp, has4canne) : { accompPrice:0, canne4Price:0 };
       const materielPrice = calcMaterielPrice();
