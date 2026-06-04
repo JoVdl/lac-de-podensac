@@ -382,27 +382,34 @@ document.addEventListener('DOMContentLoaded', function () {
     const rawFormule = document.querySelector('input[name="formule"]:checked')?.value;
     const finInput   = el('f-date-fin');
     if (!finInput) return;
-    if (!dateDebut || !rawFormule || rawFormule === 'demi') { finInput.value = ''; return; }
+    if (!dateDebut || !rawFormule) { finInput.value = ''; return; }
     const { type: fType, duree } = parseFormule(rawFormule);
-    const days = fType === 'jour' ? 1 : fType === 'nuit' ? duree : 0;
-    if (!days) { finInput.value = ''; return; }
-    finInput.value = new Date(new Date(dateDebut + 'T12:00:00').getTime() + days * 86400000).toISOString().split('T')[0];
+    if (fType === 'demi' || fType === 'jour') {
+      finInput.value = dateDebut;
+    } else if (fType === 'nuit') {
+      finInput.value = new Date(new Date(dateDebut + 'T12:00:00').getTime() + duree * 86400000).toISOString().split('T')[0];
+    } else {
+      finInput.value = '';
+    }
     renderCalendar();
   }
 
   function updateFormuleFromDates() {
-    const debut    = el('f-date-debut')?.value;
-    const fin      = el('f-date-fin')?.value;
-    const finInput = el('f-date-fin');
+    const debut = el('f-date-debut')?.value;
+    const fin   = el('f-date-fin')?.value;
     if (!debut || !fin) return;
     const days = Math.round((new Date(fin + 'T12:00:00') - new Date(debut + 'T12:00:00')) / 86400000);
-    if (days <= 0) return;
-    const value = days === 1 ? 'nuit-1' : `nuit-${Math.min(days, 7)}`;
-    const radio  = document.querySelector(`input[name="formule"][value="${value}"]`);
-    if (radio && !radio.checked) {
-      radio.checked = true;
-      updateMaterielUI();
-      updateSummary();
+    // 0 days = demi ou jour (impossible de distinguer, on garde la sélection actuelle si déjà demi/jour)
+    if (days === 0) {
+      const current = document.querySelector('input[name="formule"]:checked')?.value;
+      if (current !== 'demi' && current !== 'jour') {
+        const radio = document.querySelector('input[name="formule"][value="jour"]');
+        if (radio) { radio.checked = true; updateMaterielUI(); updateSummary(); }
+      }
+    } else if (days > 0) {
+      const value = `nuit-${Math.min(days, 7)}`;
+      const radio = document.querySelector(`input[name="formule"][value="${value}"]`);
+      if (radio && !radio.checked) { radio.checked = true; updateMaterielUI(); updateSummary(); }
     }
     renderCalendar();
   }
