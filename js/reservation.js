@@ -115,6 +115,45 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSummary();
   }
 
+  // ── Gestion de la catégorie (premier niveau) ─────────────────
+  const CAT_ACTIVITIES = {
+    peche:       ['carnassier-bord','carnassier-barque','carpe-batterie','coup','feeder','carnassier-pose'],
+    bateau:      ['barbecue-boat'],
+    hebergement: ['emplacement-bbq','emplacement-camping'],
+    nautique:    ['canoe','barque-sans-peche'],
+  };
+
+  function onCategoryChange(cat) {
+    const secActivity = el('sec-activity');
+    if (!secActivity) return;
+
+    // Reset activité sélectionnée et sections
+    document.querySelectorAll('input[name="activity"]').forEach(r => r.checked = false);
+    ['sec-poste','sec-formule','sec-calendar','sec-nb-pecheurs','sec-bateau','sec-emplacement','sec-options-peche','sec-materiel'].forEach(id => {
+      const s = el(id); if (s) s.hidden = true;
+    });
+    if (el('sum-activite')) el('sum-activite').textContent = '—';
+    if (el('sum-total'))    el('sum-total').textContent    = '—';
+
+    // Afficher les groupes correspondant à la catégorie
+    document.querySelectorAll('.act-group').forEach(g => {
+      g.style.display = g.dataset.cat === cat ? 'contents' : 'none';
+    });
+
+    secActivity.hidden = false;
+
+    // Auto-sélection si une seule activité dans la catégorie
+    const acts = CAT_ACTIVITIES[cat] || [];
+    if (acts.length === 1) {
+      const radio = document.querySelector(`input[name="activity"][value="${acts[0]}"]`);
+      if (radio) { radio.checked = true; onActivityChange(acts[0]); }
+    }
+  }
+
+  document.querySelectorAll('input[name="category"]').forEach(r => {
+    r.addEventListener('change', e => onCategoryChange(e.target.value));
+  });
+
   document.querySelectorAll('input[name="activity"]').forEach(r => {
     r.addEventListener('change', e => onActivityChange(e.target.value));
   });
@@ -640,7 +679,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (typeof LacDB !== 'undefined') await LacDB.addReservation(booking);
         showToast(toastMsg, 'success');
         bookingForm.reset();
+        document.querySelectorAll('input[name="category"]').forEach(r => r.checked = false);
         document.querySelectorAll('input[name="activity"]').forEach(r => r.checked = false);
+        const secAct = el('sec-activity'); if (secAct) secAct.hidden = true;
         // Reset all sections to hidden
         ['sec-poste','sec-formule','sec-calendar','sec-duree','sec-nb-pecheurs','sec-bateau','sec-emplacement','sec-options-peche','sec-materiel'].forEach(id => {
           const s = el(id); if (s) s.hidden = true;

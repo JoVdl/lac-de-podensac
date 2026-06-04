@@ -1403,9 +1403,30 @@ p { margin-bottom: 0; }
 [data-theme="dark"] .boat-option-item:has(input:checked) { background: rgba(232,149,30,0.08); }
 
 /* ================================================================
-   ACTIVITY SELECTOR (sélecteur de type d'activité)
+   CATEGORY SELECTOR (premier niveau)
+   ================================================================ */
+.cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.cat-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 20px 12px; border: 2px solid rgba(0,0,0,0.07);
+  border-radius: var(--radius); background: var(--white); cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.15s;
+  text-align: center; position: relative;
+}
+.cat-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.cat-card:has(input:checked) { border-color: var(--primary); background: rgba(61,138,128,0.07); transform: translateY(-2px); box-shadow: var(--shadow); }
+.cat-card--fire:has(input:checked) { border-color: var(--accent); background: rgba(232,149,30,0.07); }
+.cat-card:hover { border-color: var(--primary-light); transform: translateY(-1px); }
+.cat-card__icon { font-size: 2rem; line-height: 1; }
+.cat-card__name { font-size: 0.82rem; font-weight: 700; color: var(--dark); line-height: 1.25; }
+[data-theme="dark"] .cat-card { background: var(--white); border-color: var(--gray-light); }
+[data-theme="dark"] .cat-card:has(input:checked) { background: rgba(61,138,128,0.12); }
+
+/* ================================================================
+   ACTIVITY SELECTOR (second niveau)
    ================================================================ */
 .act-grid { display: flex; flex-direction: column; gap: 5px; }
+.act-group { display: contents; }
 .act-group-label {
   font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--gray);

@@ -485,72 +485,100 @@
           <h3 class="booking-form-card__title">Détails de la réservation</h3>
           <form id="booking-form">
 
-            <!-- ── 1. SÉLECTEUR D'ACTIVITÉ ─────────────────────── -->
+            <!-- ── 1. CATÉGORIE ────────────────────────────────── -->
             <div class="form-group">
+              <label>Que souhaitez-vous faire ? *</label>
+              <div class="cat-grid">
+                <label class="cat-card">
+                  <input type="radio" name="category" value="peche">
+                  <span class="cat-card__icon">🎣</span>
+                  <span class="cat-card__name">Pêche</span>
+                </label>
+                <label class="cat-card cat-card--fire">
+                  <input type="radio" name="category" value="bateau">
+                  <span class="cat-card__icon">🔥</span>
+                  <span class="cat-card__name">Barbecue-boat</span>
+                </label>
+                <label class="cat-card">
+                  <input type="radio" name="category" value="hebergement">
+                  <span class="cat-card__icon">🏕️</span>
+                  <span class="cat-card__name">Hébergement &amp; emplacement</span>
+                </label>
+                <label class="cat-card">
+                  <input type="radio" name="category" value="nautique">
+                  <span class="cat-card__icon">🚣</span>
+                  <span class="cat-card__name">Location nautique</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- ── 2. TYPE D'ACTIVITÉ (conditionnel) ───────────── -->
+            <div class="form-group" id="sec-activity" hidden>
               <label>Type d'activité *</label>
               <div class="act-grid">
-                <div class="act-group-label">🎣 Pêche</div>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="carnassier-bord">
-                  <span class="act-card__icon">🦈</span>
-                  <span class="act-card__body"><span class="act-card__name">Carnassier du bord</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="carnassier-barque">
-                  <span class="act-card__icon">⛵</span>
-                  <span class="act-card__body"><span class="act-card__name">Carnassier en barque équipée</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="carpe-batterie">
-                  <span class="act-card__icon">🎣</span>
-                  <span class="act-card__body"><span class="act-card__name">Carpe en batterie</span><span class="act-card__note">Postes 1 et 6 uniquement</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="coup">
-                  <span class="act-card__icon">🎣</span>
-                  <span class="act-card__body"><span class="act-card__name">Pêche au coup</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="feeder">
-                  <span class="act-card__icon">🪱</span>
-                  <span class="act-card__body"><span class="act-card__name">Pêche au feeder</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="carnassier-pose">
-                  <span class="act-card__icon">🦈</span>
-                  <span class="act-card__body"><span class="act-card__name">Carnassier au posé</span></span>
-                </label>
-
-                <div class="act-group-label">🚣 Location nautique</div>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="canoe">
-                  <span class="act-card__icon">🛶</span>
-                  <span class="act-card__body"><span class="act-card__name">Canoé</span><span class="act-card__note">2 adultes + 1 enfant</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="barque-sans-peche">
-                  <span class="act-card__icon">⛵</span>
-                  <span class="act-card__body"><span class="act-card__name">Barque sans pêche</span></span>
-                </label>
-
-                <div class="act-group-label">🔥 Barbecue-boat</div>
-                <label class="act-card act-card--fire">
-                  <input type="radio" name="activity" value="barbecue-boat">
-                  <span class="act-card__icon">🔥</span>
-                  <span class="act-card__body"><span class="act-card__name">Barbecue-boat</span></span>
-                </label>
-
-                <div class="act-group-label">🏕️ Hébergement &amp; emplacement</div>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="emplacement-bbq">
-                  <span class="act-card__icon">🍖</span>
-                  <span class="act-card__body"><span class="act-card__name">Emplacement barbecue</span></span>
-                </label>
-                <label class="act-card">
-                  <input type="radio" name="activity" value="emplacement-camping">
-                  <span class="act-card__icon">⛺</span>
-                  <span class="act-card__body"><span class="act-card__name">Tente / Van / Camping-car</span><span class="act-card__note">10 emplacements</span></span>
-                </label>
+                <div class="act-group" data-cat="peche">
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="carnassier-bord">
+                    <span class="act-card__icon">🦈</span>
+                    <span class="act-card__body"><span class="act-card__name">Carnassier du bord</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="carnassier-barque">
+                    <span class="act-card__icon">⛵</span>
+                    <span class="act-card__body"><span class="act-card__name">Carnassier en barque équipée</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="carpe-batterie">
+                    <span class="act-card__icon">🎣</span>
+                    <span class="act-card__body"><span class="act-card__name">Carpe en batterie</span><span class="act-card__note">Postes 1 à 6</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="coup">
+                    <span class="act-card__icon">🎣</span>
+                    <span class="act-card__body"><span class="act-card__name">Pêche au coup</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="feeder">
+                    <span class="act-card__icon">🪱</span>
+                    <span class="act-card__body"><span class="act-card__name">Pêche au feeder</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="carnassier-pose">
+                    <span class="act-card__icon">🦈</span>
+                    <span class="act-card__body"><span class="act-card__name">Carnassier au posé</span></span>
+                  </label>
+                </div>
+                <div class="act-group" data-cat="bateau">
+                  <label class="act-card act-card--fire">
+                    <input type="radio" name="activity" value="barbecue-boat">
+                    <span class="act-card__icon">🔥</span>
+                    <span class="act-card__body"><span class="act-card__name">Barbecue-boat</span><span class="act-card__note">Créneau + options à bord</span></span>
+                  </label>
+                </div>
+                <div class="act-group" data-cat="hebergement">
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="emplacement-bbq">
+                    <span class="act-card__icon">🍖</span>
+                    <span class="act-card__body"><span class="act-card__name">Emplacement barbecue</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="emplacement-camping">
+                    <span class="act-card__icon">⛺</span>
+                    <span class="act-card__body"><span class="act-card__name">Tente / Van / Camping-car</span><span class="act-card__note">10 emplacements</span></span>
+                  </label>
+                </div>
+                <div class="act-group" data-cat="nautique">
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="canoe">
+                    <span class="act-card__icon">🛶</span>
+                    <span class="act-card__body"><span class="act-card__name">Canoé</span><span class="act-card__note">2 adultes + 1 enfant</span></span>
+                  </label>
+                  <label class="act-card">
+                    <input type="radio" name="activity" value="barque-sans-peche">
+                    <span class="act-card__icon">⛵</span>
+                    <span class="act-card__body"><span class="act-card__name">Barque sans pêche</span></span>
+                  </label>
+                </div>
               </div>
             </div>
 
