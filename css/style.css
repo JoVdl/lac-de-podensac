@@ -766,8 +766,8 @@ p { margin-bottom: 0; }
 .boat-card__header::before {
   content:''; position:absolute; inset:0;
 }
-.boat-card.card-1 .boat-card__header { background: linear-gradient(135deg,#1a0a30,#8b1fa9); }
-.boat-card.card-2 .boat-card__header { background: linear-gradient(135deg,#0d2420,#6aab9c); }
+.boat-card.card-1 .boat-card__header { background: linear-gradient(135deg,#2a1000,#e8711e); }
+.boat-card.card-2 .boat-card__header { background: linear-gradient(135deg,#0a1f1b,#3d8a80); }
 .boat-card.card-3 .boat-card__header { background: linear-gradient(135deg,#1a2a0a,#5a8a1f); }
 .boat-card__badge {
   position: absolute; top: 16px; right: 16px;
