@@ -9,8 +9,8 @@ const ACTIVITY_SECTIONS = {
   'coup':                { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'feeder':              { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carnassier-pose':     { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'canoe':               { location:true, formule:true, calendar:true, materiel:true },
-  'barque-sans-peche':   { location:true, formule:true, calendar:true, materiel:true },
+  'canoe':               { location:true, formule:true, formuleFilter:['demi','jour'], calendar:true, materiel:true },
+  'barque-sans-peche':   { location:true, formule:true, formuleFilter:['demi','jour'], barquePrix:true, calendar:true, materiel:true },
   'barbecue-boat':       { bateau:true, materiel:true },
   'emplacement-bbq':     { emplacementBBQ:true },
   'emplacement-camping': { emplacement:true, materiel:true },
@@ -86,6 +86,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     el('sec-poste').hidden         = !cfg.poste;
     el('sec-formule').hidden       = !cfg.formule;
+    // Filtrer les tuiles de formule si nécessaire (ex : canoé = demi + jour seulement)
+    const formuleGroup = el('f-formule-group');
+    if (formuleGroup) {
+      const filter = cfg.formuleFilter || null;
+      formuleGroup.style.gridTemplateColumns = filter ? `repeat(${filter.length}, 1fr)` : 'repeat(3, 1fr)';
+      formuleGroup.querySelectorAll('label.form-radio').forEach(lbl => {
+        const val = lbl.querySelector('input')?.value;
+        lbl.style.display = (!filter || filter.includes(val)) ? '' : 'none';
+        if (filter && !filter.includes(val)) { const inp = lbl.querySelector('input'); if (inp) inp.checked = false; }
+      });
+    }
+    // Mettre à jour les prix des tuiles demi/jour selon l'activité
+    if (formuleGroup) {
+      const demiPrice = formuleGroup.querySelector('input[value="demi"]')?.closest('label')?.querySelector('.form-radio__price');
+      const jourPrice = formuleGroup.querySelector('input[value="jour"]')?.closest('label')?.querySelector('.form-radio__price');
+      if (demiPrice) demiPrice.textContent = cfg.barquePrix ? '20 €' : '15 €';
+      if (jourPrice) jourPrice.textContent = cfg.barquePrix ? '30 €' : '20 €';
+    }
     el('sec-calendar').hidden      = !cfg.calendar;
     const secDuree = el('sec-duree'); if (secDuree) secDuree.hidden = true;
     el('sec-nb-pecheurs').hidden   = !cfg.nbPecheurs;
@@ -279,14 +297,16 @@ document.addEventListener('DOMContentLoaded', function () {
       fType === 'jour' ? 'Journée (12h)' :
       fType === 'nuit' ? `${duree} nuit${duree > 1 ? 's' : ''}` : rawFormule
     ) : '—';
-    const unitPrice = fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
+    const unitPrice = cfg.barquePrix
+      ? (fType === 'demi' ? 20 : 30)
+      : fType === 'nuit' ? (tarifs[duree] || duree * 35) : (fType === 'demi' ? 15 : 20);
     const formuleWithPrice = rawFormule && cfg.peche && nb > 1
       ? `${formuleLabel} · ${unitPrice} € × ${nb} pêcheurs`
       : formuleLabel;
     if (el('sum-formule')) el('sum-formule').textContent = formuleWithPrice;
     if (el('sum-date'))    el('sum-date').textContent    = date ? formatDateFR(date) : '—';
     if (el('sum-duree'))   el('sum-duree').textContent   = formuleLabel !== '—' ? formuleLabel : '—';
-    if (el('sum-nb'))      el('sum-nb').textContent      = `${nb} pêcheur${nb > 1 ? 's' : ''}`;
+    if (el('sum-nb'))      el('sum-nb').textContent      = cfg.location && !cfg.peche ? '2 adultes + 1 enfant' : `${nb} pêcheur${nb > 1 ? 's' : ''}`;
 
     // Options accompagnant / 4ème canne
     if (cfg.optionsPeche) {
@@ -321,13 +341,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Total
     const hasPoste = cfg.poste ? !!(poste || zoneLabel) : true;
     if (hasPoste && rawFormule) {
-      let basePrice   = unitPrice * nb;
+      let basePrice   = cfg.location && !cfg.peche ? unitPrice : unitPrice * nb;
       const opts = cfg.optionsPeche ? calcOptionsPrice(fType, duree, nbAccomp, has4canne) : { accompPrice:0, canne4Price:0 };
       const materielPrice = calcMaterielPrice();
       const total = basePrice + opts.accompPrice + opts.canne4Price + materielPrice;
       if (el('sum-total')) el('sum-total').textContent = `${total} €`;
 
-      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = '';
+      if (el('sum-par-pers-line')) el('sum-par-pers-line').style.display = cfg.location && !cfg.peche ? 'none' : '';
       if (el('sum-par-pers')) el('sum-par-pers').textContent = `${unitPrice} €/pêcheur`;
 
       const accompLine = el('sum-accompagnant-line');
