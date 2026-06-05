@@ -5,7 +5,7 @@
 const ACTIVITY_SECTIONS = {
   'carnassier-bord':     { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carnassier-barque':   { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
-  'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,2,3,4,5,6], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,2,3,4,5,6], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true, barqueOption:true },
   'coup':                { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'feeder':              { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carnassier-pose':     { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
@@ -94,6 +94,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const secEmplBBQ = el('sec-emplacement-bbq'); if (secEmplBBQ) secEmplBBQ.hidden = !cfg.emplacementBBQ;
     el('sec-options-peche').hidden = !cfg.optionsPeche;
     el('sec-materiel').hidden      = !cfg.materiel;
+    const barqueCard = el('mcard-barque-location');
+    if (barqueCard) {
+      barqueCard.style.display = cfg.barqueOption ? 'flex' : 'none';
+      if (!cfg.barqueOption) { const cb = barqueCard.querySelector('.materiel-cb'); if (cb) cb.checked = false; }
+    }
 
     if (cfg.poste) {
       updatePosteOptions(cfg.posteFilter || null, cfg.zones || null);
@@ -386,11 +391,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  function calcBarquePrice(duree) {
+    if (duree <= 1) return 30;
+    if (duree === 2) return 40;
+    return 15 * duree;
+  }
+
   function calcMaterielPrice() {
     const { duree } = parseFormule(document.querySelector('input[name="formule"]:checked')?.value);
     let total = 0;
     document.querySelectorAll('.materiel-cb:checked').forEach(cb => {
-      total += (parseInt(cb.dataset.jour) || 0) * duree;
+      if (cb.dataset.barque) total += calcBarquePrice(duree);
+      else total += (parseInt(cb.dataset.jour) || 0) * duree;
     });
     return total;
   }
@@ -412,10 +424,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.materiel-cb').forEach(cb => {
       const id      = cb.dataset.id;
-      const pJour   = parseInt(cb.dataset.jour) || 0;
       const priceEl = el(`mprice-${id}`);
       if (!priceEl) return;
-      priceEl.textContent = duree > 1 ? `${pJour * duree} € (${duree}j)` : `${pJour} €/j`;
+      if (cb.dataset.barque) {
+        const bp = calcBarquePrice(duree);
+        const perJ = duree <= 1 ? 30 : duree === 2 ? 20 : 15;
+        priceEl.textContent = duree > 1 ? `${bp} € (${duree}j × ${perJ} €/j)` : `${bp} €`;
+      } else {
+        const pJour = parseInt(cb.dataset.jour) || 0;
+        priceEl.textContent = duree > 1 ? `${pJour * duree} € (${duree}j)` : `${pJour} €/j`;
+      }
     });
   }
 
