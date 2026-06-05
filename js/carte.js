@@ -429,19 +429,36 @@ document.addEventListener('DOMContentLoaded', function () {
       return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
+    function dayBeforeFR(dateStr) {
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() - 1);
+      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
     LacDB.watchAllReservations(function (reservations) {
-      const pescheResaToday = reservations.filter(
-        r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today)
-      );
+      const pescheResa = reservations.filter(r => r.type === 'peche' && Array.isArray(r.dates));
+      const pescheResaToday = pescheResa.filter(r => r.dates.includes(today));
 
       const bookedToday = new Set(pescheResaToday.map(r => r.posteId));
 
-      // Pour chaque poste réservé, calculer la prochaine dispo (lendemain de la dernière date)
+      // Pour chaque poste réservé aujourd'hui, calculer la prochaine dispo (lendemain de la dernière date)
       const nextDispoMap = {};
       pescheResaToday.forEach(r => {
         const lastDate = [...r.dates].sort().pop();
         if (!nextDispoMap[r.posteId] || lastDate > nextDispoMap[r.posteId]) {
           nextDispoMap[r.posteId] = lastDate;
+        }
+      });
+
+      // Pour chaque poste disponible, trouver la prochaine réservation future
+      const nextBookingMap = {};
+      pescheResa.forEach(r => {
+        const futureDates = r.dates.filter(d => d > today).sort();
+        if (futureDates.length > 0) {
+          const earliest = futureDates[0];
+          if (!nextBookingMap[r.posteId] || earliest < nextBookingMap[r.posteId]) {
+            nextBookingMap[r.posteId] = earliest;
+          }
         }
       });
 
@@ -480,8 +497,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const dateEl = item.querySelector('.complet-date');
         if (dateEl) {
-          if (isAvail && poste.libre_jusqu_au) {
-            dateEl.textContent = `libre jusqu'au ${poste.libre_jusqu_au}`;
+          if (isAvail && nextBookingMap[id]) {
+            dateEl.textContent = `disponible jusqu'au ${dayBeforeFR(nextBookingMap[id])}`;
+            dateEl.style.color = '#27ae60';
+          } else if (isAvail && poste.libre_jusqu_au) {
+            dateEl.textContent = `disponible jusqu'au ${poste.libre_jusqu_au}`;
             dateEl.style.color = '#27ae60';
           } else if (!isAvail && !isSoon && bookedToday.has(id) && nextDispoMap[id]) {
             dateEl.textContent = `dispo à partir du ${nextDayFR(nextDispoMap[id])}`;
