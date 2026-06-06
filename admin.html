@@ -692,11 +692,13 @@
     .cal-month-cell.today .cal-day-num { background: var(--primary); color: #fff; }
     .cal-month-cell.other-month .cal-day-num { color: var(--gray-light); }
     .cal-event-chip {
-      display: block; width: 100%; padding: 2px 5px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 2px 5px; border-radius: 4px;
       font-size: 0.67rem; font-weight: 600; margin-bottom: 2px;
       cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      transition: opacity 0.15s; border: none; text-align: left;
+      transition: opacity 0.15s; border: none; text-align: left; gap: 4px;
     }
+    .cal-event-chip strong { font-size: 0.68rem; opacity: 0.9; flex-shrink: 0; }
     .cal-event-chip:hover { opacity: 0.75; }
     .peche-confirmed  { background: rgba(42,96,89,0.13);  color: var(--primary); }
     .peche-pending    { background: rgba(176,120,0,0.12); color: var(--warning); }
@@ -1461,7 +1463,9 @@
       const chips = dayRes.slice(0, 3).map(r => {
         const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
         const icon = r.type === 'peche' ? '🎣' : '🔥';
-        return `<button class="cal-event-chip ${chipClass(r)}" onclick="openResDetail('${r.id}')">${icon} ${name}</button>`;
+        const price = calculatePrice(r);
+        const priceTag = price > 0 ? ` · <strong>${price}€</strong>` : '';
+        return `<button class="cal-event-chip ${chipClass(r)}" onclick="openResDetail('${r.id}')">${icon} ${name}${priceTag}</button>`;
       }).join('');
 
       const more = dayRes.length - 3;
