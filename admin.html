@@ -700,10 +700,10 @@
     }
     .cal-event-chip strong { font-size: 0.68rem; opacity: 0.9; flex-shrink: 0; }
     .cal-event-chip:hover { opacity: 0.75; }
-    .peche-confirmed  { background: rgba(42,96,89,0.13);  color: var(--primary); }
-    .peche-pending    { background: rgba(176,120,0,0.12); color: var(--warning); }
-    .bateau-confirmed { background: rgba(232,149,30,0.14);color: #965800; }
-    .bateau-pending   { background: rgba(232,149,30,0.09);color: #b07000; }
+    .peche-confirmed,
+    .bateau-confirmed { background: rgba(30,138,74,0.14);  color: #1a7040; }
+    .peche-pending,
+    .bateau-pending   { background: rgba(176,120,0,0.15);  color: #8a6000; }
     .cancelled        { background: #f0f0f0; color: #999; }
     .cal-more-link {
       font-size: 0.64rem; color: var(--primary); font-weight: 700;
@@ -1382,26 +1382,19 @@
   function dotColor(r) {
     const s = r.status || 'pending';
     if (s === 'cancelled') return '#bbb';
-    if (r.type === 'peche') return s === 'confirmed' ? 'var(--primary)' : 'var(--warning)';
-    return s === 'confirmed' ? 'var(--accent)' : '#c08020';
+    return s === 'confirmed' ? '#1a7040' : '#8a6000';
   }
 
   function weekEventBg(r) {
-    const cls = chipClass(r);
-    if (cls === 'cancelled') return '#f0f0f0';
-    if (cls === 'peche-confirmed') return 'rgba(42,96,89,0.1)';
-    if (cls === 'peche-pending') return 'rgba(176,120,0,0.1)';
-    if (cls === 'bateau-confirmed') return 'rgba(232,149,30,0.13)';
-    return 'rgba(232,149,30,0.08)';
+    const s = (r.status || 'pending');
+    if (s === 'cancelled') return '#f0f0f0';
+    return s === 'confirmed' ? 'rgba(30,138,74,0.12)' : 'rgba(176,120,0,0.12)';
   }
 
   function weekEventColor(r) {
-    const cls = chipClass(r);
-    if (cls === 'cancelled') return '#999';
-    if (cls === 'peche-confirmed') return 'var(--primary)';
-    if (cls === 'peche-pending') return 'var(--warning)';
-    if (cls === 'bateau-confirmed') return '#965800';
-    return '#b07000';
+    const s = (r.status || 'pending');
+    if (s === 'cancelled') return '#999';
+    return s === 'confirmed' ? '#1a7040' : '#8a6000';
   }
 
   function updateCalHeader() {
