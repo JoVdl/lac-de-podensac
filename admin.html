@@ -756,6 +756,40 @@
     .cal-day-event-price { font-family: var(--font-head); font-weight: 800; color: var(--primary); font-size: 0.95rem; }
     .cal-day-empty { text-align: center; padding: 40px 20px; color: var(--gray-light); font-size: 0.88rem; }
 
+    /* ── RESPONSIVE CALENDAR ── */
+    @media (max-width: 640px) {
+      .cal-header { padding: 10px 12px; gap: 6px; }
+      .cal-period-label { font-size: 0.82rem; }
+      .cal-nav-btn { width: 28px; height: 28px; font-size: 1rem; }
+      .cal-today-btn { padding: 5px 9px; font-size: 0.7rem; }
+      .cal-view-tabs { gap: 3px; }
+      .cal-view-tab { padding: 5px 9px; font-size: 0.7rem; }
+
+      .cal-month-dow-row, .cal-month-days { grid-template-columns: repeat(7, 1fr); }
+      .cal-month-dow { font-size: 0.58rem; padding: 6px 0; letter-spacing: 0; }
+      .cal-month-cell { min-height: 46px; padding: 4px 2px 3px; cursor: pointer; }
+      .cal-month-cell:active { background: rgba(61,138,128,0.1); }
+      .cal-day-num { font-size: 0.65rem; width: 18px; height: 18px; margin-bottom: 2px; }
+
+      /* Remplacer les chips par des points compacts */
+      .cal-event-chip, .cal-more-link { display: none; }
+      .cal-mobile-dots { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; padding: 0 1px; }
+      .cal-mobile-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+      .cal-mobile-more { font-size: 0.55rem; font-weight: 700; color: var(--gray); line-height: 1; margin-top: 1px; text-align: center; }
+
+      .cal-week-grid { min-width: 480px; }
+      .cal-week-col-header { padding: 7px 4px; }
+      .cal-week-dow { font-size: 0.6rem; }
+      .cal-week-day-num { font-size: 1rem; width: 28px; height: 28px; }
+      .cal-week-event { padding: 4px 5px; }
+      .cal-week-event-name { font-size: 0.62rem; }
+      .cal-week-event-sub { font-size: 0.55rem; }
+
+      .cal-day-event { padding: 10px 12px; gap: 10px; }
+      .cal-day-event-name { font-size: 0.82rem; }
+      .cal-legend { font-size: 0.68rem; gap: 8px; }
+    }
+
     /* ── LEGEND ── */
     .cal-legend {
       display: flex; flex-wrap: wrap; gap: 10px;
@@ -1438,8 +1472,11 @@
     const last  = new Date(year, month + 1, 0);
     const startDow = getDow(first);
 
+    const joursAff = window.innerWidth < 640
+      ? ['L','M','M','J','V','S','D']
+      : JOURS_CAL;
     let html = `<div class="cal-month-grid">
-      <div class="cal-month-dow-row">${JOURS_CAL.map(j=>`<div class="cal-month-dow">${j}</div>`).join('')}</div>
+      <div class="cal-month-dow-row">${joursAff.map(j=>`<div class="cal-month-dow">${j}</div>`).join('')}</div>
       <div class="cal-month-days">`;
 
     // Padding before month
@@ -1453,20 +1490,36 @@
       const isToday = ds === today;
       const dayRes = getResForDate(ds);
 
-      const chips = dayRes.slice(0, 3).map(r => {
-        const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
-        const icon = r.type === 'peche' ? '🎣' : '🔥';
-        const price = calculatePrice(r);
-        const priceTag = price > 0 ? ` · <strong>${price}€</strong>` : '';
-        return `<button class="cal-event-chip ${chipClass(r)}" onclick="openResDetail('${r.id}')">${icon} ${name}${priceTag}</button>`;
-      }).join('');
+      const isMobile = window.innerWidth < 640;
+      let cellContent = '';
 
-      const more = dayRes.length - 3;
-      const moreHtml = more > 0 ? `<button class="cal-more-link" onclick="switchToDay('${ds}')">+${more} autre${more>1?'s':''}</button>` : '';
+      if (isMobile) {
+        // Points colorés sur mobile — clic sur la cellule ouvre la vue jour
+        const dots = dayRes.slice(0, 6).map(r =>
+          `<span class="cal-mobile-dot" style="background:${dotColor(r)}"></span>`
+        ).join('');
+        const moreCount = dayRes.length - 6;
+        const moreLabel = moreCount > 0 ? `<div class="cal-mobile-more">+${moreCount}</div>` : '';
+        cellContent = dayRes.length > 0
+          ? `<div class="cal-mobile-dots">${dots}</div>${moreLabel}`
+          : '';
+      } else {
+        const chips = dayRes.slice(0, 3).map(r => {
+          const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
+          const icon = r.type === 'peche' ? '🎣' : '🔥';
+          const price = calculatePrice(r);
+          const priceTag = price > 0 ? ` · <strong>${price}€</strong>` : '';
+          return `<button class="cal-event-chip ${chipClass(r)}" onclick="openResDetail('${r.id}')">${icon} ${name}${priceTag}</button>`;
+        }).join('');
+        const more = dayRes.length - 3;
+        const moreHtml = more > 0 ? `<button class="cal-more-link" onclick="switchToDay('${ds}')">+${more} autre${more>1?'s':''}</button>` : '';
+        cellContent = chips + moreHtml;
+      }
 
-      html += `<div class="cal-month-cell${isToday?' today':''}">
+      const clickAttr = isMobile && dayRes.length > 0 ? ` onclick="switchToDay('${ds}')"` : '';
+      html += `<div class="cal-month-cell${isToday?' today':''}"${clickAttr}>
         <div class="cal-day-num">${d}</div>
-        ${chips}${moreHtml}
+        ${cellContent}
       </div>`;
     }
 
