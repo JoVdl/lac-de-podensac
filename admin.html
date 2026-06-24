@@ -1151,8 +1151,14 @@
               <label class="nrm-label">Formule *</label>
               <select class="nrm-select" id="nrm-formule" onchange="nrmRenderMateriel();nrmUpdatePrice()">
                 <option value="demi">Demi-journée — 15 €</option>
-                <option value="jour" selected>Journée (12h) — 20 €</option>
-                <option value="nuit">Nuitée (24h) — 35 € (puis 20 €/nuit)</option>
+                <option value="jour" selected>Journée — 20 €</option>
+                <option value="nuit-1">24 h — 35 €</option>
+                <option value="nuit-2">48 h — 70 €</option>
+                <option value="nuit-3">72 h — 90 €</option>
+                <option value="nuit-4">96 h — 110 €</option>
+                <option value="nuit-5">120 h — 130 €</option>
+                <option value="nuit-6">144 h — 150 €</option>
+                <option value="nuit-7">168 h (1 semaine) — 170 €</option>
               </select>
             </div>
           </div>
@@ -2436,7 +2442,7 @@
 
   window.nrmRenderMateriel = function() {
     const formule = document.getElementById('nrm-formule').value;
-    const isNuit = formule === 'nuit';
+    const isNuit = formule.startsWith('nuit-');
     const list = document.getElementById('nrm-materiel-list');
     const mat = typeof LOCATION_MATERIEL !== 'undefined' ? LOCATION_MATERIEL : [];
     const checked = new Set();
@@ -2464,29 +2470,20 @@
 
     if (nrmType === 'peche') {
       const formule = document.getElementById('nrm-formule').value;
-      let duree = 1;
-      const diff = nrmDaysBetween('nrm-date-debut', 'nrm-date-fin');
-      if (diff > 0) {
-        duree = formule === 'nuit' ? diff : diff + 1;
-      }
-      dureeTxt = duree > 0 ? `${duree} ${formule === 'nuit' ? `nuit${duree>1?'s':''}` : `session${duree>1?'s':''}`}` : '';
-      calcPrice = formule === 'nuit'
-        ? (duree <= 2 ? duree * 35 : 70 + (duree - 2) * 20)
-        : (formule === 'demi' ? 15 : 20) * duree;
+      const TARIFS_NUITS = {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
+      const isNuit = formule.startsWith('nuit-');
+      const nuits = isNuit ? parseInt(formule.split('-')[1]) : 0;
+      const unitPrice = isNuit ? (TARIFS_NUITS[nuits] || nuits * 35) : (formule === 'demi' ? 15 : 20);
+      calcPrice = unitPrice;
       const accomp = parseInt(document.getElementById('nrm-accomp').value)||0;
-      const aT = {demi:5,jour:10,nuit:10}[formule]||10;
-      calcPrice += aT * (formule==='nuit'?duree:1) * accomp;
-      if (document.getElementById('nrm-canne4').checked) {
-        if (formule==='jour') calcPrice+=10;
-        else if (formule==='nuit') calcPrice+=Math.max(20,duree*10);
-      }
-      // Material options
+      const aT = formule === 'demi' ? 5 : 10;
+      calcPrice += aT * accomp;
+      if (document.getElementById('nrm-canne4').checked && formule !== 'demi') calcPrice += 10;
       document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb => {
-        const prix = parseFloat(cb.dataset.prix) || 0;
-        calcPrice += formule === 'nuit' ? prix * duree : prix;
+        calcPrice += parseFloat(cb.dataset.prix) || 0;
       });
       const el = document.getElementById('nrm-peche-duree');
-      el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
+      el.style.display = 'none';
 
     } else if (nrmType === 'bateau') {
       const tB = {'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270};
@@ -2683,24 +2680,23 @@
         const dateDebut = document.getElementById('nrm-date-debut').value;
         const dateFin   = document.getElementById('nrm-date-fin').value;
         if (!dateDebut) { toast('Date début requise','error'); btn.disabled=false; btn.textContent='Enregistrer'; return; }
-        const diff = dateFin ? nrmDaysBetween('nrm-date-debut','nrm-date-fin') : 0;
-        const duree = Math.max(1, formule==='nuit' ? diff : diff+1);
-        const dates = makeDates(dateDebut, duree);
-        let totalPrice = formule==='nuit'
-          ? (duree <= 2 ? duree * 35 : 70 + (duree - 2) * 20)
-          : (formule==='demi'?15:20)*duree;
+        const TARIFS_NUITS = {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
+        const isNuit = formule.startsWith('nuit-');
+        const nuits = isNuit ? parseInt(formule.split('-')[1]) : 0;
+        const unitPrice = isNuit ? (TARIFS_NUITS[nuits] || nuits * 35) : (formule === 'demi' ? 15 : 20);
+        const dates = makeDates(dateDebut, 1);
+        let totalPrice = unitPrice;
         const accomp=parseInt(document.getElementById('nrm-accomp').value)||0;
-        const aT={demi:5,jour:10,nuit:10}[formule]||10;
-        totalPrice+=aT*(formule==='nuit'?duree:1)*accomp;
+        const aT = formule==='demi' ? 5 : 10;
+        totalPrice += aT * accomp;
         const canne4=document.getElementById('nrm-canne4').checked;
-        if(canne4){if(formule==='jour')totalPrice+=10;else if(formule==='nuit')totalPrice+=Math.max(20,duree*10);}
+        if(canne4 && formule!=='demi') totalPrice+=10;
         const materiel=[];
         document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb=>{
-          const prix=parseFloat(cb.dataset.prix)||0;
-          totalPrice+=formule==='nuit'?prix*duree:prix;
+          totalPrice+=parseFloat(cb.dataset.prix)||0;
           materiel.push(cb.dataset.id);
         });
-        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,duree,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,materiel,totalPrice});
+        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,materiel,totalPrice});
 
       } else if (nrmType === 'bateau') {
         const date=document.getElementById('nrm-date-bateau').value;
