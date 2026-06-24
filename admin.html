@@ -2299,7 +2299,28 @@
         <div class="res-detail-row"><span class="label">Date</span><span class="value">${formatDate(r.date)}</span></div>
         <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb||1} pers.</span></div>
         ${r.options&&r.options.length?`<div class="res-detail-row"><span class="label">Options</span><span class="value">${r.options.join(', ')}</span></div>`:''}`;
+    } else if (r.type === 'canoe') {
+      const fLabel = {demi:'Demi-journée', jour:'Journée'}[r.formule] || r.formule;
+      const datesDisplay = r.dateDebut && r.dateFin && r.dateDebut !== r.dateFin
+        ? `Du ${formatDate(r.dateDebut)} au ${formatDate(r.dateFin)}`
+        : formatDate(r.dateDebut);
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Formule</span><span class="value">${fLabel}</span></div>
+        <div class="res-detail-row"><span class="label">Date(s)</span><span class="value">${datesDisplay}</span></div>
+        <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb||1} pers.</span></div>`;
+    } else if (r.type === 'campingcar') {
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Emplacement</span><span class="value">N° ${r.emplacement||'—'}</span></div>
+        <div class="res-detail-row"><span class="label">Arrivée</span><span class="value">${formatDate(r.dateDebut)}</span></div>
+        <div class="res-detail-row"><span class="label">Départ</span><span class="value">${formatDate(r.dateFin)}</span></div>
+        <div class="res-detail-row"><span class="label">Durée</span><span class="value">${r.duree||'?'} nuit${(r.duree||1)>1?'s':''}</span></div>
+        <div class="res-detail-row"><span class="label">Tarif/nuit</span><span class="value">${r.tarifNuit||20} €</span></div>`;
     }
+
+    const icons = { peche:'🎣', bateau:'🔥', canoe:'🛶', campingcar:'🚐' };
+    const typeLabels = { peche:'Pêche', bateau:'Bateau BBQ', canoe:'Canoé', campingcar:'Camping-car' };
+    const icon = icons[r.type] || '📋';
+    const typeLabel = typeLabels[r.type] || r.type;
 
     const btns = [];
     btns.push(`<button class="btn-action btn-edit-res" onclick="openEditResModal('${r.id}')">✏ Modifier</button>`);
@@ -2310,9 +2331,6 @@
     if (status === 'confirmed') btns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatusFromModal('${r.id}','cancelled')">✗ Annuler</button>`);
     if (status === 'cancelled') btns.push(`<button class="btn-action btn-restore" onclick="updateStatusFromModal('${r.id}','confirmed')">↩ Rétablir</button>`);
     btns.push(`<button class="btn-action btn-delete" onclick="deleteFromModal('${r.id}')">🗑 Supprimer</button>`);
-
-    const icon = r.type === 'peche' ? '🎣' : '🔥';
-    const typeLabel = r.type === 'peche' ? 'Pêche' : 'Bateau BBQ';
 
     document.getElementById('detail-modal-content').innerHTML = `
       <div class="detail-modal__head">
