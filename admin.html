@@ -1132,10 +1132,10 @@
             </div>
             <div class="nrm-field">
               <label class="nrm-label">Formule *</label>
-              <select class="nrm-select" id="nrm-formule" onchange="nrmUpdatePrice()">
+              <select class="nrm-select" id="nrm-formule" onchange="nrmRenderMateriel();nrmUpdatePrice()">
                 <option value="demi">Demi-journée — 15 €</option>
                 <option value="jour" selected>Journée (12h) — 20 €</option>
-                <option value="nuit">Nuitée (24h) — 35 €</option>
+                <option value="nuit">Nuitée (24h) — 35 € (puis 20 €/nuit)</option>
               </select>
             </div>
           </div>
@@ -1262,6 +1262,13 @@
           <div id="nrm-cc-duree" class="nrm-duree-tag" style="display:none;"></div>
         </div>
 
+        <!-- ── OPTIONS MATÉRIEL (pêche uniquement) ── -->
+        <div id="nrm-materiel-section" hidden>
+          <hr class="nrm-divider">
+          <div class="nrm-group-title">Options & matériel</div>
+          <div id="nrm-materiel-list" style="display:grid;gap:5px;"></div>
+        </div>
+
         <!-- ── CLIENT ── -->
         <hr class="nrm-divider">
         <div class="nrm-group-title">Client</div>
@@ -1286,13 +1293,30 @@
           </div>
         </div>
         <div class="nrm-field">
-          <label class="nrm-label">Message (optionnel)</label>
-          <textarea class="nrm-textarea" id="nrm-message" placeholder="Remarques, demandes particulières…"></textarea>
+          <label class="nrm-label">Message client (optionnel)</label>
+          <textarea class="nrm-textarea" id="nrm-message" placeholder="Remarques, demandes particulières…" style="min-height:54px;"></textarea>
+        </div>
+        <div class="nrm-field">
+          <label class="nrm-label">Note interne (admin uniquement)</label>
+          <textarea class="nrm-textarea" id="nrm-note-interne" placeholder="Conditions particulières, paiement espèces, remarques…" style="min-height:54px;background:rgba(232,149,30,0.04);border-color:rgba(232,149,30,0.35);"></textarea>
         </div>
 
         <!-- ── PAIEMENT ── -->
         <hr class="nrm-divider">
         <div class="nrm-group-title">Paiement</div>
+        <div class="nrm-row" style="margin-bottom:8px;">
+          <div class="nrm-field">
+            <label class="nrm-label">Prix calculé</label>
+            <div class="nrm-reste-box" id="nrm-price-calc" style="color:var(--gray);">—</div>
+          </div>
+          <div class="nrm-field">
+            <label class="nrm-label" style="display:flex;justify-content:space-between;align-items:center;">
+              <span>Prix à facturer (€)</span>
+              <button type="button" onclick="nrmClearOverride()" style="font-size:0.7rem;color:var(--primary);background:none;border:none;cursor:pointer;font-weight:700;padding:0;">↺ Auto</button>
+            </label>
+            <input type="number" class="nrm-input" id="nrm-price-override" placeholder="Laisser vide = calculé" min="0" onchange="nrmUpdatePrice()">
+          </div>
+        </div>
         <div class="nrm-row">
           <div class="nrm-field">
             <label class="nrm-label">Acompte versé (€)</label>
@@ -2219,11 +2243,38 @@
       document.getElementById(`nrm-tab-${t}`).classList.toggle('active', t === type);
       document.getElementById(`nrm-${t}-section`).hidden = t !== type;
     });
+    const matSection = document.getElementById('nrm-materiel-section');
+    matSection.hidden = type !== 'peche';
+    if (type === 'peche') nrmRenderMateriel();
     if (reset) nrmUpdatePrice();
   };
 
+  window.nrmRenderMateriel = function() {
+    const formule = document.getElementById('nrm-formule').value;
+    const isNuit = formule === 'nuit';
+    const list = document.getElementById('nrm-materiel-list');
+    const mat = typeof LOCATION_MATERIEL !== 'undefined' ? LOCATION_MATERIEL : [];
+    const checked = new Set();
+    list.querySelectorAll('input[type=checkbox]:checked').forEach(cb => checked.add(cb.dataset.id));
+    list.innerHTML = mat.map(m => {
+      const prix = isNuit ? (m.prix_nuit || m.prix_jour || 0) : (m.prix_jour || m.prix_nuit || 0);
+      const note = m.note ? ` <span style="color:var(--gray);font-size:0.75rem">(${m.note})</span>` : '';
+      const prixLbl = prix > 0 ? (isNuit ? `${prix} €/nuit` : `${prix} €`) : '';
+      return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;font-size:0.85rem;">
+        <input type="checkbox" data-id="${m.id}" data-prix="${prix}" ${checked.has(m.id)?'checked':''} onchange="nrmUpdatePrice()" style="width:15px;height:15px;accent-color:var(--primary)">
+        <span>${m.emoji||''} ${m.label}${note}</span>
+        ${prixLbl ? `<span style="margin-left:auto;font-weight:700;color:var(--primary);white-space:nowrap;">${prixLbl}</span>` : ''}
+      </label>`;
+    }).join('');
+  };
+
+  window.nrmClearOverride = function() {
+    document.getElementById('nrm-price-override').value = '';
+    nrmUpdatePrice();
+  };
+
   window.nrmUpdatePrice = function() {
-    let price = 0;
+    let calcPrice = 0;
     let dureeTxt = '';
 
     if (nrmType === 'peche') {
@@ -2234,28 +2285,34 @@
         duree = formule === 'nuit' ? diff : diff + 1;
       }
       dureeTxt = duree > 0 ? `${duree} ${formule === 'nuit' ? `nuit${duree>1?'s':''}` : `session${duree>1?'s':''}`}` : '';
-      const t = { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
-      price = formule === 'nuit' ? (t[Math.min(duree,7)] || 170) : (formule==='demi'?15:20)*duree;
+      calcPrice = formule === 'nuit'
+        ? (duree <= 2 ? duree * 35 : 70 + (duree - 2) * 20)
+        : (formule === 'demi' ? 15 : 20) * duree;
       const accomp = parseInt(document.getElementById('nrm-accomp').value)||0;
       const aT = {demi:5,jour:10,nuit:10}[formule]||10;
-      price += aT * (formule==='nuit'?duree:1) * accomp;
+      calcPrice += aT * (formule==='nuit'?duree:1) * accomp;
       if (document.getElementById('nrm-canne4').checked) {
-        if (formule==='jour') price+=10;
-        else if (formule==='nuit') price+=Math.max(20,duree*10);
+        if (formule==='jour') calcPrice+=10;
+        else if (formule==='nuit') calcPrice+=Math.max(20,duree*10);
       }
+      // Material options
+      document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb => {
+        const prix = parseFloat(cb.dataset.prix) || 0;
+        calcPrice += formule === 'nuit' ? prix * duree : prix;
+      });
       const el = document.getElementById('nrm-peche-duree');
       el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
 
     } else if (nrmType === 'bateau') {
       const tB = {'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270};
-      price = tB[document.getElementById('nrm-formule-bateau').value] || 0;
+      calcPrice = tB[document.getElementById('nrm-formule-bateau').value] || 0;
 
     } else if (nrmType === 'canoe') {
       const formule = document.getElementById('nrm-formule-canoe').value;
       const diff = nrmDaysBetween('nrm-date-canoe-debut', 'nrm-date-canoe-fin');
       const duree = Math.max(1, diff > 0 ? diff + 1 : 1);
       dureeTxt = diff > 0 ? `${duree} session${duree>1?'s':''}` : '';
-      price = (formule==='demi'?15:20) * duree;
+      calcPrice = (formule==='demi'?15:20) * duree;
       const el = document.getElementById('nrm-canoe-duree');
       el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
 
@@ -2264,19 +2321,23 @@
       const diff = nrmDaysBetween('nrm-date-cc-debut', 'nrm-date-cc-fin');
       const nbNuits = Math.max(diff, 0);
       dureeTxt = nbNuits > 0 ? `${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €` : '';
-      price = tarif * nbNuits;
+      calcPrice = tarif * nbNuits;
       const el = document.getElementById('nrm-cc-duree');
       el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
     }
 
-    document.getElementById('nrm-price').textContent = price > 0 ? price + ' €' : '— €';
+    document.getElementById('nrm-price-calc').textContent = calcPrice > 0 ? calcPrice + ' €' : '—';
 
-    // Acompte / reste
+    const overrideVal = document.getElementById('nrm-price-override').value.trim();
+    const finalPrice = overrideVal !== '' ? (parseFloat(overrideVal) || 0) : calcPrice;
+
+    document.getElementById('nrm-price').textContent = finalPrice > 0 ? finalPrice + ' €' : '— €';
+
     const acompte = parseInt(document.getElementById('nrm-acompte').value)||0;
-    const reste = price > 0 ? Math.max(0, price - acompte) : 0;
-    document.getElementById('nrm-reste').textContent = price > 0 ? reste + ' €' : '—';
+    const reste = finalPrice > 0 ? Math.max(0, finalPrice - acompte) : 0;
+    document.getElementById('nrm-reste').textContent = finalPrice > 0 ? reste + ' €' : '—';
     const sub = document.getElementById('nrm-footer-sub');
-    sub.textContent = (acompte > 0 && price > 0) ? `Acompte ${acompte} € · Reste ${reste} €` : '';
+    sub.textContent = (acompte > 0 && finalPrice > 0) ? `Acompte ${acompte} € · Reste ${reste} €` : '';
   };
 
   window.openNewResModal = function(dateStr, posteId, resourceKey) {
@@ -2290,8 +2351,9 @@
     nrmSetType(type, false);
 
     // Reset shared fields
-    ['nrm-prenom','nrm-nom','nrm-tel','nrm-email','nrm-message'].forEach(id => document.getElementById(id).value = '');
+    ['nrm-prenom','nrm-nom','nrm-tel','nrm-email','nrm-message','nrm-note-interne'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('nrm-acompte').value = 0;
+    document.getElementById('nrm-price-override').value = '';
     document.querySelector('input[name="nrm-status"][value="pending"]').checked = true;
 
     if (type === 'peche') {
@@ -2366,14 +2428,21 @@
         const diff = dateFin ? nrmDaysBetween('nrm-date-debut','nrm-date-fin') : 0;
         const duree = Math.max(1, formule==='nuit' ? diff : diff+1);
         const dates = makeDates(dateDebut, duree);
-        const t={1:35,2:70,3:90,4:110,5:130,6:150,7:170};
-        let totalPrice = formule==='nuit'?(t[Math.min(duree,7)]||170):(formule==='demi'?15:20)*duree;
+        let totalPrice = formule==='nuit'
+          ? (duree <= 2 ? duree * 35 : 70 + (duree - 2) * 20)
+          : (formule==='demi'?15:20)*duree;
         const accomp=parseInt(document.getElementById('nrm-accomp').value)||0;
         const aT={demi:5,jour:10,nuit:10}[formule]||10;
         totalPrice+=aT*(formule==='nuit'?duree:1)*accomp;
         const canne4=document.getElementById('nrm-canne4').checked;
         if(canne4){if(formule==='jour')totalPrice+=10;else if(formule==='nuit')totalPrice+=Math.max(20,duree*10);}
-        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,duree,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,totalPrice});
+        const materiel=[];
+        document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb=>{
+          const prix=parseFloat(cb.dataset.prix)||0;
+          totalPrice+=formule==='nuit'?prix*duree:prix;
+          materiel.push(cb.dataset.id);
+        });
+        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,duree,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,materiel,totalPrice});
 
       } else if (nrmType === 'bateau') {
         const date=document.getElementById('nrm-date-bateau').value;
@@ -2400,6 +2469,13 @@
         const nbNuits=Math.max(1,nrmDaysBetween('nrm-date-cc-debut','nrm-date-cc-fin'));
         Object.assign(data,{type:'campingcar',emplacement:document.getElementById('nrm-cc-emplacement').value,tarifNuit:tarif,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice:tarif*nbNuits});
       }
+
+      // Price override
+      const priceOverride = document.getElementById('nrm-price-override').value.trim();
+      if (priceOverride !== '') data.totalPrice = parseFloat(priceOverride) || data.totalPrice;
+      // Note interne
+      const noteInterne = document.getElementById('nrm-note-interne').value.trim();
+      if (noteInterne) data.noteInterne = noteInterne;
 
       Object.keys(data).forEach(k=>{if(data[k]===null)delete data[k];});
       await db.collection('reservations').add(data);
