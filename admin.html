@@ -521,7 +521,8 @@
       transition: all 0.15s;
       font-family: var(--font);
     }
-    .btn-confirm { background: var(--success-bg); color: var(--success); }
+    .btn-edit-res { background: rgba(61,138,128,0.1); color: var(--primary); }
+    .btn-edit-res:hover { background: var(--primary); color: #fff; }
     .btn-confirm:hover { background: var(--success); color: #fff; }
     .btn-cancel-res { background: var(--warning-bg); color: var(--warning); }
     .btn-cancel-res:hover { background: var(--warning); color: #fff; }
@@ -2301,6 +2302,7 @@
     }
 
     const btns = [];
+    btns.push(`<button class="btn-action btn-edit-res" onclick="openEditResModal('${r.id}')">✏ Modifier</button>`);
     if (status === 'pending') {
       btns.push(`<button class="btn-action btn-confirm" onclick="updateStatusFromModal('${r.id}','confirmed')">✓ Confirmer</button>`);
       btns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatusFromModal('${r.id}','cancelled')">✗ Annuler</button>`);
@@ -2362,8 +2364,9 @@
     if (e.target === e.currentTarget) closeResDetail();
   });
 
-  // ── NEW RESERVATION MODAL ─────────────────────────────────────
+  // ── NEW / EDIT RESERVATION MODAL ─────────────────────────────
   let nrmType = 'peche';
+  let nrmEditId = null; // set when editing an existing reservation
   const NRM_TYPES = ['peche', 'bateau', 'canoe', 'campingcar'];
 
   // Helpers
@@ -2489,6 +2492,8 @@
   };
 
   window.openNewResModal = function(dateStr, posteId, resourceKey) {
+    nrmEditId = null;
+    document.querySelector('.new-res-modal__title').textContent = '📅 Nouvelle réservation';
     let type = 'peche';
     if (resourceKey) {
       if (resourceKey === 'canoe') type = 'canoe';
@@ -2538,7 +2543,78 @@
   };
 
   window.closeNewResModal = function() {
+    nrmEditId = null;
     document.getElementById('new-res-overlay').classList.remove('open');
+  };
+
+  window.openEditResModal = function(id) {
+    const r = allReservations.find(x => x.id === id);
+    if (!r) return;
+    closeResDetail();
+
+    nrmEditId = id;
+    const type = r.type || 'peche';
+    nrmType = type;
+    nrmSetType(type, false);
+
+    // Update modal title
+    document.querySelector('.new-res-modal__title').textContent = '✏️ Modifier la réservation';
+
+    // Reset shared fields
+    document.getElementById('nrm-prenom').value = r.prenom || '';
+    document.getElementById('nrm-nom').value = r.nom || '';
+    document.getElementById('nrm-tel').value = r.tel || '';
+    document.getElementById('nrm-email').value = r.email || '';
+    document.getElementById('nrm-message').value = r.message || '';
+    document.getElementById('nrm-note-interne').value = r.noteInterne || '';
+    document.getElementById('nrm-acompte').value = r.acompte || 0;
+    document.getElementById('nrm-price-override').value = '';
+    const statusInput = document.querySelector(`input[name="nrm-status"][value="${r.status||'pending'}"]`);
+    if (statusInput) statusInput.checked = true;
+
+    if (type === 'peche') {
+      document.getElementById('nrm-formule').value = r.formule || 'jour';
+      document.getElementById('nrm-date-debut').value = r.dateDebut || '';
+      document.getElementById('nrm-date-fin').value = r.dateFin || '';
+      document.getElementById('nrm-peche-duree').style.display = 'none';
+      const sel = document.getElementById('nrm-poste');
+      sel.innerHTML = (typeof POSTES !== 'undefined' ? POSTES : [])
+        .filter(p => !p.coming_soon)
+        .map(p => `<option value="${p.id}" ${p.id === r.posteId ? 'selected':''}>${p.icon||''} ${p.nom}</option>`).join('');
+      document.getElementById('nrm-nb').value = r.nb || 1;
+      document.getElementById('nrm-accomp').value = r.nbAccompagnants || 0;
+      document.getElementById('nrm-canne4').checked = !!r.canne4;
+      // Pre-check material options
+      nrmRenderMateriel();
+      const checkedMat = new Set(r.materiel || []);
+      document.querySelectorAll('#nrm-materiel-list input[type=checkbox]').forEach(cb => {
+        cb.checked = checkedMat.has(cb.dataset.id);
+      });
+
+    } else if (type === 'bateau') {
+      document.getElementById('nrm-date-bateau').value = r.date || '';
+      document.getElementById('nrm-bateau').value = r.bateau || 'Martin Pêcheur';
+      document.getElementById('nrm-formule-bateau').value = r.formule || 'midi';
+      document.getElementById('nrm-nb-bateau').value = r.nb || 2;
+
+    } else if (type === 'canoe') {
+      document.getElementById('nrm-date-canoe-debut').value = r.dateDebut || '';
+      document.getElementById('nrm-date-canoe-fin').value = r.dateFin || '';
+      document.getElementById('nrm-canoe-duree').style.display = 'none';
+      document.getElementById('nrm-formule-canoe').value = r.formule || 'jour';
+      document.getElementById('nrm-nb-canoe').value = r.nb || 2;
+
+    } else if (type === 'campingcar') {
+      document.getElementById('nrm-date-cc-debut').value = r.dateDebut || '';
+      document.getElementById('nrm-date-cc-fin').value = r.dateFin || '';
+      document.getElementById('nrm-cc-duree').style.display = 'none';
+      document.getElementById('nrm-cc-tarif').value = r.tarifNuit || 20;
+      if (r.emplacement) document.getElementById('nrm-cc-emplacement').value = r.emplacement;
+    }
+
+    // Show calculated price & set override to saved total if it differs from calc
+    nrmUpdatePrice();
+    document.getElementById('new-res-overlay').classList.add('open');
   };
 
   document.getElementById('new-res-overlay').addEventListener('click', e => {
@@ -2626,8 +2702,16 @@
       if (noteInterne) data.noteInterne = noteInterne;
 
       Object.keys(data).forEach(k=>{if(data[k]===null)delete data[k];});
-      await db.collection('reservations').add(data);
-      toast('Réservation créée ✓','success');
+
+      if (nrmEditId) {
+        // Edit mode: update existing, don't overwrite createdAt
+        delete data.createdAt;
+        await db.collection('reservations').doc(nrmEditId).update(data);
+        toast('Réservation modifiée ✓','success');
+      } else {
+        await db.collection('reservations').add(data);
+        toast('Réservation créée ✓','success');
+      }
       closeNewResModal();
     } catch(err) {
       toast('Erreur : '+err.message,'error');
