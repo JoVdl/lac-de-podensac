@@ -1076,10 +1076,10 @@
           </div>
           <div class="cal-period-label" id="cal-period-label">—</div>
           <div class="cal-view-tabs">
-            <button class="cal-view-tab active" data-view="month">Mois</button>
+            <button class="cal-view-tab" data-view="month">Mois</button>
             <button class="cal-view-tab" data-view="week">Semaine</button>
             <button class="cal-view-tab" data-view="day">Jour</button>
-            <button class="cal-view-tab" data-view="planning">Planning</button>
+            <button class="cal-view-tab active" data-view="planning">Planning</button>
           </div>
         </div>
         <div id="cal-container"></div>
@@ -1750,7 +1750,7 @@
   });
 
   // ── CALENDAR LOGIC ────────────────────────────────────────────
-  let calView = 'month';
+  let calView = 'planning';
   let calDate  = new Date();
 
   const JOURS_CAL = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
