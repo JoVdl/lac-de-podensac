@@ -694,10 +694,11 @@
     .cal-event-chip {
       display: block; width: 100%; padding: 2px 5px; border-radius: 4px;
       font-size: 0.67rem; font-weight: 600; margin-bottom: 2px;
-      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      cursor: grab; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       transition: opacity 0.15s; border: none; text-align: left;
     }
     .cal-event-chip:hover { opacity: 0.75; }
+    .cal-event-chip.dragging { opacity: 0.35 !important; cursor: grabbing; }
     .peche-confirmed  { background: rgba(42,96,89,0.13);  color: var(--primary); }
     .peche-pending    { background: rgba(176,120,0,0.12); color: var(--warning); }
     .bateau-confirmed { background: rgba(232,149,30,0.14);color: #965800; }
@@ -731,10 +732,11 @@
     .cal-week-day-num.today { background: var(--primary); color: #fff; }
     .cal-week-col-events { padding: 5px; display: flex; flex-direction: column; gap: 4px; }
     .cal-week-event {
-      padding: 6px 7px; border-radius: 6px; cursor: pointer;
+      padding: 6px 7px; border-radius: 6px; cursor: grab;
       transition: opacity 0.15s; border: none; text-align: left; width: 100%;
     }
     .cal-week-event:hover { opacity: 0.75; }
+    .cal-week-event.dragging { opacity: 0.35 !important; cursor: grabbing; }
     .cal-week-event-name { font-size: 0.7rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .cal-week-event-sub { font-size: 0.6rem; margin-top: 1px; opacity: 0.75; }
 
@@ -808,11 +810,15 @@
       font-size: 0.63rem; font-weight: 700;
       display: flex; align-items: center;
       overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-      cursor: pointer; border: none; text-align: left;
+      cursor: grab; border: none; text-align: left;
       transition: opacity 0.15s, box-shadow 0.15s;
       z-index: 2;
     }
     .cal-planning-block:hover { opacity: 0.82; box-shadow: 0 2px 8px rgba(0,0,0,0.22); }
+    .cal-planning-block.dragging { opacity: 0.35 !important; cursor: grabbing; }
+    .cal-planning-day-col.drag-over { background: rgba(61,138,128,0.14) !important; outline: 2px dashed var(--primary); outline-offset: -2px; }
+    .cal-month-cell.drag-over { background: rgba(61,138,128,0.10) !important; outline: 2px dashed var(--primary); outline-offset: -2px; }
+    .cal-week-col-events.drag-over { background: rgba(61,138,128,0.10) !important; outline: 2px dashed var(--primary); outline-offset: -2px; }
 
     /* ── NEW RESERVATION MODAL ── */
     .new-res-overlay {
@@ -1766,6 +1772,83 @@
     return allReservations.filter(r => getResDates(r).includes(ds));
   }
 
+  // ── DRAG-AND-DROP ─────────────────────────────────────────────
+  const _drag = { resId: null, grabOffset: 0 };
+  const PLAN_DAY_W = 40; // must match DAY_W inside renderPlanningView
+
+  async function moveReservation(resId, newDateDebutStr) {
+    const res = allReservations.find(r => r.id === resId);
+    if (!res) return;
+    const origStr = res.dateDebut || res.date || '';
+    if (!origStr || origStr === newDateDebutStr) return;
+    const shift = Math.round((new Date(newDateDebutStr + 'T00:00:00') - new Date(origStr + 'T00:00:00')) / 86400000);
+    if (shift === 0) return;
+    const update = {};
+    if (res.type === 'bateau') {
+      update.date = newDateDebutStr;
+    } else {
+      update.dateDebut = newDateDebutStr;
+      if (res.dateFin) {
+        const e = new Date(res.dateFin + 'T00:00:00');
+        e.setDate(e.getDate() + shift);
+        update.dateFin = toDateStr(e);
+      }
+      if (res.dates && Array.isArray(res.dates)) {
+        update.dates = res.dates.map(ds => {
+          const d = new Date(ds + 'T00:00:00');
+          d.setDate(d.getDate() + shift);
+          return toDateStr(d);
+        });
+      }
+    }
+    try {
+      await db.collection('reservations').doc(resId).update(update);
+      toast('Réservation déplacée ✓', 'success');
+    } catch(e) {
+      toast('Erreur : ' + e.message, 'error');
+    }
+  }
+
+  // Planning view drag handlers
+  window.planDragStart = function(event, resId, dateDebutStr) {
+    _drag.resId = resId;
+    _drag.grabOffset = Math.floor((event.offsetX || 0) / PLAN_DAY_W);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', resId);
+    setTimeout(() => event.target.classList.add('dragging'), 0);
+  };
+  window.planDragEnd = function(event) { event.target.classList.remove('dragging'); };
+  window.planDragOver = function(event) { event.preventDefault(); event.currentTarget.classList.add('drag-over'); };
+  window.planDragLeave = function(event) { event.currentTarget.classList.remove('drag-over'); };
+  window.planDrop = function(event, dateStr) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('drag-over');
+    if (!_drag.resId) return;
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() - _drag.grabOffset);
+    moveReservation(_drag.resId, toDateStr(d));
+    _drag.resId = null;
+  };
+
+  // Month / week chip drag handlers
+  window.calChipDragStart = function(event, resId) {
+    _drag.resId = resId;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', resId);
+    setTimeout(() => event.target.classList.add('dragging'), 0);
+  };
+  window.calChipDragEnd = function(event) { event.target.classList.remove('dragging'); };
+  window.calCellDragOver = function(event) { event.preventDefault(); event.currentTarget.classList.add('drag-over'); };
+  window.calCellDragLeave = function(event) { event.currentTarget.classList.remove('drag-over'); };
+  window.calCellDrop = function(event, dateStr) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('drag-over');
+    if (!_drag.resId) return;
+    const res = allReservations.find(r => r.id === _drag.resId);
+    if (res) moveReservation(_drag.resId, dateStr);
+    _drag.resId = null;
+  };
+
   function chipClass(r) {
     const s = r.status || 'pending';
     if (s === 'cancelled') return 'cancelled';
@@ -1857,13 +1940,18 @@
       const chips = dayRes.slice(0, 3).map(r => {
         const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
         const icon = r.type === 'peche' ? '🎣' : '🔥';
-        return `<button class="cal-event-chip ${chipClass(r)}" onclick="event.stopPropagation();openResDetail('${r.id}')">${icon} ${name}</button>`;
+        return `<button class="cal-event-chip ${chipClass(r)}" draggable="true"
+          ondragstart="event.stopPropagation();calChipDragStart(event,'${r.id}')"
+          ondragend="calChipDragEnd(event)"
+          onclick="event.stopPropagation();openResDetail('${r.id}')">${icon} ${name}</button>`;
       }).join('');
 
       const more = dayRes.length - 3;
       const moreHtml = more > 0 ? `<button class="cal-more-link" onclick="event.stopPropagation();switchToDay('${ds}')">+${more} autre${more>1?'s':''}</button>` : '';
 
-      html += `<div class="cal-month-cell${isToday?' today':''}" onclick="calCellClick('${ds}',event)" title="Ajouter une réservation">
+      html += `<div class="cal-month-cell${isToday?' today':''}"
+        onclick="calCellClick('${ds}',event)" title="Ajouter une réservation"
+        ondragover="calCellDragOver(event)" ondragleave="calCellDragLeave(event)" ondrop="calCellDrop(event,'${ds}')">
         <div class="cal-day-num">${d}</div>
         ${chips}${moreHtml}
       </div>`;
@@ -1898,7 +1986,10 @@
         const price = calculatePrice(r);
         const status = r.status || 'pending';
         const statusLabel = status === 'confirmed' ? '✓' : status === 'cancelled' ? '✗' : '⏳';
-        return `<button class="cal-week-event" onclick="event.stopPropagation();openResDetail('${r.id}')"
+        return `<button class="cal-week-event" draggable="true"
+          ondragstart="event.stopPropagation();calChipDragStart(event,'${r.id}')"
+          ondragend="calChipDragEnd(event)"
+          onclick="event.stopPropagation();openResDetail('${r.id}')"
           style="background:${weekEventBg(r)};color:${weekEventColor(r)}">
           <div class="cal-week-event-name">${icon} ${name}</div>
           <div class="cal-week-event-sub">${statusLabel} ${price>0?price+'€':''}</div>
@@ -1910,7 +2001,8 @@
           <div class="cal-week-dow">${JOURS_CAL[i]}</div>
           <div class="cal-week-day-num${isToday?' today':''}">${day.getDate()}</div>
         </div>
-        <div class="cal-week-col-events" onclick="calCellClick('${ds}',event)" title="Ajouter une réservation">
+        <div class="cal-week-col-events" onclick="calCellClick('${ds}',event)" title="Ajouter une réservation"
+          ondragover="calCellDragOver(event)" ondragleave="calCellDragLeave(event)" ondrop="calCellDrop(event,'${ds}')">
           ${events || `<div style="padding:8px 4px;font-size:0.65rem;color:var(--gray-light);text-align:center;">+</div>`}
         </div>
       </div>`;
@@ -2055,11 +2147,16 @@
       const bateauArg = row.type === 'bateau' ? `'${row.bateau}'` : "''";
       const dayCols = days.map(({ str: ds, isWeekend, isToday }) => {
         const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
-        return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;" onclick="planningCellClick('${ds}',${posteIdArg},${bateauArg},event)" title="Ajouter une réservation"></div>`;
+        return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;"
+          onclick="planningCellClick('${ds}',${posteIdArg},${bateauArg},event)" title="Ajouter une réservation"
+          ondragover="planDragOver(event)" ondragleave="planDragLeave(event)" ondrop="planDrop(event,'${ds}')"></div>`;
       }).join('');
       const blocksHtml = blocks.map(b => {
         const label = b.isCancelled ? `✗ ${b.name}` : `${b.name}${b.price > 0 ? ' · ' + b.price + '€' : ''}`;
-        return `<button class="cal-planning-block"
+        const dateDebutArg = b.r.dateDebut || b.r.date || '';
+        return `<button class="cal-planning-block" draggable="true"
+          ondragstart="planDragStart(event,'${b.r.id}','${dateDebutArg}')"
+          ondragend="planDragEnd(event)"
           onclick="event.stopPropagation();openResDetail('${b.r.id}')"
           style="left:${b.left}px;width:${b.width}px;background:${b.bg};color:${b.color};"
           title="${label}">${label}</button>`;
