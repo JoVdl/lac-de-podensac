@@ -841,11 +841,11 @@
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
       position: sticky; bottom: 0; background: var(--white); z-index: 2; border-radius: 0 0 20px 20px;
     }
-    .nrm-type-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+    .nrm-type-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
     .nrm-type-tab {
-      flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--border);
-      background: none; font-family: var(--font); font-size: 0.85rem; font-weight: 700;
-      color: var(--gray); cursor: pointer; transition: all 0.15s;
+      flex: 1; min-width: calc(50% - 3px); padding: 9px 8px; border-radius: 10px; border: 2px solid var(--border);
+      background: none; font-family: var(--font); font-size: 0.82rem; font-weight: 700;
+      color: var(--gray); cursor: pointer; transition: all 0.15s; text-align: center;
     }
     .nrm-type-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
     .nrm-group-title {
@@ -873,7 +873,18 @@
     .nrm-checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; user-select: none; }
     .nrm-checkbox-row input { width: 15px; height: 15px; accent-color: var(--primary); flex-shrink: 0; }
     .nrm-checkbox-row span { font-size: 0.84rem; font-weight: 600; color: var(--primary-dark); }
+    .nrm-duree-tag {
+      display: inline-block; font-size: 0.74rem; font-weight: 700;
+      color: var(--primary); background: rgba(61,138,128,0.1);
+      border-radius: 6px; padding: 3px 9px; margin-bottom: 8px;
+    }
+    .nrm-reste-box {
+      width: 100%; padding: 9px 11px; border-radius: 9px;
+      background: var(--bg); font-weight: 800; font-size: 0.95rem;
+      color: var(--primary-dark); display: flex; align-items: center;
+    }
     .nrm-price-preview { font-family: var(--font-head); font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+    .nrm-footer-sub { font-size: 0.74rem; color: var(--gray); margin-top: 2px; }
     .nrm-btn-save {
       padding: 10px 22px; background: var(--primary); color: #fff; border: none;
       border-radius: 10px; font-family: var(--font-head); font-size: 0.88rem; font-weight: 700;
@@ -1103,15 +1114,17 @@
       </div>
       <div class="new-res-modal__body">
 
-        <!-- Type tabs -->
+        <!-- Type tabs (2 × 2) -->
         <div class="nrm-type-tabs">
-          <button class="nrm-type-tab active" id="nrm-tab-peche" onclick="nrmSetType('peche')">🎣 Pêche</button>
-          <button class="nrm-type-tab" id="nrm-tab-bateau" onclick="nrmSetType('bateau')">🔥 Bateau</button>
+          <button class="nrm-type-tab active" id="nrm-tab-peche"      onclick="nrmSetType('peche')">🎣 Pêche</button>
+          <button class="nrm-type-tab"         id="nrm-tab-bateau"     onclick="nrmSetType('bateau')">🔥 Bateau BBQ</button>
+          <button class="nrm-type-tab"         id="nrm-tab-canoe"      onclick="nrmSetType('canoe')">🛶 Canoé</button>
+          <button class="nrm-type-tab"         id="nrm-tab-campingcar" onclick="nrmSetType('campingcar')">🚐 Camping-car</button>
         </div>
 
         <!-- ── PÊCHE ── -->
         <div id="nrm-peche-section">
-          <div class="nrm-group-title">Réservation</div>
+          <div class="nrm-group-title">Réservation pêche</div>
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Poste *</label>
@@ -1129,13 +1142,14 @@
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Date début *</label>
-              <input type="date" class="nrm-input" id="nrm-date-debut" onchange="nrmUpdatePrice()">
+              <input type="date" class="nrm-input" id="nrm-date-debut" onchange="nrmSyncEnd('nrm-date-debut','nrm-date-fin');nrmUpdatePrice()">
             </div>
             <div class="nrm-field">
-              <label class="nrm-label">Nb sessions</label>
-              <input type="number" class="nrm-input" id="nrm-duree" value="1" min="1" max="14" onchange="nrmUpdatePrice()">
+              <label class="nrm-label">Date fin *</label>
+              <input type="date" class="nrm-input" id="nrm-date-fin" onchange="nrmUpdatePrice()">
             </div>
           </div>
+          <div id="nrm-peche-duree" class="nrm-duree-tag" style="display:none;"></div>
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Nb pêcheurs</label>
@@ -1152,9 +1166,9 @@
           </label>
         </div>
 
-        <!-- ── BATEAU ── -->
+        <!-- ── BATEAU BBQ ── -->
         <div id="nrm-bateau-section" hidden>
-          <div class="nrm-group-title">Réservation</div>
+          <div class="nrm-group-title">Réservation bateau</div>
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Bateau *</label>
@@ -1182,12 +1196,73 @@
             </div>
             <div class="nrm-field">
               <label class="nrm-label">Nb personnes</label>
-              <input type="number" class="nrm-input" id="nrm-nb-bateau" value="2" min="1">
+              <input type="number" class="nrm-input" id="nrm-nb-bateau" value="2" min="1" max="9">
             </div>
           </div>
         </div>
 
-        <!-- ── CONTACT ── -->
+        <!-- ── CANOÉ ── -->
+        <div id="nrm-canoe-section" hidden>
+          <div class="nrm-group-title">Réservation canoé</div>
+          <div class="nrm-field">
+            <label class="nrm-label">Formule *</label>
+            <select class="nrm-select" id="nrm-formule-canoe" onchange="nrmUpdatePrice()">
+              <option value="demi">Demi-journée — 15 €</option>
+              <option value="jour" selected>Journée — 20 €</option>
+            </select>
+          </div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Date début *</label>
+              <input type="date" class="nrm-input" id="nrm-date-canoe-debut" onchange="nrmSyncEnd('nrm-date-canoe-debut','nrm-date-canoe-fin');nrmUpdatePrice()">
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Date fin</label>
+              <input type="date" class="nrm-input" id="nrm-date-canoe-fin" onchange="nrmUpdatePrice()">
+            </div>
+          </div>
+          <div id="nrm-canoe-duree" class="nrm-duree-tag" style="display:none;"></div>
+          <div class="nrm-field">
+            <label class="nrm-label">Nb personnes (2 adultes + 1 enfant max)</label>
+            <input type="number" class="nrm-input" id="nrm-nb-canoe" value="2" min="1" max="3">
+          </div>
+        </div>
+
+        <!-- ── CAMPING-CAR ── -->
+        <div id="nrm-campingcar-section" hidden>
+          <div class="nrm-group-title">Réservation camping-car</div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Emplacement *</label>
+              <select class="nrm-select" id="nrm-cc-emplacement">
+                <option value="1">Emplacement 1</option>
+                <option value="2">Emplacement 2</option>
+                <option value="3">Emplacement 3</option>
+                <option value="4">Emplacement 4</option>
+                <option value="5">Emplacement 5</option>
+                <option value="6">Emplacement 6</option>
+                <option value="7">Emplacement 7</option>
+              </select>
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Tarif / nuit (€)</label>
+              <input type="number" class="nrm-input" id="nrm-cc-tarif" value="20" min="1" onchange="nrmUpdatePrice()">
+            </div>
+          </div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Date arrivée *</label>
+              <input type="date" class="nrm-input" id="nrm-date-cc-debut" onchange="nrmSyncEnd('nrm-date-cc-debut','nrm-date-cc-fin');nrmUpdatePrice()">
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Date départ *</label>
+              <input type="date" class="nrm-input" id="nrm-date-cc-fin" onchange="nrmUpdatePrice()">
+            </div>
+          </div>
+          <div id="nrm-cc-duree" class="nrm-duree-tag" style="display:none;"></div>
+        </div>
+
+        <!-- ── CLIENT ── -->
         <hr class="nrm-divider">
         <div class="nrm-group-title">Client</div>
         <div class="nrm-row">
@@ -1215,6 +1290,20 @@
           <textarea class="nrm-textarea" id="nrm-message" placeholder="Remarques, demandes particulières…"></textarea>
         </div>
 
+        <!-- ── PAIEMENT ── -->
+        <hr class="nrm-divider">
+        <div class="nrm-group-title">Paiement</div>
+        <div class="nrm-row">
+          <div class="nrm-field">
+            <label class="nrm-label">Acompte versé (€)</label>
+            <input type="number" class="nrm-input" id="nrm-acompte" value="0" min="0" onchange="nrmUpdatePrice()">
+          </div>
+          <div class="nrm-field">
+            <label class="nrm-label">Reste à payer</label>
+            <div class="nrm-reste-box" id="nrm-reste">—</div>
+          </div>
+        </div>
+
         <!-- ── STATUT ── -->
         <hr class="nrm-divider">
         <div class="nrm-group-title">Statut</div>
@@ -1231,7 +1320,10 @@
 
       </div>
       <div class="new-res-modal__footer">
-        <div class="nrm-price-preview" id="nrm-price">— €</div>
+        <div>
+          <div class="nrm-price-preview" id="nrm-price">— €</div>
+          <div class="nrm-footer-sub" id="nrm-footer-sub"></div>
+        </div>
         <div style="display:flex;gap:8px;">
           <button class="nrm-btn-cancel" onclick="closeNewResModal()">Annuler</button>
           <button class="nrm-btn-save" id="nrm-save-btn" onclick="saveNewReservation()">Enregistrer</button>
@@ -1873,12 +1965,20 @@
       { id: 'bateau-mp', label: 'Martin Pêcheur', icon: '🐦', type: 'bateau', bateau: 'Martin Pêcheur' },
       { id: 'bateau-pv', label: 'Pic Vert',        icon: '🌿', type: 'bateau', bateau: 'Pic Vert'        },
     ];
+    const canoeRows = [
+      { id: 'canoe', label: 'Canoé', icon: '🛶', type: 'canoe', bateau: 'canoe' },
+    ];
+    const campingcarRows = Array.from({length:7},(_,i)=>({
+      id:`campingcar-${i+1}`, label:`Emplacement ${i+1}`, icon:'🚐', type:'campingcar', bateau:`campingcar-${i+1}`
+    }));
 
     // Compute reservation blocks for a row
     function getBlocks(row) {
       const relevant = allReservations.filter(r => {
-        if (row.type === 'peche')  return r.type === 'peche'  && r.posteId === row.posteId;
-        if (row.type === 'bateau') return r.type === 'bateau' && (r.bateau || '').trim() === row.bateau;
+        if (row.type === 'peche')      return r.type === 'peche'      && r.posteId === row.posteId;
+        if (row.type === 'bateau')     return r.type === 'bateau'     && (r.bateau||'').trim() === row.bateau;
+        if (row.type === 'canoe')      return r.type === 'canoe';
+        if (row.type === 'campingcar') return r.type === 'campingcar' && r.emplacement === row.bateau.split('-')[1];
         return false;
       });
 
@@ -1914,8 +2014,11 @@
           const isCancelled = status === 'cancelled';
           let bg, color;
           if (isCancelled) { bg = '#e8e8e8'; color = '#999'; }
-          else if (r.type === 'peche') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
-          else { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
+          else if (r.type === 'peche')      { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
+          else if (r.type === 'bateau')     { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
+          else if (r.type === 'canoe')      { bg = isConf ? '#1a6080' : '#2a7090'; color = '#fff'; }
+          else if (r.type === 'campingcar') { bg = isConf ? '#6040a0' : '#7050b0'; color = '#fff'; }
+          else { bg = '#888'; color = '#fff'; }
           return [{ r, name, price, left, width, bg, color, isCancelled }];
         });
       });
@@ -1966,8 +2069,12 @@
       </div>
       ${sectionHead('🎣 Pêche — Postes')}
       ${posteRows.map(buildRow).join('')}
-      ${sectionHead('🔥 Bateaux')}
+      ${sectionHead('🔥 Bateaux BBQ')}
       ${bateauRows.map(buildRow).join('')}
+      ${sectionHead('🛶 Canoé')}
+      ${canoeRows.map(buildRow).join('')}
+      ${sectionHead('🚐 Camping-car')}
+      ${campingcarRows.map(buildRow).join('')}
     </div>`;
 
     c.innerHTML = html;
@@ -2085,35 +2192,136 @@
 
   // ── NEW RESERVATION MODAL ─────────────────────────────────────
   let nrmType = 'peche';
+  const NRM_TYPES = ['peche', 'bateau', 'canoe', 'campingcar'];
 
-  window.openNewResModal = function(dateStr, posteId, bateauName) {
-    nrmType = bateauName ? 'bateau' : 'peche';
-    nrmSetType(nrmType, false);
+  // Helpers
+  function nrmDaysBetween(startId, endId) {
+    const s = document.getElementById(startId).value;
+    const e = document.getElementById(endId).value;
+    if (!s || !e) return 0;
+    return Math.round((new Date(e+'T00:00:00') - new Date(s+'T00:00:00')) / 86400000);
+  }
 
-    // Pre-fill date
+  window.nrmSyncEnd = function(startId, endId) {
+    const s = document.getElementById(startId).value;
+    const endEl = document.getElementById(endId);
+    if (!s) return;
+    if (!endEl.value || endEl.value <= s) {
+      const d = new Date(s + 'T00:00:00');
+      d.setDate(d.getDate() + 1);
+      endEl.value = toDateStr(d);
+    }
+  };
+
+  window.nrmSetType = function(type, reset = true) {
+    nrmType = type;
+    NRM_TYPES.forEach(t => {
+      document.getElementById(`nrm-tab-${t}`).classList.toggle('active', t === type);
+      document.getElementById(`nrm-${t}-section`).hidden = t !== type;
+    });
+    if (reset) nrmUpdatePrice();
+  };
+
+  window.nrmUpdatePrice = function() {
+    let price = 0;
+    let dureeTxt = '';
+
     if (nrmType === 'peche') {
+      const formule = document.getElementById('nrm-formule').value;
+      let duree = 1;
+      const diff = nrmDaysBetween('nrm-date-debut', 'nrm-date-fin');
+      if (diff > 0) {
+        duree = formule === 'nuit' ? diff : diff + 1;
+      }
+      dureeTxt = duree > 0 ? `${duree} ${formule === 'nuit' ? `nuit${duree>1?'s':''}` : `session${duree>1?'s':''}`}` : '';
+      const t = { 1:35,2:70,3:90,4:110,5:130,6:150,7:170 };
+      price = formule === 'nuit' ? (t[Math.min(duree,7)] || 170) : (formule==='demi'?15:20)*duree;
+      const accomp = parseInt(document.getElementById('nrm-accomp').value)||0;
+      const aT = {demi:5,jour:10,nuit:10}[formule]||10;
+      price += aT * (formule==='nuit'?duree:1) * accomp;
+      if (document.getElementById('nrm-canne4').checked) {
+        if (formule==='jour') price+=10;
+        else if (formule==='nuit') price+=Math.max(20,duree*10);
+      }
+      const el = document.getElementById('nrm-peche-duree');
+      el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
+
+    } else if (nrmType === 'bateau') {
+      const tB = {'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270};
+      price = tB[document.getElementById('nrm-formule-bateau').value] || 0;
+
+    } else if (nrmType === 'canoe') {
+      const formule = document.getElementById('nrm-formule-canoe').value;
+      const diff = nrmDaysBetween('nrm-date-canoe-debut', 'nrm-date-canoe-fin');
+      const duree = Math.max(1, diff > 0 ? diff + 1 : 1);
+      dureeTxt = diff > 0 ? `${duree} session${duree>1?'s':''}` : '';
+      price = (formule==='demi'?15:20) * duree;
+      const el = document.getElementById('nrm-canoe-duree');
+      el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
+
+    } else if (nrmType === 'campingcar') {
+      const tarif = parseInt(document.getElementById('nrm-cc-tarif').value)||20;
+      const diff = nrmDaysBetween('nrm-date-cc-debut', 'nrm-date-cc-fin');
+      const nbNuits = Math.max(diff, 0);
+      dureeTxt = nbNuits > 0 ? `${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €` : '';
+      price = tarif * nbNuits;
+      const el = document.getElementById('nrm-cc-duree');
+      el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
+    }
+
+    document.getElementById('nrm-price').textContent = price > 0 ? price + ' €' : '— €';
+
+    // Acompte / reste
+    const acompte = parseInt(document.getElementById('nrm-acompte').value)||0;
+    const reste = price > 0 ? Math.max(0, price - acompte) : 0;
+    document.getElementById('nrm-reste').textContent = price > 0 ? reste + ' €' : '—';
+    const sub = document.getElementById('nrm-footer-sub');
+    sub.textContent = (acompte > 0 && price > 0) ? `Acompte ${acompte} € · Reste ${reste} €` : '';
+  };
+
+  window.openNewResModal = function(dateStr, posteId, resourceKey) {
+    let type = 'peche';
+    if (resourceKey) {
+      if (resourceKey === 'canoe') type = 'canoe';
+      else if (resourceKey.startsWith('campingcar')) type = 'campingcar';
+      else if (resourceKey && resourceKey !== '') type = 'bateau';
+    }
+    nrmType = type;
+    nrmSetType(type, false);
+
+    // Reset shared fields
+    ['nrm-prenom','nrm-nom','nrm-tel','nrm-email','nrm-message'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('nrm-acompte').value = 0;
+    document.querySelector('input[name="nrm-status"][value="pending"]').checked = true;
+
+    if (type === 'peche') {
       document.getElementById('nrm-date-debut').value = dateStr || '';
-      // Build poste options
+      document.getElementById('nrm-date-fin').value = '';
+      document.getElementById('nrm-peche-duree').style.display = 'none';
       const sel = document.getElementById('nrm-poste');
       sel.innerHTML = (typeof POSTES !== 'undefined' ? POSTES : [])
         .filter(p => !p.coming_soon)
-        .map(p => `<option value="${p.id}" ${p.id === posteId ? 'selected' : ''}>${p.icon || ''} ${p.nom}</option>`)
-        .join('');
+        .map(p => `<option value="${p.id}" ${p.id === posteId ? 'selected':''}>${p.icon||''} ${p.nom}</option>`).join('');
       document.getElementById('nrm-formule').value = 'jour';
-      document.getElementById('nrm-duree').value = 1;
       document.getElementById('nrm-nb').value = 1;
       document.getElementById('nrm-accomp').value = 0;
       document.getElementById('nrm-canne4').checked = false;
-    } else {
+    } else if (type === 'bateau') {
       document.getElementById('nrm-date-bateau').value = dateStr || '';
-      if (bateauName) document.getElementById('nrm-bateau').value = bateauName;
+      if (resourceKey && resourceKey !== 'bateau') document.getElementById('nrm-bateau').value = resourceKey;
+      document.getElementById('nrm-nb-bateau').value = 2;
+    } else if (type === 'canoe') {
+      document.getElementById('nrm-date-canoe-debut').value = dateStr || '';
+      document.getElementById('nrm-date-canoe-fin').value = '';
+      document.getElementById('nrm-canoe-duree').style.display = 'none';
+      document.getElementById('nrm-nb-canoe').value = 2;
+    } else if (type === 'campingcar') {
+      document.getElementById('nrm-date-cc-debut').value = dateStr || '';
+      document.getElementById('nrm-date-cc-fin').value = '';
+      document.getElementById('nrm-cc-duree').style.display = 'none';
+      const num = (resourceKey||'').split('-')[1];
+      if (num) document.getElementById('nrm-cc-emplacement').value = num;
     }
-
-    // Reset contact
-    ['nrm-prenom','nrm-nom','nrm-tel','nrm-email','nrm-message'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.querySelector('input[name="nrm-status"][value="pending"]').checked = true;
 
     nrmUpdatePrice();
     document.getElementById('new-res-overlay').classList.add('open');
@@ -2127,115 +2335,80 @@
     if (e.target === e.currentTarget) closeNewResModal();
   });
 
-  window.nrmSetType = function(type, reset = true) {
-    nrmType = type;
-    document.getElementById('nrm-tab-peche').classList.toggle('active', type === 'peche');
-    document.getElementById('nrm-tab-bateau').classList.toggle('active', type === 'bateau');
-    document.getElementById('nrm-peche-section').hidden = type !== 'peche';
-    document.getElementById('nrm-bateau-section').hidden = type !== 'bateau';
-    if (reset) nrmUpdatePrice();
-  };
-
-  window.nrmUpdatePrice = function() {
-    let price = 0;
-    if (nrmType === 'peche') {
-      const formule = document.getElementById('nrm-formule').value;
-      const duree = parseInt(document.getElementById('nrm-duree').value) || 1;
-      const accomp = parseInt(document.getElementById('nrm-accomp').value) || 0;
-      const canne4 = document.getElementById('nrm-canne4').checked;
-      if (formule === 'nuit') {
-        const t = { 1:35, 2:70, 3:90, 4:110, 5:130, 6:150, 7:170 };
-        price = t[Math.min(duree, 7)] || 170;
-      } else {
-        price = (formule === 'demi' ? 15 : 20) * duree;
-      }
-      const accompTarif = { demi:5, jour:10, nuit:10 }[formule] || 10;
-      price += accompTarif * (formule === 'nuit' ? duree : 1) * accomp;
-      if (canne4) {
-        if (formule === 'jour') price += 10;
-        else if (formule === 'nuit') price += Math.max(20, duree * 10);
-      }
-    } else {
-      const formule = document.getElementById('nrm-formule-bateau').value;
-      const t = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
-      price = t[formule] || 0;
-    }
-    document.getElementById('nrm-price').textContent = price > 0 ? price + ' €' : '— €';
-  };
-
   window.saveNewReservation = async function() {
     const btn = document.getElementById('nrm-save-btn');
     const prenom = document.getElementById('nrm-prenom').value.trim();
     const nom = document.getElementById('nrm-nom').value.trim();
     if (!prenom || !nom) { toast('Prénom et nom requis', 'error'); return; }
-
     const status = document.querySelector('input[name="nrm-status"]:checked')?.value || 'pending';
+    const acompte = parseInt(document.getElementById('nrm-acompte').value)||0;
     const message = document.getElementById('nrm-message').value.trim();
-
     btn.disabled = true; btn.textContent = 'Enregistrement…';
 
+    function makeDates(startStr, count) {
+      const arr = [], d0 = new Date(startStr+'T00:00:00');
+      for (let i=0;i<count;i++) { const d=new Date(d0); d.setDate(d.getDate()+i); arr.push(toDateStr(d)); }
+      return arr;
+    }
+
     try {
-      let data = { status, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        prenom, nom,
-        tel: document.getElementById('nrm-tel').value.trim() || null,
-        email: document.getElementById('nrm-email').value.trim() || null,
-        message: message || null,
-      };
+      let data = { status, createdAt: firebase.firestore.FieldValue.serverTimestamp(), prenom, nom,
+        tel: document.getElementById('nrm-tel').value.trim()||null,
+        email: document.getElementById('nrm-email').value.trim()||null,
+        message: message||null };
+      if (acompte > 0) data.acompte = acompte;
 
       if (nrmType === 'peche') {
         const formule = document.getElementById('nrm-formule').value;
         const dateDebut = document.getElementById('nrm-date-debut').value;
-        if (!dateDebut) { toast('Date début requise', 'error'); btn.disabled=false; btn.textContent='Enregistrer'; return; }
-        const duree = parseInt(document.getElementById('nrm-duree').value) || 1;
-        const nb = parseInt(document.getElementById('nrm-nb').value) || 1;
-        const accomp = parseInt(document.getElementById('nrm-accomp').value) || 0;
-        const canne4 = document.getElementById('nrm-canne4').checked;
-        const posteId = parseInt(document.getElementById('nrm-poste').value);
+        const dateFin   = document.getElementById('nrm-date-fin').value;
+        if (!dateDebut) { toast('Date début requise','error'); btn.disabled=false; btn.textContent='Enregistrer'; return; }
+        const diff = dateFin ? nrmDaysBetween('nrm-date-debut','nrm-date-fin') : 0;
+        const duree = Math.max(1, formule==='nuit' ? diff : diff+1);
+        const dates = makeDates(dateDebut, duree);
+        const t={1:35,2:70,3:90,4:110,5:130,6:150,7:170};
+        let totalPrice = formule==='nuit'?(t[Math.min(duree,7)]||170):(formule==='demi'?15:20)*duree;
+        const accomp=parseInt(document.getElementById('nrm-accomp').value)||0;
+        const aT={demi:5,jour:10,nuit:10}[formule]||10;
+        totalPrice+=aT*(formule==='nuit'?duree:1)*accomp;
+        const canne4=document.getElementById('nrm-canne4').checked;
+        if(canne4){if(formule==='jour')totalPrice+=10;else if(formule==='nuit')totalPrice+=Math.max(20,duree*10);}
+        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,duree,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,totalPrice});
 
-        // Generate dates array
-        const dates = [];
-        const d0 = new Date(dateDebut + 'T00:00:00');
-        for (let i = 0; i < duree; i++) {
-          const di = new Date(d0); di.setDate(di.getDate() + i);
-          dates.push(toDateStr(di));
-        }
+      } else if (nrmType === 'bateau') {
+        const date=document.getElementById('nrm-date-bateau').value;
+        if(!date){toast('Date requise','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        const fB=document.getElementById('nrm-formule-bateau').value;
+        const tB={'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270};
+        Object.assign(data,{type:'bateau',bateau:document.getElementById('nrm-bateau').value,formule:fB,date,nb:parseInt(document.getElementById('nrm-nb-bateau').value)||2,totalPrice:tB[fB]||0});
 
-        // Compute total price
-        let totalPrice = 0;
-        if (formule === 'nuit') {
-          const t = { 1:35, 2:70, 3:90, 4:110, 5:130, 6:150, 7:170 };
-          totalPrice = t[Math.min(duree, 7)] || 170;
-        } else { totalPrice = (formule === 'demi' ? 15 : 20) * duree; }
-        const accompTarif = { demi:5, jour:10, nuit:10 }[formule] || 10;
-        totalPrice += accompTarif * (formule === 'nuit' ? duree : 1) * accomp;
-        if (canne4) {
-          if (formule === 'jour') totalPrice += 10;
-          else if (formule === 'nuit') totalPrice += Math.max(20, duree * 10);
-        }
+      } else if (nrmType === 'canoe') {
+        const dateDebut=document.getElementById('nrm-date-canoe-debut').value;
+        if(!dateDebut){toast('Date requise','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        const dateFin=document.getElementById('nrm-date-canoe-fin').value||dateDebut;
+        const formule=document.getElementById('nrm-formule-canoe').value;
+        const diff=dateFin!==dateDebut?nrmDaysBetween('nrm-date-canoe-debut','nrm-date-canoe-fin'):0;
+        const duree=Math.max(1,diff+1);
+        const totalPrice=(formule==='demi'?15:20)*duree;
+        Object.assign(data,{type:'canoe',formule,dateDebut,dateFin,dates:makeDates(dateDebut,duree),duree,nb:parseInt(document.getElementById('nrm-nb-canoe').value)||2,totalPrice});
 
-        Object.assign(data, { type: 'peche', posteId, formule, dateDebut, dates, duree, nb, nbAccompagnants: accomp, canne4, totalPrice });
-
-      } else {
-        const bateau = document.getElementById('nrm-bateau').value;
-        const formule = document.getElementById('nrm-formule-bateau').value;
-        const date = document.getElementById('nrm-date-bateau').value;
-        if (!date) { toast('Date requise', 'error'); btn.disabled=false; btn.textContent='Enregistrer'; return; }
-        const nb = parseInt(document.getElementById('nrm-nb-bateau').value) || 2;
-        const t = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
-        const totalPrice = t[formule] || 0;
-        Object.assign(data, { type: 'bateau', bateau, formule, date, nb, totalPrice });
+      } else if (nrmType === 'campingcar') {
+        const dateDebut=document.getElementById('nrm-date-cc-debut').value;
+        const dateFin=document.getElementById('nrm-date-cc-fin').value;
+        if(!dateDebut||!dateFin){toast('Dates requises','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        const tarif=parseInt(document.getElementById('nrm-cc-tarif').value)||20;
+        const nbNuits=Math.max(1,nrmDaysBetween('nrm-date-cc-debut','nrm-date-cc-fin'));
+        Object.assign(data,{type:'campingcar',emplacement:document.getElementById('nrm-cc-emplacement').value,tarifNuit:tarif,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice:tarif*nbNuits});
       }
 
-      // Remove null fields
-      Object.keys(data).forEach(k => { if (data[k] === null) delete data[k]; });
-
+      Object.keys(data).forEach(k=>{if(data[k]===null)delete data[k];});
       await db.collection('reservations').add(data);
-      toast('Réservation créée ✓', 'success');
+      toast('Réservation créée ✓','success');
       closeNewResModal();
-    } catch (err) {
-      toast('Erreur : ' + err.message, 'error');
+    } catch(err) {
+      toast('Erreur : '+err.message,'error');
     } finally {
-      btn.disabled = false; btn.textContent = 'Enregistrer';
+      btn.disabled=false; btn.textContent='Enregistrer';
     }
   };
 
@@ -2248,9 +2421,9 @@
     openNewResModal(ds);
   };
 
-  window.planningCellClick = function(ds, posteId, bateauName, event) {
+  window.planningCellClick = function(ds, posteId, resourceKey, event) {
     if (event.target.closest('.cal-planning-block')) return;
-    openNewResModal(ds, posteId || null, bateauName || null);
+    openNewResModal(ds, posteId || null, resourceKey || null);
   };
 
   // Calendar controls
