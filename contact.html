@@ -7,7 +7,6 @@
   <meta name="description" content="Contactez le Lac de Podensac. Adresse, horaires d'ouverture, itinéraire depuis Bordeaux. Formulaire de contact pour toute demande.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/darkmode.js"></script>
   <link rel="icon" href="images/Logo lac de podensac.png" type="image/png">
@@ -65,9 +64,9 @@
               <div class="contact-info__title">Adresse</div>
               <div class="contact-info__text">
                 Lac de Podensac<br>
-                Route du Lac<br>
+                Rue des Fontaines<br>
                 33720 Podensac, Gironde<br>
-                <a href="https://www.google.fr/maps/search/Podensac+lac" target="_blank" style="color:var(--primary);font-weight:600;font-size:0.85rem;">Voir sur Google Maps →</a>
+                <a href="https://maps.app.goo.gl/MKEWoRAenhDtDm4F9" target="_blank" style="color:var(--primary);font-weight:600;font-size:0.85rem;">Voir sur Google Maps →</a>
               </div>
             </div>
           </div>
@@ -76,7 +75,7 @@
             <div>
               <div class="contact-info__title">Téléphone</div>
               <div class="contact-info__text">
-                <a href="tel:+33500000000" style="color:var(--primary);font-weight:600;">+33 (0)5 XX XX XX XX</a><br>
+                <a href="tel:0672514714" style="color:var(--primary);font-weight:600;">06 72 51 47 14</a><br>
                 Lun–Dim, 8h–20h<br>
                 <small>Répondeur disponible hors horaires</small>
               </div>
@@ -113,8 +112,14 @@
               </div>
             </div>
           </div>
-          <!-- Carte Leaflet -->
-          <div id="contact-map" style="height:300px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);"></div>
+          <!-- Carte Google Maps -->
+          <div style="border-radius:16px;overflow:hidden;box-shadow:var(--shadow);height:300px;">
+            <iframe
+              src="https://maps.google.com/maps?q=Rue+des+Fontaines,+33720+Podensac&output=embed"
+              width="100%" height="100%" style="border:0;display:block;"
+              allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
         </div>
 
         <div>
@@ -203,7 +208,7 @@
         </div>
         <div><div class="footer__col-title">Navigation</div><div class="footer__links"><a href="index.html" class="footer__link">Accueil</a><a href="peche.html" class="footer__link">Postes de pêche</a><a href="bateau.html" class="footer__link">Bateaux barbecue</a><a href="galerie.html" class="footer__link">Galerie</a><a href="contact.html" class="footer__link">Contact</a><a href="reglement.html" class="footer__link">Règlement</a></div></div>
         <div><div class="footer__col-title">Légal</div><div class="footer__links"><a href="#" class="footer__link">Mentions légales</a><a href="#" class="footer__link">CGV</a><a href="#" class="footer__link">Politique de confidentialité</a><a href="#" class="footer__link">Cookies</a></div></div>
-        <div><div class="footer__col-title">Contact</div><div class="footer__contact-item"><span class="footer__contact-icon">📍</span><span>33720 Podensac, Gironde</span></div><div class="footer__contact-item"><span class="footer__contact-icon">📞</span><span>+33 (0)5 XX XX XX XX</span></div><div class="footer__contact-item"><span class="footer__contact-icon">✉️</span><span>contact@lac-de-podensac.fr</span></div></div>
+        <div><div class="footer__col-title">Contact</div><div class="footer__contact-item"><span class="footer__contact-icon">📍</span><span>33720 Podensac, Gironde</span></div><div class="footer__contact-item"><span class="footer__contact-icon">📞</span><a href="tel:0672514714" style="color:inherit;">06 72 51 47 14</a></div><div class="footer__contact-item"><span class="footer__contact-icon">✉️</span><span>contact@lac-de-podensac.fr</span></div></div>
       </div>
       <div class="footer__bottom"><span>© 2025 Lac de Podensac. Tous droits réservés.</span><div style="display:flex;gap:20px;align-items:center;"><a href="#">Mentions légales</a><a href="#">CGV</a><a href="admin.html" style="opacity:0.35;font-size:0.78rem;" title="Administration">🔒</a></div></div>
     </div>
@@ -212,19 +217,8 @@
   <div class="toast-container" id="toast-container"></div>
   <a href="admin.html" class="admin-fab" title="Espace administration">🔒 Admin</a>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/main.js"></script>
   <script>
-    // Leaflet contact map
-    const cmap = L.map('contact-map', { center: [44.6528, -0.3470], zoom: 14, scrollWheelZoom: false });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(cmap);
-    const icon = L.divIcon({
-      html: '<div style="background:#e8951e;width:44px;height:44px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><span style="transform:rotate(45deg);">🎣</span></div>',
-      className: '', iconSize: [44,44], iconAnchor: [22,44], popupAnchor: [0,-46]
-    });
-    L.marker([44.6528, -0.3470], { icon }).addTo(cmap)
-      .bindPopup('<strong>Pêche au lac de Podensac</strong><br>Route du Lac, 33720 Podensac').openPopup();
-
     // Contact form
     document.getElementById('contact-form').addEventListener('submit', function(e) {
       e.preventDefault();
