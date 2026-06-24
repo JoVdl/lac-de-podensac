@@ -769,22 +769,32 @@
     /* ── PLANNING (GANTT) VIEW ── */
     .cal-planning-outer {
       background: var(--white); border-radius: 14px;
-      box-shadow: var(--card-shadow); overflow-x: auto;
+      box-shadow: var(--card-shadow);
+      display: flex; overflow: hidden;
+    }
+    .cal-planning-labels-col {
+      flex-shrink: 0; width: 130px;
+      border-right: 2px solid var(--border);
+      background: var(--white); z-index: 2;
+    }
+    .cal-planning-scroll-col {
+      overflow-x: auto; flex: 1; min-width: 0;
     }
     .cal-planning-row {
       display: flex; border-bottom: 1px solid var(--border); min-height: 42px;
     }
     .cal-planning-row:last-child { border-bottom: none; }
     .cal-planning-label {
-      width: 136px; min-width: 136px;
-      position: sticky; left: 0; z-index: 3;
-      background: var(--white); border-right: 2px solid var(--border);
-      padding: 0 10px; display: flex; align-items: center; gap: 5px;
-      font-size: 0.78rem; font-weight: 600; color: var(--primary-dark);
+      width: 130px; min-width: 130px; min-height: 42px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 8px; display: flex; align-items: center; gap: 5px;
+      font-size: 0.76rem; font-weight: 600; color: var(--primary-dark);
+      background: var(--white);
     }
+    .cal-planning-labels-col .cal-planning-label:last-child { border-bottom: none; }
     .cal-planning-label.section-head {
       background: rgba(42,96,89,0.04);
-      font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
       color: var(--primary); letter-spacing: 0.06em;
     }
     .cal-planning-timeline {
@@ -2185,16 +2195,24 @@
       });
     }
 
-    // Render a data row
+    // Build separated label + timeline arrays for two-column layout
+    const labelsHtml = [];
+    const timelinesHtml = [];
+
+    function addLabel(content, style='') {
+      labelsHtml.push(`<div class="cal-planning-label${style?' '+style:''}">${content}</div>`);
+    }
+    function addTimeline(innerHtml, style='') {
+      timelinesHtml.push(`<div class="cal-planning-row" style="${style}">${innerHtml}</div>`);
+    }
+
     function buildRow(row) {
       const blocks = getBlocks(row);
-      // Determine click-to-create args
       const posteIdArg = row.type === 'peche' ? row.posteId : 'null';
       let resKey = "''";
       if (row.type === 'bateau') resKey = `'${row.bateau}'`;
       else if (row.type === 'canoe') resKey = `'canoe'`;
       else if (row.type === 'campingcar') resKey = `'campingcar-${row.empl}'`;
-      // carnassier → open as peche modal (resKey stays '')
       const dayCols = days.map(({ str: ds, isWeekend, isToday }) => {
         const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
         return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;"
@@ -2202,52 +2220,50 @@
           ondragover="planDragOver(event)" ondragleave="planDragLeave(event)" ondrop="planDrop(event,'${ds}')"></div>`;
       }).join('');
       const blocksHtml = blocks.map(b => {
-        const label = b.isCancelled ? `✗ ${b.name}` : `${b.name}${b.price > 0 ? ' · ' + b.price + '€' : ''}`;
+        const lbl = b.isCancelled ? `✗ ${b.name}` : `${b.name}${b.price > 0 ? ' · ' + b.price + '€' : ''}`;
         const dateDebutArg = b.r.dateDebut || b.r.date || '';
         return `<button class="cal-planning-block" draggable="true"
           ondragstart="planDragStart(event,'${b.r.id}','${dateDebutArg}')"
           ondragend="planDragEnd(event)"
           onclick="event.stopPropagation();openResDetail('${b.r.id}')"
           style="left:${b.left}px;width:${b.width}px;background:${b.bg};color:${b.color};"
-          title="${label}">${label}</button>`;
+          title="${lbl}">${lbl}</button>`;
       }).join('');
-      return `<div class="cal-planning-row">
-        <div class="cal-planning-label">${row.icon} ${row.label}</div>
-        <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;">
-          ${dayCols}
-          ${blocksHtml}
-        </div>
-      </div>`;
+      addLabel(`${row.icon} ${row.label}`);
+      addTimeline(`<div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;">${dayCols}${blocksHtml}</div>`);
     }
 
-    // Header row
+    function sectionHead(label) {
+      addLabel(label, 'section-head');
+      addTimeline(`<div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.025);"></div>`, 'background:rgba(42,96,89,0.025);');
+    }
+
+    // Header
     const headerDayCols = days.map(({ isWeekend, isToday, dayName, dayNum }) => {
       const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
       return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;">
         <div class="cal-planning-day-header-cell">${dayName}<br>${dayNum}</div>
       </div>`;
     }).join('');
+    addLabel('Ressource', '');
+    labelsHtml[0] = `<div class="cal-planning-label" style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:var(--gray);letter-spacing:.06em;background:rgba(42,96,89,0.03);border-bottom:2px solid var(--border);">Ressource</div>`;
+    addTimeline(`<div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.03);">${headerDayCols}</div>`, 'border-bottom:2px solid var(--border);');
 
-    const sectionHead = (label) => `<div class="cal-planning-row">
-      <div class="cal-planning-label section-head">${label}</div>
-      <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.025);"></div>
-    </div>`;
+    // Sections
+    sectionHead('🎣 Pêche — Postes');
+    posteRows.forEach(buildRow);
+    sectionHead('🐟 Carnassier (5 zones)');
+    carnassierRows.forEach(buildRow);
+    sectionHead('🔥 Bateaux BBQ');
+    bateauRows.forEach(buildRow);
+    sectionHead('🛶 Canoé');
+    canoeRows.forEach(buildRow);
+    sectionHead('🚐 Camping-car (8 empl.)');
+    campingcarRows.forEach(buildRow);
 
     const html = `<div class="cal-planning-outer">
-      <div class="cal-planning-row" style="border-bottom:2px solid var(--border);">
-        <div class="cal-planning-label" style="font-size:0.68rem;font-weight:800;text-transform:uppercase;color:var(--gray);letter-spacing:.06em;background:rgba(42,96,89,0.03);">Ressource</div>
-        <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.03);">${headerDayCols}</div>
-      </div>
-      ${sectionHead('🎣 Pêche — Postes carpe / coup / feeder')}
-      ${posteRows.map(buildRow).join('')}
-      ${sectionHead('🐟 Carnassier (5 zones)')}
-      ${carnassierRows.map(buildRow).join('')}
-      ${sectionHead('🔥 Bateaux BBQ (2 bateaux)')}
-      ${bateauRows.map(buildRow).join('')}
-      ${sectionHead('🛶 Canoé (2 places)')}
-      ${canoeRows.map(buildRow).join('')}
-      ${sectionHead('🚐 Camping-car (8 emplacements)')}
-      ${campingcarRows.map(buildRow).join('')}
+      <div class="cal-planning-labels-col">${labelsHtml.join('')}</div>
+      <div class="cal-planning-scroll-col">${timelinesHtml.join('')}</div>
     </div>`;
 
     c.innerHTML = html;
