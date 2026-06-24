@@ -7,7 +7,6 @@
   <meta name="description" content="Découvrez les 6 postes de pêche du Lac de Podensac sur notre carte interactive. Disponibilité en temps réel, informations détaillées, réservation en ligne.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/darkmode.js"></script>
   <link rel="icon" href="images/Logo lac de podensac.png" type="image/png">
@@ -81,30 +80,12 @@
         <h2 class="section-title">Choisissez votre poste sur la carte</h2>
         <p class="section-subtitle">Cliquez sur un marqueur pour voir les détails du poste et réserver.</p>
       </div>
-      <div class="map-layout">
-        <div class="map-sidebar">
-          <div class="map-sidebar__header">
-            <div class="map-sidebar__title">Filtrer les postes</div>
-            <div class="map-filter" id="map-filters">
-              <button class="filter-btn active" data-filter="all">Tous</button>
-              <button class="filter-btn" data-filter="available">Disponibles</button>
-              <button class="filter-btn" data-filter="carpe">Carpe</button>
-              <button class="filter-btn" data-filter="brochet">Brochet / Sandre</button>
-              <button class="filter-btn" data-filter="facile">Facile</button>
-              <button class="filter-btn" data-filter="premium">Premium</button>
-            </div>
-          </div>
-          <div class="map-spots-list" id="spots-list"></div>
-        </div>
-        <div class="map-container">
-          <div id="lac-map"></div>
-          <div class="map-legend">
-            <div class="map-legend__title">Disponibilité</div>
-            <div class="map-legend__item"><div class="map-legend__dot available"></div> Disponible</div>
-            <div class="map-legend__item"><div class="map-legend__dot busy"></div> Complet</div>
-            <div class="map-legend__item"><div class="map-legend__dot partial" style="background:#f39c12;"></div> Sur demande</div>
-          </div>
-        </div>
+      <div style="border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.12);width:100%;height:600px;">
+        <iframe
+          src="https://www.google.com/maps/d/embed?mid=1r3OL1EYuXfQo_lqhEpL0cTk55c8MHxk&ll=44.65477184078906%2C-0.3529545679559276&z=16"
+          width="100%" height="100%" style="border:0;display:block;"
+          allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
       </div>
     </div>
   </section>
@@ -1191,13 +1172,11 @@
   <div class="toast-container" id="toast-container"></div>
   <a href="admin.html" class="admin-fab" title="Espace administration">🔒 Admin</a>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/postes.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/carte.js"></script>
   <script src="js/reservation.js"></script>
 </body>
 </html>
