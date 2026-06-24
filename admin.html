@@ -692,18 +692,16 @@
     .cal-month-cell.today .cal-day-num { background: var(--primary); color: #fff; }
     .cal-month-cell.other-month .cal-day-num { color: var(--gray-light); }
     .cal-event-chip {
-      display: flex; align-items: center; justify-content: space-between;
-      width: 100%; padding: 2px 5px; border-radius: 4px;
+      display: block; width: 100%; padding: 2px 5px; border-radius: 4px;
       font-size: 0.67rem; font-weight: 600; margin-bottom: 2px;
       cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      transition: opacity 0.15s; border: none; text-align: left; gap: 4px;
+      transition: opacity 0.15s; border: none; text-align: left;
     }
-    .cal-event-chip strong { font-size: 0.68rem; opacity: 0.9; flex-shrink: 0; }
     .cal-event-chip:hover { opacity: 0.75; }
-    .peche-confirmed,
-    .bateau-confirmed { background: rgba(30,138,74,0.14);  color: #1a7040; }
-    .peche-pending,
-    .bateau-pending   { background: rgba(176,120,0,0.15);  color: #8a6000; }
+    .peche-confirmed  { background: rgba(42,96,89,0.13);  color: var(--primary); }
+    .peche-pending    { background: rgba(176,120,0,0.12); color: var(--warning); }
+    .bateau-confirmed { background: rgba(232,149,30,0.14);color: #965800; }
+    .bateau-pending   { background: rgba(232,149,30,0.09);color: #b07000; }
     .cancelled        { background: #f0f0f0; color: #999; }
     .cal-more-link {
       font-size: 0.64rem; color: var(--primary); font-weight: 700;
@@ -756,40 +754,6 @@
     .cal-day-event-price { font-family: var(--font-head); font-weight: 800; color: var(--primary); font-size: 0.95rem; }
     .cal-day-empty { text-align: center; padding: 40px 20px; color: var(--gray-light); font-size: 0.88rem; }
 
-    /* ── RESPONSIVE CALENDAR ── */
-    @media (max-width: 640px) {
-      .cal-header { padding: 10px 12px; gap: 6px; }
-      .cal-period-label { font-size: 0.82rem; }
-      .cal-nav-btn { width: 28px; height: 28px; font-size: 1rem; }
-      .cal-today-btn { padding: 5px 9px; font-size: 0.7rem; }
-      .cal-view-tabs { gap: 3px; }
-      .cal-view-tab { padding: 5px 9px; font-size: 0.7rem; }
-
-      .cal-month-dow-row, .cal-month-days { grid-template-columns: repeat(7, 1fr); }
-      .cal-month-dow { font-size: 0.58rem; padding: 6px 0; letter-spacing: 0; }
-      .cal-month-cell { min-height: 46px; padding: 4px 2px 3px; cursor: pointer; }
-      .cal-month-cell:active { background: rgba(61,138,128,0.1); }
-      .cal-day-num { font-size: 0.65rem; width: 18px; height: 18px; margin-bottom: 2px; }
-
-      /* Remplacer les chips par des points compacts */
-      .cal-event-chip, .cal-more-link { display: none; }
-      .cal-mobile-dots { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; padding: 0 1px; }
-      .cal-mobile-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-      .cal-mobile-more { font-size: 0.55rem; font-weight: 700; color: var(--gray); line-height: 1; margin-top: 1px; text-align: center; }
-
-      .cal-week-grid { min-width: 480px; }
-      .cal-week-col-header { padding: 7px 4px; }
-      .cal-week-dow { font-size: 0.6rem; }
-      .cal-week-day-num { font-size: 1rem; width: 28px; height: 28px; }
-      .cal-week-event { padding: 4px 5px; }
-      .cal-week-event-name { font-size: 0.62rem; }
-      .cal-week-event-sub { font-size: 0.55rem; }
-
-      .cal-day-event { padding: 10px 12px; gap: 10px; }
-      .cal-day-event-name { font-size: 0.82rem; }
-      .cal-legend { font-size: 0.68rem; gap: 8px; }
-    }
-
     /* ── LEGEND ── */
     .cal-legend {
       display: flex; flex-wrap: wrap; gap: 10px;
@@ -798,6 +762,138 @@
       box-shadow: var(--card-shadow); font-size: 0.75rem; color: var(--gray);
     }
     .cal-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+    /* ── PLANNING (GANTT) VIEW ── */
+    .cal-planning-outer {
+      background: var(--white); border-radius: 14px;
+      box-shadow: var(--card-shadow); overflow-x: auto;
+    }
+    .cal-planning-row {
+      display: flex; border-bottom: 1px solid var(--border); min-height: 42px;
+    }
+    .cal-planning-row:last-child { border-bottom: none; }
+    .cal-planning-label {
+      width: 136px; min-width: 136px;
+      position: sticky; left: 0; z-index: 3;
+      background: var(--white); border-right: 2px solid var(--border);
+      padding: 0 10px; display: flex; align-items: center; gap: 5px;
+      font-size: 0.78rem; font-weight: 600; color: var(--primary-dark);
+    }
+    .cal-planning-label.section-head {
+      background: rgba(42,96,89,0.04);
+      font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+      color: var(--primary); letter-spacing: 0.06em;
+    }
+    .cal-planning-timeline {
+      position: relative; display: flex; flex-shrink: 0; min-height: 42px; overflow: visible;
+    }
+    .cal-planning-day-col {
+      flex-shrink: 0; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .cal-planning-day-col.weekend { background: rgba(220,100,20,0.04); }
+    .cal-planning-day-col.today-col { background: rgba(61,138,128,0.08); }
+    .cal-planning-day-header-cell {
+      text-align: center; padding: 5px 0 4px; border-bottom: 2px solid var(--border);
+      font-size: 0.62rem; font-weight: 700; line-height: 1.3; color: var(--gray);
+    }
+    .cal-planning-day-col.weekend .cal-planning-day-header-cell { color: #c05000; }
+    .cal-planning-day-col.today-col .cal-planning-day-header-cell { color: var(--primary); font-weight: 800; }
+    .cal-planning-blocks-area {
+      position: relative; flex: 1;
+    }
+    .cal-planning-block {
+      position: absolute; top: 6px; height: 28px;
+      border-radius: 5px; padding: 0 7px;
+      font-size: 0.63rem; font-weight: 700;
+      display: flex; align-items: center;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      cursor: pointer; border: none; text-align: left;
+      transition: opacity 0.15s, box-shadow 0.15s;
+      z-index: 2;
+    }
+    .cal-planning-block:hover { opacity: 0.82; box-shadow: 0 2px 8px rgba(0,0,0,0.22); }
+
+    /* ── NEW RESERVATION MODAL ── */
+    .new-res-overlay {
+      position: fixed; inset: 0; z-index: 700;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .new-res-overlay.open { opacity: 1; pointer-events: all; }
+    .new-res-modal {
+      background: var(--white); border-radius: 20px;
+      width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+      transform: translateY(20px) scale(0.97); transition: transform 0.25s;
+    }
+    .new-res-overlay.open .new-res-modal { transform: translateY(0) scale(1); }
+    .new-res-modal__head {
+      padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      position: sticky; top: 0; background: var(--white); z-index: 2; border-radius: 20px 20px 0 0;
+    }
+    .new-res-modal__title { font-family: var(--font-head); font-weight: 800; font-size: 0.98rem; color: var(--primary-dark); }
+    .new-res-modal__body { padding: 16px 20px; }
+    .new-res-modal__footer {
+      padding: 12px 20px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      position: sticky; bottom: 0; background: var(--white); z-index: 2; border-radius: 0 0 20px 20px;
+    }
+    .nrm-type-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+    .nrm-type-tab {
+      flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--border);
+      background: none; font-family: var(--font); font-size: 0.85rem; font-weight: 700;
+      color: var(--gray); cursor: pointer; transition: all 0.15s;
+    }
+    .nrm-type-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .nrm-group-title {
+      font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--primary); margin: 14px 0 8px;
+    }
+    .nrm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .nrm-field { margin-bottom: 8px; }
+    .nrm-label { display: block; font-size: 0.76rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px; }
+    .nrm-input, .nrm-select, .nrm-textarea {
+      width: 100%; padding: 9px 11px; border: 2px solid var(--border);
+      border-radius: 9px; font-family: var(--font); font-size: 0.86rem;
+      outline: none; transition: border-color 0.2s; color: #1a2e2b; background: var(--white);
+    }
+    .nrm-input:focus, .nrm-select:focus, .nrm-textarea:focus { border-color: var(--primary-light); }
+    .nrm-textarea { min-height: 66px; resize: vertical; }
+    .nrm-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0 10px; }
+    .nrm-status-row { display: flex; gap: 8px; margin-bottom: 4px; }
+    .nrm-status-opt {
+      flex: 1; display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+      border-radius: 9px; border: 2px solid var(--border); cursor: pointer;
+      font-size: 0.84rem; font-weight: 600; transition: all 0.15s; user-select: none;
+    }
+    .nrm-status-opt input[type="radio"] { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+    .nrm-checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; user-select: none; }
+    .nrm-checkbox-row input { width: 15px; height: 15px; accent-color: var(--primary); flex-shrink: 0; }
+    .nrm-checkbox-row span { font-size: 0.84rem; font-weight: 600; color: var(--primary-dark); }
+    .nrm-price-preview { font-family: var(--font-head); font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+    .nrm-btn-save {
+      padding: 10px 22px; background: var(--primary); color: #fff; border: none;
+      border-radius: 10px; font-family: var(--font-head); font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nrm-btn-save:hover { background: var(--primary-dark); }
+    .nrm-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .nrm-btn-cancel {
+      padding: 10px 18px; background: var(--bg); color: var(--gray); border: none;
+      border-radius: 10px; font-family: var(--font); font-size: 0.86rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .nrm-btn-cancel:hover { background: var(--border); }
+    /* Clickable calendar cells */
+    .cal-month-cell { cursor: pointer; transition: background 0.1s; }
+    .cal-month-cell:hover { background: rgba(61,138,128,0.05); }
+    .cal-month-cell.today:hover { background: rgba(61,138,128,0.1); }
+    .cal-week-col-events { cursor: pointer; min-height: 80px; }
+    .cal-planning-day-col { cursor: pointer; }
+    .cal-planning-day-col:hover { background: rgba(61,138,128,0.09) !important; }
 
     /* ── DETAIL MODAL ── */
     .detail-modal-overlay {
@@ -965,6 +1061,7 @@
             <button class="cal-view-tab active" data-view="month">Mois</button>
             <button class="cal-view-tab" data-view="week">Semaine</button>
             <button class="cal-view-tab" data-view="day">Jour</button>
+            <button class="cal-view-tab" data-view="planning">Planning</button>
           </div>
         </div>
         <div id="cal-container"></div>
@@ -995,6 +1092,152 @@
   <!-- DETAIL MODAL -->
   <div class="detail-modal-overlay" id="res-detail-modal">
     <div class="detail-modal" id="detail-modal-content"></div>
+  </div>
+
+  <!-- NEW RESERVATION MODAL -->
+  <div class="new-res-overlay" id="new-res-overlay">
+    <div class="new-res-modal">
+      <div class="new-res-modal__head">
+        <div class="new-res-modal__title">📅 Nouvelle réservation</div>
+        <button class="detail-modal__close" onclick="closeNewResModal()">✕</button>
+      </div>
+      <div class="new-res-modal__body">
+
+        <!-- Type tabs -->
+        <div class="nrm-type-tabs">
+          <button class="nrm-type-tab active" id="nrm-tab-peche" onclick="nrmSetType('peche')">🎣 Pêche</button>
+          <button class="nrm-type-tab" id="nrm-tab-bateau" onclick="nrmSetType('bateau')">🔥 Bateau</button>
+        </div>
+
+        <!-- ── PÊCHE ── -->
+        <div id="nrm-peche-section">
+          <div class="nrm-group-title">Réservation</div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Poste *</label>
+              <select class="nrm-select" id="nrm-poste"></select>
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Formule *</label>
+              <select class="nrm-select" id="nrm-formule" onchange="nrmUpdatePrice()">
+                <option value="demi">Demi-journée — 15 €</option>
+                <option value="jour" selected>Journée (12h) — 20 €</option>
+                <option value="nuit">Nuitée (24h) — 35 €</option>
+              </select>
+            </div>
+          </div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Date début *</label>
+              <input type="date" class="nrm-input" id="nrm-date-debut" onchange="nrmUpdatePrice()">
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Nb sessions</label>
+              <input type="number" class="nrm-input" id="nrm-duree" value="1" min="1" max="14" onchange="nrmUpdatePrice()">
+            </div>
+          </div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Nb pêcheurs</label>
+              <input type="number" class="nrm-input" id="nrm-nb" value="1" min="1" max="3">
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Accompagnants</label>
+              <input type="number" class="nrm-input" id="nrm-accomp" value="0" min="0" onchange="nrmUpdatePrice()">
+            </div>
+          </div>
+          <label class="nrm-checkbox-row">
+            <input type="checkbox" id="nrm-canne4" onchange="nrmUpdatePrice()">
+            <span>4ème canne (+10 € / nuit max(20 €, n×10 €))</span>
+          </label>
+        </div>
+
+        <!-- ── BATEAU ── -->
+        <div id="nrm-bateau-section" hidden>
+          <div class="nrm-group-title">Réservation</div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Bateau *</label>
+              <select class="nrm-select" id="nrm-bateau">
+                <option value="Martin Pêcheur">🐦 Martin Pêcheur</option>
+                <option value="Pic Vert">🌿 Pic Vert</option>
+              </select>
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Formule *</label>
+              <select class="nrm-select" id="nrm-formule-bateau" onchange="nrmUpdatePrice()">
+                <option value="petit-dej">Petit déj. 9h–10h30 — 70 €</option>
+                <option value="midi">Déjeuner 11h30–14h30 — 210 €</option>
+                <option value="apres-midi">Après-midi 15h30–17h30 — 110 €</option>
+                <option value="soiree">Soirée 18h–21h — 210 €</option>
+                <option value="demi-matin">Demi-j. 10h–15h — 270 €</option>
+                <option value="demi-soir">Demi-j. 16h–20h — 270 €</option>
+              </select>
+            </div>
+          </div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Date *</label>
+              <input type="date" class="nrm-input" id="nrm-date-bateau">
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Nb personnes</label>
+              <input type="number" class="nrm-input" id="nrm-nb-bateau" value="2" min="1">
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CONTACT ── -->
+        <hr class="nrm-divider">
+        <div class="nrm-group-title">Client</div>
+        <div class="nrm-row">
+          <div class="nrm-field">
+            <label class="nrm-label">Prénom *</label>
+            <input type="text" class="nrm-input" id="nrm-prenom" placeholder="Prénom">
+          </div>
+          <div class="nrm-field">
+            <label class="nrm-label">Nom *</label>
+            <input type="text" class="nrm-input" id="nrm-nom" placeholder="NOM">
+          </div>
+        </div>
+        <div class="nrm-row">
+          <div class="nrm-field">
+            <label class="nrm-label">Téléphone</label>
+            <input type="tel" class="nrm-input" id="nrm-tel" placeholder="06 …">
+          </div>
+          <div class="nrm-field">
+            <label class="nrm-label">Email</label>
+            <input type="email" class="nrm-input" id="nrm-email" placeholder="email@…">
+          </div>
+        </div>
+        <div class="nrm-field">
+          <label class="nrm-label">Message (optionnel)</label>
+          <textarea class="nrm-textarea" id="nrm-message" placeholder="Remarques, demandes particulières…"></textarea>
+        </div>
+
+        <!-- ── STATUT ── -->
+        <hr class="nrm-divider">
+        <div class="nrm-group-title">Statut</div>
+        <div class="nrm-status-row">
+          <label class="nrm-status-opt">
+            <input type="radio" name="nrm-status" value="pending" checked>
+            ⏳ En attente
+          </label>
+          <label class="nrm-status-opt">
+            <input type="radio" name="nrm-status" value="confirmed">
+            ✓ Confirmée
+          </label>
+        </div>
+
+      </div>
+      <div class="new-res-modal__footer">
+        <div class="nrm-price-preview" id="nrm-price">— €</div>
+        <div style="display:flex;gap:8px;">
+          <button class="nrm-btn-cancel" onclick="closeNewResModal()">Annuler</button>
+          <button class="nrm-btn-save" id="nrm-save-btn" onclick="saveNewReservation()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- TOASTS -->
@@ -1416,24 +1659,31 @@
   function dotColor(r) {
     const s = r.status || 'pending';
     if (s === 'cancelled') return '#bbb';
-    return s === 'confirmed' ? '#1a7040' : '#8a6000';
+    if (r.type === 'peche') return s === 'confirmed' ? 'var(--primary)' : 'var(--warning)';
+    return s === 'confirmed' ? 'var(--accent)' : '#c08020';
   }
 
   function weekEventBg(r) {
-    const s = (r.status || 'pending');
-    if (s === 'cancelled') return '#f0f0f0';
-    return s === 'confirmed' ? 'rgba(30,138,74,0.12)' : 'rgba(176,120,0,0.12)';
+    const cls = chipClass(r);
+    if (cls === 'cancelled') return '#f0f0f0';
+    if (cls === 'peche-confirmed') return 'rgba(42,96,89,0.1)';
+    if (cls === 'peche-pending') return 'rgba(176,120,0,0.1)';
+    if (cls === 'bateau-confirmed') return 'rgba(232,149,30,0.13)';
+    return 'rgba(232,149,30,0.08)';
   }
 
   function weekEventColor(r) {
-    const s = (r.status || 'pending');
-    if (s === 'cancelled') return '#999';
-    return s === 'confirmed' ? '#1a7040' : '#8a6000';
+    const cls = chipClass(r);
+    if (cls === 'cancelled') return '#999';
+    if (cls === 'peche-confirmed') return 'var(--primary)';
+    if (cls === 'peche-pending') return 'var(--warning)';
+    if (cls === 'bateau-confirmed') return '#965800';
+    return '#b07000';
   }
 
   function updateCalHeader() {
     let label = '';
-    if (calView === 'month') {
+    if (calView === 'month' || calView === 'planning') {
       label = `${MOIS_CAL[calDate.getMonth()]} ${calDate.getFullYear()}`;
     } else if (calView === 'week') {
       const mon = new Date(calDate);
@@ -1450,7 +1700,7 @@
 
   function calNavigate(dir) {
     const d = new Date(calDate);
-    if (calView === 'month') d.setMonth(d.getMonth() + dir);
+    if (calView === 'month' || calView === 'planning') d.setMonth(d.getMonth() + dir);
     else if (calView === 'week') d.setDate(d.getDate() + dir * 7);
     else d.setDate(d.getDate() + dir);
     calDate = d;
@@ -1462,6 +1712,7 @@
     const c = document.getElementById('cal-container');
     if (calView === 'month') renderMonthView(c);
     else if (calView === 'week') renderWeekView(c);
+    else if (calView === 'planning') renderPlanningView(c);
     else renderDayView(c);
   }
 
@@ -1472,11 +1723,8 @@
     const last  = new Date(year, month + 1, 0);
     const startDow = getDow(first);
 
-    const joursAff = window.innerWidth < 640
-      ? ['L','M','M','J','V','S','D']
-      : JOURS_CAL;
     let html = `<div class="cal-month-grid">
-      <div class="cal-month-dow-row">${joursAff.map(j=>`<div class="cal-month-dow">${j}</div>`).join('')}</div>
+      <div class="cal-month-dow-row">${JOURS_CAL.map(j=>`<div class="cal-month-dow">${j}</div>`).join('')}</div>
       <div class="cal-month-days">`;
 
     // Padding before month
@@ -1490,36 +1738,18 @@
       const isToday = ds === today;
       const dayRes = getResForDate(ds);
 
-      const isMobile = window.innerWidth < 640;
-      let cellContent = '';
+      const chips = dayRes.slice(0, 3).map(r => {
+        const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
+        const icon = r.type === 'peche' ? '🎣' : '🔥';
+        return `<button class="cal-event-chip ${chipClass(r)}" onclick="event.stopPropagation();openResDetail('${r.id}')">${icon} ${name}</button>`;
+      }).join('');
 
-      if (isMobile) {
-        // Points colorés sur mobile — clic sur la cellule ouvre la vue jour
-        const dots = dayRes.slice(0, 6).map(r =>
-          `<span class="cal-mobile-dot" style="background:${dotColor(r)}"></span>`
-        ).join('');
-        const moreCount = dayRes.length - 6;
-        const moreLabel = moreCount > 0 ? `<div class="cal-mobile-more">+${moreCount}</div>` : '';
-        cellContent = dayRes.length > 0
-          ? `<div class="cal-mobile-dots">${dots}</div>${moreLabel}`
-          : '';
-      } else {
-        const chips = dayRes.slice(0, 3).map(r => {
-          const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
-          const icon = r.type === 'peche' ? '🎣' : '🔥';
-          const price = calculatePrice(r);
-          const priceTag = price > 0 ? ` · <strong>${price}€</strong>` : '';
-          return `<button class="cal-event-chip ${chipClass(r)}" onclick="openResDetail('${r.id}')">${icon} ${name}${priceTag}</button>`;
-        }).join('');
-        const more = dayRes.length - 3;
-        const moreHtml = more > 0 ? `<button class="cal-more-link" onclick="switchToDay('${ds}')">+${more} autre${more>1?'s':''}</button>` : '';
-        cellContent = chips + moreHtml;
-      }
+      const more = dayRes.length - 3;
+      const moreHtml = more > 0 ? `<button class="cal-more-link" onclick="event.stopPropagation();switchToDay('${ds}')">+${more} autre${more>1?'s':''}</button>` : '';
 
-      const clickAttr = isMobile && dayRes.length > 0 ? ` onclick="switchToDay('${ds}')"` : '';
-      html += `<div class="cal-month-cell${isToday?' today':''}"${clickAttr}>
+      html += `<div class="cal-month-cell${isToday?' today':''}" onclick="calCellClick('${ds}',event)" title="Ajouter une réservation">
         <div class="cal-day-num">${d}</div>
-        ${cellContent}
+        ${chips}${moreHtml}
       </div>`;
     }
 
@@ -1552,7 +1782,7 @@
         const price = calculatePrice(r);
         const status = r.status || 'pending';
         const statusLabel = status === 'confirmed' ? '✓' : status === 'cancelled' ? '✗' : '⏳';
-        return `<button class="cal-week-event" onclick="openResDetail('${r.id}')"
+        return `<button class="cal-week-event" onclick="event.stopPropagation();openResDetail('${r.id}')"
           style="background:${weekEventBg(r)};color:${weekEventColor(r)}">
           <div class="cal-week-event-name">${icon} ${name}</div>
           <div class="cal-week-event-sub">${statusLabel} ${price>0?price+'€':''}</div>
@@ -1564,8 +1794,8 @@
           <div class="cal-week-dow">${JOURS_CAL[i]}</div>
           <div class="cal-week-day-num${isToday?' today':''}">${day.getDate()}</div>
         </div>
-        <div class="cal-week-col-events">
-          ${events || `<div style="padding:8px 4px;font-size:0.65rem;color:var(--gray-light);text-align:center;">—</div>`}
+        <div class="cal-week-col-events" onclick="calCellClick('${ds}',event)" title="Ajouter une réservation">
+          ${events || `<div style="padding:8px 4px;font-size:0.65rem;color:var(--gray-light);text-align:center;">+</div>`}
         </div>
       </div>`;
     }
@@ -1577,8 +1807,10 @@
     const ds = toDateStr(calDate);
     const dayRes = getResForDate(ds);
 
+    const addBtn = `<button onclick="openNewResModal('${ds}')" style="display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;border:2px dashed var(--border);background:none;color:var(--primary);font-weight:700;font-size:0.82rem;cursor:pointer;margin-bottom:10px;width:100%;justify-content:center;transition:all .15s;" onmouseover="this.style.background='rgba(61,138,128,0.06)'" onmouseout="this.style.background='none'">＋ Ajouter une réservation</button>`;
+
     if (dayRes.length === 0) {
-      c.innerHTML = `<div class="cal-day-view"><div class="cal-day-empty">📅 Aucune réservation ce jour</div></div>`;
+      c.innerHTML = `<div class="cal-day-view">${addBtn}<div class="cal-day-empty" style="padding-top:20px;">📅 Aucune réservation ce jour</div></div>`;
       return;
     }
 
@@ -1600,7 +1832,145 @@
       </div>`;
     }).join('');
 
-    c.innerHTML = `<div class="cal-day-view">${events}</div>`;
+    c.innerHTML = `<div class="cal-day-view">${addBtn}${events}</div>`;
+  }
+
+  function renderPlanningView(c) {
+    const DAY_W = 40; // px per day column
+
+    // Start at 1st of displayed month
+    const year = calDate.getFullYear(), month = calDate.getMonth();
+    const startDate = new Date(year, month, 1);
+    const NUM_DAYS = new Date(year, month + 1, 0).getDate(); // days in month
+    const todayStr = toDateStr(new Date());
+
+    // Build date info array
+    const days = [];
+    for (let i = 0; i < NUM_DAYS; i++) {
+      const d = new Date(year, month, i + 1);
+      const dow = d.getDay(); // 0=Sun,6=Sat
+      days.push({
+        str: toDateStr(d),
+        d,
+        isWeekend: dow === 0 || dow === 6,
+        isToday: toDateStr(d) === todayStr,
+        dayName: ['D','L','M','M','J','V','S'][dow],
+        dayNum: i + 1,
+      });
+    }
+
+    function dayIndex(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return Math.round((new Date(y, m-1, d) - startDate) / 86400000);
+    }
+
+    // Resource rows definition
+    const posteRows = (typeof POSTES !== 'undefined' ? POSTES : []).map(p => ({
+      id: `poste-${p.id}`, label: p.nom, icon: p.icon || '🎣',
+      type: 'peche', posteId: p.id,
+    }));
+    const bateauRows = [
+      { id: 'bateau-mp', label: 'Martin Pêcheur', icon: '🐦', type: 'bateau', bateau: 'Martin Pêcheur' },
+      { id: 'bateau-pv', label: 'Pic Vert',        icon: '🌿', type: 'bateau', bateau: 'Pic Vert'        },
+    ];
+
+    // Compute reservation blocks for a row
+    function getBlocks(row) {
+      const relevant = allReservations.filter(r => {
+        if (row.type === 'peche')  return r.type === 'peche'  && r.posteId === row.posteId;
+        if (row.type === 'bateau') return r.type === 'bateau' && (r.bateau || '').trim() === row.bateau;
+        return false;
+      });
+
+      return relevant.flatMap(r => {
+        const rDates = getResDates(r);
+        if (!rDates.length) return [];
+
+        // Group consecutive date runs into segments
+        const sorted = [...rDates].sort();
+        const segments = [];
+        let segStart = sorted[0], segEnd = sorted[0];
+        for (let i = 1; i < sorted.length; i++) {
+          const prev = new Date(sorted[i-1] + 'T00:00:00');
+          const curr = new Date(sorted[i]   + 'T00:00:00');
+          const diff = Math.round((curr - prev) / 86400000);
+          if (diff <= 1) { segEnd = sorted[i]; }
+          else { segments.push([segStart, segEnd]); segStart = segEnd = sorted[i]; }
+        }
+        segments.push([segStart, segEnd]);
+
+        return segments.flatMap(([sd, ed]) => {
+          const si = dayIndex(sd), ei = dayIndex(ed);
+          // clip to visible range
+          const csi = Math.max(si, 0), cei = Math.min(ei, NUM_DAYS - 1);
+          if (csi > NUM_DAYS - 1 || cei < 0) return [];
+          const left = csi * DAY_W + 2;
+          const width = (cei - csi + 1) * DAY_W - 4;
+          if (width <= 0) return [];
+          const name = `${r.prenom || ''} ${(r.nom || '').toUpperCase()}`.trim();
+          const price = calculatePrice(r);
+          const status = r.status || 'pending';
+          const isConf = status === 'confirmed';
+          const isCancelled = status === 'cancelled';
+          let bg, color;
+          if (isCancelled) { bg = '#e8e8e8'; color = '#999'; }
+          else if (r.type === 'peche') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
+          else { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
+          return [{ r, name, price, left, width, bg, color, isCancelled }];
+        });
+      });
+    }
+
+    // Render a data row
+    function buildRow(row) {
+      const blocks = getBlocks(row);
+      const posteIdArg = row.type === 'peche' ? row.posteId : 'null';
+      const bateauArg = row.type === 'bateau' ? `'${row.bateau}'` : "''";
+      const dayCols = days.map(({ str: ds, isWeekend, isToday }) => {
+        const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
+        return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;" onclick="planningCellClick('${ds}',${posteIdArg},${bateauArg},event)" title="Ajouter une réservation"></div>`;
+      }).join('');
+      const blocksHtml = blocks.map(b => {
+        const label = b.isCancelled ? `✗ ${b.name}` : `${b.name}${b.price > 0 ? ' · ' + b.price + '€' : ''}`;
+        return `<button class="cal-planning-block"
+          onclick="event.stopPropagation();openResDetail('${b.r.id}')"
+          style="left:${b.left}px;width:${b.width}px;background:${b.bg};color:${b.color};"
+          title="${label}">${label}</button>`;
+      }).join('');
+      return `<div class="cal-planning-row">
+        <div class="cal-planning-label">${row.icon} ${row.label}</div>
+        <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;">
+          ${dayCols}
+          ${blocksHtml}
+        </div>
+      </div>`;
+    }
+
+    // Header row
+    const headerDayCols = days.map(({ isWeekend, isToday, dayName, dayNum }) => {
+      const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
+      return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;">
+        <div class="cal-planning-day-header-cell">${dayName}<br>${dayNum}</div>
+      </div>`;
+    }).join('');
+
+    const sectionHead = (label) => `<div class="cal-planning-row">
+      <div class="cal-planning-label section-head">${label}</div>
+      <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.025);"></div>
+    </div>`;
+
+    const html = `<div class="cal-planning-outer">
+      <div class="cal-planning-row" style="border-bottom:2px solid var(--border);">
+        <div class="cal-planning-label" style="font-size:0.68rem;font-weight:800;text-transform:uppercase;color:var(--gray);letter-spacing:.06em;background:rgba(42,96,89,0.03);">Ressource</div>
+        <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.03);">${headerDayCols}</div>
+      </div>
+      ${sectionHead('🎣 Pêche — Postes')}
+      ${posteRows.map(buildRow).join('')}
+      ${sectionHead('🔥 Bateaux')}
+      ${bateauRows.map(buildRow).join('')}
+    </div>`;
+
+    c.innerHTML = html;
   }
 
   window.switchToDay = function(ds) {
@@ -1712,6 +2082,176 @@
   document.getElementById('res-detail-modal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeResDetail();
   });
+
+  // ── NEW RESERVATION MODAL ─────────────────────────────────────
+  let nrmType = 'peche';
+
+  window.openNewResModal = function(dateStr, posteId, bateauName) {
+    nrmType = bateauName ? 'bateau' : 'peche';
+    nrmSetType(nrmType, false);
+
+    // Pre-fill date
+    if (nrmType === 'peche') {
+      document.getElementById('nrm-date-debut').value = dateStr || '';
+      // Build poste options
+      const sel = document.getElementById('nrm-poste');
+      sel.innerHTML = (typeof POSTES !== 'undefined' ? POSTES : [])
+        .filter(p => !p.coming_soon)
+        .map(p => `<option value="${p.id}" ${p.id === posteId ? 'selected' : ''}>${p.icon || ''} ${p.nom}</option>`)
+        .join('');
+      document.getElementById('nrm-formule').value = 'jour';
+      document.getElementById('nrm-duree').value = 1;
+      document.getElementById('nrm-nb').value = 1;
+      document.getElementById('nrm-accomp').value = 0;
+      document.getElementById('nrm-canne4').checked = false;
+    } else {
+      document.getElementById('nrm-date-bateau').value = dateStr || '';
+      if (bateauName) document.getElementById('nrm-bateau').value = bateauName;
+    }
+
+    // Reset contact
+    ['nrm-prenom','nrm-nom','nrm-tel','nrm-email','nrm-message'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.querySelector('input[name="nrm-status"][value="pending"]').checked = true;
+
+    nrmUpdatePrice();
+    document.getElementById('new-res-overlay').classList.add('open');
+  };
+
+  window.closeNewResModal = function() {
+    document.getElementById('new-res-overlay').classList.remove('open');
+  };
+
+  document.getElementById('new-res-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeNewResModal();
+  });
+
+  window.nrmSetType = function(type, reset = true) {
+    nrmType = type;
+    document.getElementById('nrm-tab-peche').classList.toggle('active', type === 'peche');
+    document.getElementById('nrm-tab-bateau').classList.toggle('active', type === 'bateau');
+    document.getElementById('nrm-peche-section').hidden = type !== 'peche';
+    document.getElementById('nrm-bateau-section').hidden = type !== 'bateau';
+    if (reset) nrmUpdatePrice();
+  };
+
+  window.nrmUpdatePrice = function() {
+    let price = 0;
+    if (nrmType === 'peche') {
+      const formule = document.getElementById('nrm-formule').value;
+      const duree = parseInt(document.getElementById('nrm-duree').value) || 1;
+      const accomp = parseInt(document.getElementById('nrm-accomp').value) || 0;
+      const canne4 = document.getElementById('nrm-canne4').checked;
+      if (formule === 'nuit') {
+        const t = { 1:35, 2:70, 3:90, 4:110, 5:130, 6:150, 7:170 };
+        price = t[Math.min(duree, 7)] || 170;
+      } else {
+        price = (formule === 'demi' ? 15 : 20) * duree;
+      }
+      const accompTarif = { demi:5, jour:10, nuit:10 }[formule] || 10;
+      price += accompTarif * (formule === 'nuit' ? duree : 1) * accomp;
+      if (canne4) {
+        if (formule === 'jour') price += 10;
+        else if (formule === 'nuit') price += Math.max(20, duree * 10);
+      }
+    } else {
+      const formule = document.getElementById('nrm-formule-bateau').value;
+      const t = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
+      price = t[formule] || 0;
+    }
+    document.getElementById('nrm-price').textContent = price > 0 ? price + ' €' : '— €';
+  };
+
+  window.saveNewReservation = async function() {
+    const btn = document.getElementById('nrm-save-btn');
+    const prenom = document.getElementById('nrm-prenom').value.trim();
+    const nom = document.getElementById('nrm-nom').value.trim();
+    if (!prenom || !nom) { toast('Prénom et nom requis', 'error'); return; }
+
+    const status = document.querySelector('input[name="nrm-status"]:checked')?.value || 'pending';
+    const message = document.getElementById('nrm-message').value.trim();
+
+    btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+    try {
+      let data = { status, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        prenom, nom,
+        tel: document.getElementById('nrm-tel').value.trim() || null,
+        email: document.getElementById('nrm-email').value.trim() || null,
+        message: message || null,
+      };
+
+      if (nrmType === 'peche') {
+        const formule = document.getElementById('nrm-formule').value;
+        const dateDebut = document.getElementById('nrm-date-debut').value;
+        if (!dateDebut) { toast('Date début requise', 'error'); btn.disabled=false; btn.textContent='Enregistrer'; return; }
+        const duree = parseInt(document.getElementById('nrm-duree').value) || 1;
+        const nb = parseInt(document.getElementById('nrm-nb').value) || 1;
+        const accomp = parseInt(document.getElementById('nrm-accomp').value) || 0;
+        const canne4 = document.getElementById('nrm-canne4').checked;
+        const posteId = parseInt(document.getElementById('nrm-poste').value);
+
+        // Generate dates array
+        const dates = [];
+        const d0 = new Date(dateDebut + 'T00:00:00');
+        for (let i = 0; i < duree; i++) {
+          const di = new Date(d0); di.setDate(di.getDate() + i);
+          dates.push(toDateStr(di));
+        }
+
+        // Compute total price
+        let totalPrice = 0;
+        if (formule === 'nuit') {
+          const t = { 1:35, 2:70, 3:90, 4:110, 5:130, 6:150, 7:170 };
+          totalPrice = t[Math.min(duree, 7)] || 170;
+        } else { totalPrice = (formule === 'demi' ? 15 : 20) * duree; }
+        const accompTarif = { demi:5, jour:10, nuit:10 }[formule] || 10;
+        totalPrice += accompTarif * (formule === 'nuit' ? duree : 1) * accomp;
+        if (canne4) {
+          if (formule === 'jour') totalPrice += 10;
+          else if (formule === 'nuit') totalPrice += Math.max(20, duree * 10);
+        }
+
+        Object.assign(data, { type: 'peche', posteId, formule, dateDebut, dates, duree, nb, nbAccompagnants: accomp, canne4, totalPrice });
+
+      } else {
+        const bateau = document.getElementById('nrm-bateau').value;
+        const formule = document.getElementById('nrm-formule-bateau').value;
+        const date = document.getElementById('nrm-date-bateau').value;
+        if (!date) { toast('Date requise', 'error'); btn.disabled=false; btn.textContent='Enregistrer'; return; }
+        const nb = parseInt(document.getElementById('nrm-nb-bateau').value) || 2;
+        const t = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
+        const totalPrice = t[formule] || 0;
+        Object.assign(data, { type: 'bateau', bateau, formule, date, nb, totalPrice });
+      }
+
+      // Remove null fields
+      Object.keys(data).forEach(k => { if (data[k] === null) delete data[k]; });
+
+      await db.collection('reservations').add(data);
+      toast('Réservation créée ✓', 'success');
+      closeNewResModal();
+    } catch (err) {
+      toast('Erreur : ' + err.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enregistrer';
+    }
+  };
+
+  // ── CALENDAR click-to-create helpers ─────────────────────────
+  window.calCellClick = function(ds, event) {
+    if (event.target.closest('.cal-event-chip') ||
+        event.target.closest('.cal-more-link') ||
+        event.target.closest('.cal-week-event') ||
+        event.target.closest('.cal-day-event')) return;
+    openNewResModal(ds);
+  };
+
+  window.planningCellClick = function(ds, posteId, bateauName, event) {
+    if (event.target.closest('.cal-planning-block')) return;
+    openNewResModal(ds, posteId || null, bateauName || null);
+  };
 
   // Calendar controls
   document.getElementById('cal-prev').addEventListener('click', () => calNavigate(-1));

@@ -72,7 +72,7 @@
             au bord du lac
           </h1>
           <p class="hero__subtitle">
-            Réservez votre poste de pêche parmi les 6 emplacements premium du Lac de Podensac,
+            Réservez votre poste de pêche parmi les 12 emplacements premium du Lac de Podensac,
             ou vivez une expérience unique à bord de nos bateaux barbecue flottants.
           </p>
           <div class="hero__actions">
@@ -85,7 +85,7 @@
           </div>
           <div class="hero__stats">
             <div>
-              <div class="hero__stat-value" data-count="6">6</div>
+              <div class="hero__stat-value" data-count="12">12</div>
               <div class="hero__stat-label">Postes de pêche</div>
             </div>
             <div>
@@ -161,7 +161,7 @@
             <span class="service-card__tag">Location de postes</span>
             <h3 class="service-card__title">Pêche sur le Lac</h3>
             <p class="service-card__desc">
-              6 postes de pêche soigneusement aménagés, chacun avec ses spécificités.
+              12 postes de pêche soigneusement aménagés, chacun avec ses spécificités.
               Carpe, brochet, sandre, perche… le lac regorge de beaux spécimens.
               Accès facile, équipements inclus, disponibilité en temps réel.
             </p>
@@ -172,7 +172,7 @@
               <span class="service-card__feature">1 à 3 personnes</span>
             </div>
             <div class="service-card__price">
-              À partir de <strong>15€</strong> / personne
+              À partir de <strong>35€</strong> / session
             </div>
             <div class="btn btn--primary" style="margin-top:16px;">Voir les postes →</div>
           </div>
@@ -196,7 +196,7 @@
               <span class="service-card__feature">Coucher de soleil</span>
             </div>
             <div class="service-card__price">
-              À partir de <strong>8€</strong> / personne
+              À partir de <strong>35€</strong> / pers.
             </div>
             <div class="btn btn--primary" style="margin-top:16px; background:var(--accent);">Découvrir →</div>
           </div>
@@ -253,7 +253,7 @@
       <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:20px;">
         <div>
           <span class="section-label">Les postes</span>
-          <h2 class="section-title">6 postes de pêche premium</h2>
+          <h2 class="section-title">12 postes de pêche premium</h2>
           <p class="section-subtitle">Chaque emplacement a été étudié pour offrir les meilleures conditions de pêche.</p>
         </div>
         <a href="peche.html" class="btn btn--outline-dark">Voir tous les postes →</a>
@@ -371,7 +371,7 @@
               <div class="testi-card__date">Langon · Mars 2025</div>
             </div>
           </div>
-          <div class="testi-card__catch">🔥 Soirée BBQ · Martin Pêcheur</div>
+          <div class="testi-card__catch">🔥 Soirée BBQ · Le Martin-Pêcheur</div>
         </div>
         <div class="testi-card fade-up">
           <div class="testi-card__stars">★★★★☆</div>
@@ -419,7 +419,7 @@
           </div>
           <p class="footer__tagline">Votre destination loisirs au bord de l'eau, au cœur du Sauternais. Pêche, détente et expériences uniques à 35km au sud de Bordeaux.</p>
           <div class="footer__social">
-            <a href="https://www.facebook.com/profile.php?id=61556716980611" target="_blank" rel="noopener" class="footer__social-link" aria-label="Facebook">📘</a>
+            <a href="#" class="footer__social-link" aria-label="Facebook">📘</a>
             <a href="#" class="footer__social-link" aria-label="Instagram">📸</a>
             <a href="#" class="footer__social-link" aria-label="YouTube">📺</a>
           </div>
@@ -453,11 +453,11 @@
           </div>
           <div class="footer__contact-item">
             <span class="footer__contact-icon">📞</span>
-            <span>06 72 51 47 14</span>
+            <span>+33 (0)5 XX XX XX XX</span>
           </div>
           <div class="footer__contact-item">
             <span class="footer__contact-icon">✉️</span>
-            <span>contact@escalesflottantes.fr</span>
+            <span>contact@lac-de-podensac.fr</span>
           </div>
           <div class="footer__contact-item">
             <span class="footer__contact-icon">🕐</span>
@@ -502,10 +502,10 @@
         const availLabel = p.disponible ? '✓ Disponible' : '● Complet';
         previewGrid.innerHTML += `
           <div class="spot-card" onclick="location.href='peche.html#poste-${p.id}'">
-            <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url('${p.image}') center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
+            <div class="spot-card__header">
               <span class="spot-card__number">${p.id}</span>
               <span class="spot-card__avail ${avail}">${availLabel}</span>
-              <div class="spot-card__illustration">${p.image ? '' : p.icon}</div>
+              <div class="spot-card__illustration">${p.icon}</div>
             </div>
             <div class="spot-card__body">
               <div class="spot-card__name">${p.nom}</div>
@@ -529,10 +529,10 @@
         const availLabel = p.disponible ? '✓ Disponible' : '● Complet';
         previewGrid.innerHTML += `
           <div class="spot-card fade-up" onclick="location.href='peche.html#poste-${p.id}'" style="cursor:pointer;">
-            <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url('${p.image}') center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
+            <div class="spot-card__header">
               <span class="spot-card__number">${p.id}</span>
               <span class="spot-card__avail ${avail}">${availLabel}</span>
-              <div class="spot-card__illustration">${p.image ? '' : p.icon}</div>
+              <div class="spot-card__illustration">${p.icon}</div>
             </div>
             <div class="spot-card__body">
               <div class="spot-card__name">${p.nom}</div>

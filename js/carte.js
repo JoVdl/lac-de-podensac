@@ -54,15 +54,9 @@ document.addEventListener('DOMContentLoaded', function () {
     dashArray: '6 4',
     fillColor: '#e8951e',
     fillOpacity: 0.08,
-  }).addTo(map)
-    .bindTooltip('🎣 Zone Carnassiers', {
-      permanent: true,
-      direction: 'center',
-      className: 'zone-carnassier-label',
-    })
-    .bindPopup(`
+  }).addTo(map).bindPopup(`
     <div style="font-family:'Inter',sans-serif;min-width:200px;">
-      <strong style="font-family:'Montserrat',sans-serif;">🎣 Zone Carnassiers</strong><br>
+      <strong style="font-family:'Montserrat',sans-serif;">🎣 Zone Toutes Pêches</strong><br>
       <span style="font-size:0.8rem;color:#6c7a89;">7 hectares · Carnassiers & pêche de rive</span><br>
       <p style="font-size:0.82rem;margin-top:8px;color:#2c3e50;">Zone dédiée aux spécialistes des carnassiers et à la pêche de rive. Navigation de barques autorisée.</p>
     </div>
@@ -144,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <strong style="font-family:'Montserrat',sans-serif;">${poste.icon} ${poste.nom}</strong><br>
           <span style="font-size:0.78rem;color:#6c7a89;">${poste.poissons.slice(0,3).join(' · ')}</span><br>
           <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:0.78rem;color:${poste.disponible?'#27ae60':'#e8951e'};font-weight:700;">${poste.disponible?'✓ Disponible': poste.complet_jusqu_au ? `📅 Dispo à partir du ${poste.complet_jusqu_au}` : '● Indisponible'}</span>
+            <span style="font-size:0.78rem;color:${poste.disponible?'#27ae60':'#e74c3c'};font-weight:700;">${poste.disponible?'✓ Disponible':'● Complet'}</span>
             <strong style="font-size:1rem;color:#3d8a80;">${poste.prix_jour}€<span style="font-weight:400;font-size:0.75rem;">/jour</span></strong>
           </div>
           <button onclick="openSpotModal(${poste.id})" style="margin-top:8px;width:100%;padding:8px;background:#3d8a80;color:#fff;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:600;font-size:0.8rem;cursor:pointer;">
@@ -184,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const filtered = POSTES.filter(p => {
       if (filter === 'available') return p.disponible && !p.coming_soon;
-      if (filter === 'carpe') return p.id >= 1 && p.id <= 6 && p.poissons.some(f => f.toLowerCase().includes('carpe'));
+      if (filter === 'carpe') return p.poissons.some(f => f.toLowerCase().includes('carpe'));
       if (filter === 'brochet') return p.poissons.some(f => f.toLowerCase().includes('brochet') || f.toLowerCase().includes('sandre'));
       if (filter === 'facile') return p.difficulte === 'Facile';
       if (filter === 'premium') return p.premium;
@@ -205,18 +199,9 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
         <div class="map-spot-item__meta">
           <div class="map-spot-item__price">${p.prix_jour}€<small style="font-weight:400;color:#6c7a89;font-size:0.72rem;">/j</small></div>
-          <div style="text-align:right;">
-            <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
-              ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : p.complet_jusqu_au ? '📅' : '●'}
-            </span>
-            ${p.disponible && p.libre_jusqu_au
-              ? `<div class="complet-date" style="font-size:0.65rem;color:#27ae60;margin-top:2px;">libre jusqu'au ${p.libre_jusqu_au}</div>`
-              : !p.disponible && !p.coming_soon && p.complet_jusqu_au
-                ? `<div class="complet-date" style="font-size:0.65rem;color:#e8951e;margin-top:2px;">dispo à partir du ${p.complet_jusqu_au}</div>`
-                : !p.disponible && !p.coming_soon
-                  ? `<div class="complet-date" style="font-size:0.65rem;color:#c0392b;margin-top:2px;">indisponible</div>`
-                  : '<div class="complet-date"></div>'}
-          </div>
+          <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
+            ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : '● Complet'}
+          </span>
         </div>
       `;
       item.addEventListener('click', () => {
@@ -257,22 +242,20 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderAllGrid(species = 'all') {
     if (!allGrid) return;
     allGrid.innerHTML = '';
-    const filtered = species === 'all' ? POSTES : POSTES.filter(p => {
-      const match = p.poissons.some(f => f.toLowerCase().includes(species.toLowerCase()));
-      if (species.toLowerCase() === 'carpe') return match && p.id >= 1 && p.id <= 6;
-      return match;
-    });
+    const filtered = species === 'all' ? POSTES : POSTES.filter(p =>
+      p.poissons.some(f => f.toLowerCase().includes(species.toLowerCase()))
+    );
     filtered.forEach(p => {
       const avail = p.disponible && !p.coming_soon ? 'available' : 'busy';
-      const avlbl = p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Disponible' : p.complet_jusqu_au ? `📅 Dispo à partir du ${p.complet_jusqu_au}` : '● Indisponible';
+      const avlbl = p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Disponible' : '● Complet';
       const card = document.createElement('div');
       card.className = 'spot-card fade-up';
       card.style.cursor = 'pointer';
       card.innerHTML = `
-        <div class="spot-card__header" style="${p.image ? `background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.45)),url('${p.image}') center/cover no-repeat;` : 'background:linear-gradient(135deg,#2a6059,#3d8a80);'}">
+        <div class="spot-card__header" style="background:linear-gradient(135deg,#2a6059,#3d8a80);">
           <span class="spot-card__number">${p.id}</span>
           <span class="spot-card__avail ${avail}">${avlbl}</span>
-          <div class="spot-card__illustration" style="font-size:2rem;">${p.image ? '' : p.icon}</div>
+          <div class="spot-card__illustration" style="font-size:2rem;">${p.icon}</div>
           ${p.premium ? '<div style="position:absolute;bottom:12px;left:16px;background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:50px;">⭐ PREMIUM</div>' : ''}
           ${p.coming_soon ? '<div style="position:absolute;bottom:12px;left:16px;background:#7f8c8d;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:50px;">🚧 BIENTÔT</div>' : ''}
         </div>
@@ -321,19 +304,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const p = POSTES.find(x => x.id === id);
     if (!p) return;
 
-    const modalHeader = document.getElementById('modal-header');
-    if (p.image) {
-      modalHeader.style.background = `linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.55)),url("${p.image}") center/cover no-repeat`;
-      modalHeader.style.minHeight = '160px';
-    } else {
-      modalHeader.style.background = '';
-      modalHeader.style.minHeight = '';
-    }
     document.getElementById('modal-title').textContent = `${p.icon} ${p.nom}`;
     document.getElementById('modal-badge').innerHTML = `
       Poste #${p.id} · ${p.zone_ha ? p.zone_ha + ' ha · ' : ''}
       <span style="color:${p.disponible && !p.coming_soon ? '#7ecfa0' : '#f0a09a'};">
-        ${p.coming_soon ? '🚧 En cours d\'aménagement' : p.disponible ? '✓ Disponible' : p.complet_jusqu_au ? `📅 Disponible à partir du ${p.complet_jusqu_au}` : '● Indisponible'}
+        ${p.coming_soon ? '🚧 En cours d\'aménagement' : p.disponible ? '✓ Disponible' : '● Complet'}
       </span>
       ${p.premium ? ' · ⭐ Premium' : ''}
     `;
@@ -370,34 +345,17 @@ document.addEventListener('DOMContentLoaded', function () {
         <div style="display:flex;gap:8px;flex-wrap:wrap;">${p.equipements.map(e=>`<span style="background:var(--gray-bg);padding:6px 12px;border-radius:8px;font-size:0.8rem;color:var(--gray-dark);">✓ ${e}</span>`).join('')}</div>
       </div>
       <div class="modal__section">
-        <div class="modal__section-title">Tarifs <span style="font-size:0.75rem;font-weight:400;color:var(--gray);">— par pêcheur</span></div>
-        <div class="modal__pricing" style="grid-template-columns:repeat(2,1fr);">
-          <div class="modal__price-card">
-            <div class="modal__price-label">☀️ Journée</div>
-            <div class="modal__price-amount">20€<span>/pêcheur</span></div>
-            <div class="modal__price-note">Lever → coucher du soleil</div>
-          </div>
-          <div class="modal__price-card featured">
-            <div class="modal__price-label">🌙 24 heures</div>
-            <div class="modal__price-amount">35€<span>/pêcheur</span></div>
-            <div class="modal__price-note">De 12h00 à 12h00</div>
-          </div>
-          <div class="modal__price-card">
-            <div class="modal__price-label">🌙🌙 48 heures</div>
-            <div class="modal__price-amount">70€<span>/pêcheur</span></div>
-            <div class="modal__price-note">De 12h00 à 12h00</div>
-          </div>
-          <div class="modal__price-card">
-            <div class="modal__price-label">➕ 24h supplémentaires</div>
-            <div class="modal__price-amount">+20€<span>/pêcheur</span></div>
-            <div class="modal__price-note">Par tranche de 24h en plus</div>
-          </div>
+        <div class="modal__section-title">Tarifs</div>
+        <div class="modal__pricing">
+          <div class="modal__price-card"><div class="modal__price-label">Journée (6h–20h)</div><div class="modal__price-amount">${p.prix_jour}€<span>/session</span></div><div class="modal__price-note">jusqu'à ${p.capacite} pêcheur${p.capacite>1?'s':''}</div></div>
+          <div class="modal__price-card featured"><div class="modal__price-label">Nuit (20h–8h)</div><div class="modal__price-amount">${p.prix_nuit}€<span>/session</span></div><div class="modal__price-note">Bivouac autorisé</div></div>
+          <div class="modal__price-card"><div class="modal__price-label">24 heures</div><div class="modal__price-amount">${p.prix_24h}€<span>/session</span></div><div class="modal__price-note">Meilleur rapport</div></div>
         </div>
       </div>
       <div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap;">
-        ${p.coming_soon
-          ? `<button class="btn btn--lg" style="flex:1;justify-content:center;background:#6c7a89;color:#fff;cursor:not-allowed;" disabled>🚧 Ouverture prochaine</button>`
-          : `<button onclick="selectPosteAndBook(${p.id});closeModal();" class="btn btn--success btn--lg" style="flex:1;justify-content:center;">📅 Réserver ce poste</button>`
+        ${p.disponible && !p.coming_soon
+          ? `<button onclick="selectPosteAndBook(${p.id});closeModal();" class="btn btn--success btn--lg" style="flex:1;justify-content:center;">📅 Réserver ce poste</button>`
+          : `<button class="btn btn--lg" style="flex:1;justify-content:center;background:#6c7a89;color:#fff;cursor:not-allowed;" disabled>${p.coming_soon ? '🚧 Ouverture prochaine' : '● Complet — Liste d\'attente'}</button>`
         }
         <button onclick="closeModal();const z=ZONES_COORDS[${p.id}];if(z){const b=L.latLngBounds(z);window._leafletMap.fitBounds(b,{padding:[40,40],maxZoom:17});}document.getElementById('carte').scrollIntoView({behavior:'smooth'});" class="btn btn--outline-dark btn--lg">🗺️ Voir sur la carte</button>
       </div>
@@ -422,45 +380,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // ── Disponibilité temps réel via Firebase ────────────────────
   if (typeof LacDB !== 'undefined') {
     const today = new Date().toISOString().split('T')[0];
-
-    function nextDayFR(dateStr) {
-      const d = new Date(dateStr);
-      d.setDate(d.getDate() + 1);
-      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
-
-    function dayBeforeFR(dateStr) {
-      const d = new Date(dateStr);
-      d.setDate(d.getDate() - 1);
-      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
-
     LacDB.watchAllReservations(function (reservations) {
-      const pescheResa = reservations.filter(r => r.type === 'peche' && Array.isArray(r.dates));
-      const pescheResaToday = pescheResa.filter(r => r.dates.includes(today));
-
-      const bookedToday = new Set(pescheResaToday.map(r => r.posteId));
-
-      // Pour chaque poste réservé aujourd'hui, calculer la prochaine dispo (lendemain de la dernière date)
-      const nextDispoMap = {};
-      pescheResaToday.forEach(r => {
-        const lastDate = [...r.dates].sort().pop();
-        if (!nextDispoMap[r.posteId] || lastDate > nextDispoMap[r.posteId]) {
-          nextDispoMap[r.posteId] = lastDate;
-        }
-      });
-
-      // Pour chaque poste disponible, trouver la prochaine réservation future
-      const nextBookingMap = {};
-      pescheResa.forEach(r => {
-        const futureDates = r.dates.filter(d => d > today).sort();
-        if (futureDates.length > 0) {
-          const earliest = futureDates[0];
-          if (!nextBookingMap[r.posteId] || earliest < nextBookingMap[r.posteId]) {
-            nextBookingMap[r.posteId] = earliest;
-          }
-        }
-      });
+      const bookedToday = new Set(
+        reservations
+          .filter(r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today))
+          .map(r => r.posteId)
+      );
 
       // Mettre à jour les couleurs des polygones
       Object.entries(polygonLayers).forEach(([pid, poly]) => {
@@ -493,28 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const badge = item.querySelector('.map-spot-item__avail');
         if (badge) {
           badge.className = `map-spot-item__avail ${isAvail ? 'available' : 'busy'}`;
-          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : (poste.complet_jusqu_au || nextDispoMap[id]) ? '📅' : '●';
-        }
-        const dateEl = item.querySelector('.complet-date');
-        if (dateEl) {
-          if (isAvail && nextBookingMap[id]) {
-            dateEl.textContent = `disponible jusqu'au ${dayBeforeFR(nextBookingMap[id])}`;
-            dateEl.style.color = '#27ae60';
-          } else if (isAvail && poste.libre_jusqu_au) {
-            dateEl.textContent = `disponible jusqu'au ${poste.libre_jusqu_au}`;
-            dateEl.style.color = '#27ae60';
-          } else if (!isAvail && !isSoon && bookedToday.has(id) && nextDispoMap[id]) {
-            dateEl.textContent = `dispo à partir du ${nextDayFR(nextDispoMap[id])}`;
-            dateEl.style.color = '#e8951e';
-          } else if (!isAvail && !isSoon && poste.complet_jusqu_au) {
-            dateEl.textContent = `dispo à partir du ${poste.complet_jusqu_au}`;
-            dateEl.style.color = '#e8951e';
-          } else if (!isAvail && !isSoon) {
-            dateEl.textContent = 'dispo sur demande';
-            dateEl.style.color = '#c0392b';
-          } else {
-            dateEl.textContent = '';
-          }
+          badge.textContent = isSoon ? '🚧 Bientôt' : isAvail ? '✓ Dispo' : '● Complet';
         }
       });
     });
