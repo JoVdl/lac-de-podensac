@@ -2077,26 +2077,71 @@
       id: `poste-${p.id}`, label: p.nom, icon: p.icon || '🎣',
       type: 'peche', posteId: p.id,
     }));
+    const carnassierRows = Array.from({length:5}, (_,i) => ({
+      id: `carnassier-${i+1}`, label: `Zone ${i+1}`, icon: '🐟',
+      type: 'carnassier', slot: i,
+    }));
     const bateauRows = [
       { id: 'bateau-mp', label: 'Martin Pêcheur', icon: '🐦', type: 'bateau', bateau: 'Martin Pêcheur' },
       { id: 'bateau-pv', label: 'Pic Vert',        icon: '🌿', type: 'bateau', bateau: 'Pic Vert'        },
     ];
     const canoeRows = [
-      { id: 'canoe', label: 'Canoé', icon: '🛶', type: 'canoe', bateau: 'canoe' },
+      { id: 'canoe-1', label: 'Canoé 1', icon: '🛶', type: 'canoe', slot: 0 },
+      { id: 'canoe-2', label: 'Canoé 2', icon: '🛶', type: 'canoe', slot: 1 },
     ];
-    const campingcarRows = Array.from({length:7},(_,i)=>({
-      id:`campingcar-${i+1}`, label:`Emplacement ${i+1}`, icon:'🚐', type:'campingcar', bateau:`campingcar-${i+1}`
+    const campingcarRows = Array.from({length:8},(_,i)=>({
+      id:`campingcar-${i+1}`, label:`Emplacement ${i+1}`, icon:'🚐', type:'campingcar', empl:`${i+1}`
     }));
+
+    // Bin-pack reservations across N slots (greedy: first available slot)
+    function assignToSlots(reservations, numSlots) {
+      const sorted = [...reservations].sort((a,b) => {
+        const aD = a.dateDebut || a.date || '', bD = b.dateDebut || b.date || '';
+        return aD.localeCompare(bD);
+      });
+      const slots = Array.from({length:numSlots}, ()=>[]);
+      for (const r of sorted) {
+        const rDates = getResDates(r);
+        if (!rDates.length) continue;
+        const rS = Math.min(...rDates.map(d=>new Date(d+'T00:00:00').getTime()));
+        const rE = Math.max(...rDates.map(d=>new Date(d+'T00:00:00').getTime()));
+        let placed = false;
+        for (let i = 0; i < numSlots; i++) {
+          const conflict = slots[i].some(ex => {
+            const eDates = getResDates(ex);
+            if (!eDates.length) return false;
+            const eS = Math.min(...eDates.map(d=>new Date(d+'T00:00:00').getTime()));
+            const eE = Math.max(...eDates.map(d=>new Date(d+'T00:00:00').getTime()));
+            return rS <= eE && rE >= eS;
+          });
+          if (!conflict) { slots[i].push(r); placed = true; break; }
+        }
+        if (!placed) slots[numSlots-1].push(r); // overflow to last slot
+      }
+      return slots;
+    }
+
+    // Pre-compute slot assignments for multi-slot resources
+    const carnassierAll = allReservations.filter(r =>
+      r.type === 'peche' && (
+        r.posteId === 'zone-carnassier' ||
+        (r.activity && (r.activity.startsWith('carnassier') || r.activity === 'carnassier-bord' || r.activity === 'carnassier-barque' || r.activity === 'carnassier-pose'))
+      )
+    );
+    const carnassierSlots = assignToSlots(carnassierAll, 5);
+
+    const canoeAll = allReservations.filter(r => r.type === 'canoe');
+    const canoeSlots = assignToSlots(canoeAll, 2);
 
     // Compute reservation blocks for a row
     function getBlocks(row) {
-      const relevant = allReservations.filter(r => {
-        if (row.type === 'peche')      return r.type === 'peche'      && r.posteId === row.posteId;
-        if (row.type === 'bateau')     return r.type === 'bateau'     && (r.bateau||'').trim() === row.bateau;
-        if (row.type === 'canoe')      return r.type === 'canoe';
-        if (row.type === 'campingcar') return r.type === 'campingcar' && r.emplacement === row.bateau.split('-')[1];
-        return false;
-      });
+      let relevant;
+      if (row.type === 'peche')      relevant = allReservations.filter(r => r.type === 'peche' && r.posteId === row.posteId);
+      else if (row.type === 'carnassier') relevant = carnassierSlots[row.slot] || [];
+      else if (row.type === 'bateau')     relevant = allReservations.filter(r => r.type === 'bateau' && (r.bateau||'').trim() === row.bateau);
+      else if (row.type === 'canoe')      relevant = canoeSlots[row.slot] || [];
+      else if (row.type === 'campingcar') relevant = allReservations.filter(r => r.type === 'campingcar' && String(r.emplacement) === row.empl);
+      else relevant = [];
 
       return relevant.flatMap(r => {
         const rDates = getResDates(r);
@@ -2117,7 +2162,6 @@
 
         return segments.flatMap(([sd, ed]) => {
           const si = dayIndex(sd), ei = dayIndex(ed);
-          // clip to visible range
           const csi = Math.max(si, 0), cei = Math.min(ei, NUM_DAYS - 1);
           if (csi > NUM_DAYS - 1 || cei < 0) return [];
           const left = csi * DAY_W + 2;
@@ -2129,11 +2173,11 @@
           const isConf = status === 'confirmed';
           const isCancelled = status === 'cancelled';
           let bg, color;
-          if (isCancelled) { bg = '#e8e8e8'; color = '#999'; }
-          else if (r.type === 'peche')      { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
-          else if (r.type === 'bateau')     { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
-          else if (r.type === 'canoe')      { bg = isConf ? '#1a6080' : '#2a7090'; color = '#fff'; }
-          else if (r.type === 'campingcar') { bg = isConf ? '#6040a0' : '#7050b0'; color = '#fff'; }
+          if (isCancelled)                   { bg = '#e8e8e8'; color = '#999'; }
+          else if (r.type === 'peche' || row.type === 'carnassier') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
+          else if (r.type === 'bateau')      { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
+          else if (r.type === 'canoe')       { bg = isConf ? '#1a6080' : '#2a7090'; color = '#fff'; }
+          else if (r.type === 'campingcar')  { bg = isConf ? '#6040a0' : '#7050b0'; color = '#fff'; }
           else { bg = '#888'; color = '#fff'; }
           return [{ r, name, price, left, width, bg, color, isCancelled }];
         });
@@ -2143,12 +2187,17 @@
     // Render a data row
     function buildRow(row) {
       const blocks = getBlocks(row);
+      // Determine click-to-create args
       const posteIdArg = row.type === 'peche' ? row.posteId : 'null';
-      const bateauArg = row.type === 'bateau' ? `'${row.bateau}'` : "''";
+      let resKey = "''";
+      if (row.type === 'bateau') resKey = `'${row.bateau}'`;
+      else if (row.type === 'canoe') resKey = `'canoe'`;
+      else if (row.type === 'campingcar') resKey = `'campingcar-${row.empl}'`;
+      // carnassier → open as peche modal (resKey stays '')
       const dayCols = days.map(({ str: ds, isWeekend, isToday }) => {
         const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
         return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;"
-          onclick="planningCellClick('${ds}',${posteIdArg},${bateauArg},event)" title="Ajouter une réservation"
+          onclick="planningCellClick('${ds}',${posteIdArg},${resKey},event)" title="Ajouter une réservation"
           ondragover="planDragOver(event)" ondragleave="planDragLeave(event)" ondrop="planDrop(event,'${ds}')"></div>`;
       }).join('');
       const blocksHtml = blocks.map(b => {
@@ -2188,13 +2237,15 @@
         <div class="cal-planning-label" style="font-size:0.68rem;font-weight:800;text-transform:uppercase;color:var(--gray);letter-spacing:.06em;background:rgba(42,96,89,0.03);">Ressource</div>
         <div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;background:rgba(42,96,89,0.03);">${headerDayCols}</div>
       </div>
-      ${sectionHead('🎣 Pêche — Postes')}
+      ${sectionHead('🎣 Pêche — Postes carpe / coup / feeder')}
       ${posteRows.map(buildRow).join('')}
-      ${sectionHead('🔥 Bateaux BBQ')}
+      ${sectionHead('🐟 Carnassier (5 zones)')}
+      ${carnassierRows.map(buildRow).join('')}
+      ${sectionHead('🔥 Bateaux BBQ (2 bateaux)')}
       ${bateauRows.map(buildRow).join('')}
-      ${sectionHead('🛶 Canoé')}
+      ${sectionHead('🛶 Canoé (2 places)')}
       ${canoeRows.map(buildRow).join('')}
-      ${sectionHead('🚐 Camping-car')}
+      ${sectionHead('🚐 Camping-car (8 emplacements)')}
       ${campingcarRows.map(buildRow).join('')}
     </div>`;
 
