@@ -2448,9 +2448,9 @@
     const checked = new Set();
     list.querySelectorAll('input[type=checkbox]:checked').forEach(cb => checked.add(cb.dataset.id));
     list.innerHTML = mat.map(m => {
-      const prix = isNuit ? (m.prix_nuit || m.prix_jour || 0) : (m.prix_jour || m.prix_nuit || 0);
+      const prix = m.prix_jour || 0;
       const note = m.note ? ` <span style="color:var(--gray);font-size:0.75rem">(${m.note})</span>` : '';
-      const prixLbl = prix > 0 ? (isNuit ? `${prix} €/nuit` : `${prix} €`) : '';
+      const prixLbl = prix > 0 ? `${prix} €/j` : '';
       return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;font-size:0.85rem;">
         <input type="checkbox" data-id="${m.id}" data-prix="${prix}" ${checked.has(m.id)?'checked':''} onchange="nrmUpdatePrice()" style="width:15px;height:15px;accent-color:var(--primary)">
         <span>${m.emoji||''} ${m.label}${note}</span>

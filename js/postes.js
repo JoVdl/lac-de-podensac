@@ -33,21 +33,14 @@ const TARIF_PRIVAT = 400;
 
 // Location de matériel (tarifs par session)
 const LOCATION_MATERIEL = [
-  { id: 'canne-carpe',   label: 'Canne carpe + moulinet',     emoji: '🎣', prix_jour: 8,  prix_nuit: 12, note: '12ft, 3lb TC' },
-  { id: 'canne-carnass', label: 'Canne carnassier + moulinet', emoji: '🎣', prix_jour: 8,  prix_nuit: 12, note: 'Sans leurres' },
-  { id: 'canne-feeder',  label: 'Canne feeder complète',       emoji: '🎣', prix_jour: 5,  prix_nuit: 8,  note: 'Feeder fourni' },
-  { id: 'epuisette',     label: 'Épuisette carpe',              emoji: '🪣', prix_jour: 3,  prix_nuit: 5,  note: 'Grande taille' },
-  { id: 'tapis',         label: 'Tapis de réception',           emoji: '🟫', prix_jour: 2,  prix_nuit: 3,  note: 'Obligatoire carpe' },
-  { id: 'sac-garde',     label: 'Sac de conservation',          emoji: '🫙', prix_jour: 3,  prix_nuit: 5,  note: 'No-kill' },
-  { id: 'pod',           label: 'Pod + 3 repose-cannes',        emoji: '⚙️', prix_jour: 5,  prix_nuit: 8,  note: '' },
-  { id: 'detecteurs',    label: 'Détecteurs × 3 + boîtier',    emoji: '🔔', prix_jour: 8,  prix_nuit: 12, note: '' },
-  { id: 'chaise',        label: 'Chaise inclinable pêche',      emoji: '🪑', prix_jour: 5,  prix_nuit: 8,  note: '' },
-  { id: 'bivouac',       label: 'Bivouac (abri de pêche)',      emoji: '⛺', prix_jour: 12, prix_nuit: 15, note: '' },
-  { id: 'sac-couchage',  label: 'Sac de couchage',              emoji: '🛏️', prix_jour: 8,  prix_nuit: 10, note: '' },
-  { id: 'kit-photo',     label: 'Kit photo (carton + marqueur)',emoji: '📸', prix_jour: 2,  prix_nuit: 2,  note: 'Inclus si demandé' },
-  { id: 'kayak',         label: 'Kayak',                        emoji: '🛶', prix_jour: 20, prix_demi: 15, prix_nuit: 20, note: '15€ demi-j.' },
-  { id: 'barque-moteur', label: 'Barque + moteur + batterie',   emoji: '⛵', prix_jour: 30, prix_demi: 20, prix_nuit: 30, note: '20€ demi-j. — dégressif multi-jours' },
-  { id: 'sondeur',       label: 'Sondeur de pêche',             emoji: '📡', prix_jour: 30, prix_nuit: 30, note: 'Journée uniquement' },
+  { id: 'sondeur-live',    label: 'Sondeur live',               emoji: '📡', prix_jour: 30, note: '1 unité disponible' },
+  { id: 'canne-carnassier',label: 'Canne carnassier + leurres', emoji: '🎣', prix_jour: 20, note: 'Boîte de leurres incluse' },
+  { id: 'canne-carpe-bat', label: 'Canne carpe batterie',       emoji: '🎣', prix_jour: 20, note: '' },
+  { id: 'canne-coup',      label: 'Canne au coup + 1 ligne',    emoji: '🎣', prix_jour: 20, note: '' },
+  { id: 'batterie-lithium',label: 'Batterie lithium',            emoji: '🔋', prix_jour: 10, note: '3 disponibles' },
+  { id: 'moteur-electrique',label:'Moteur électrique',           emoji: '⚡', prix_jour: 10, note: '3 disponibles' },
+  { id: 'epuisette',       label: 'Épuisette',                   emoji: '🪣', prix_jour: 10, note: '1 disponible' },
+  { id: 'tapis',           label: 'Tapis de réception',          emoji: '🟫', prix_jour: 10, note: '1 disponible' },
 ];
 window.LOCATION_MATERIEL = LOCATION_MATERIEL;
 
