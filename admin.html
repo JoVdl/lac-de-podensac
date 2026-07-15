@@ -2344,10 +2344,15 @@
 
         return segments.flatMap(([sd, ed]) => {
           const si = dayIndex(sd), ei = dayIndex(ed);
-          const csi = Math.max(si, 0), cei = Math.min(ei, NUM_DAYS - 1);
-          if (csi > NUM_DAYS - 1 || cei < 0) return [];
-          const left = csi * DAY_W + 2;
-          const width = (cei - csi + 1) * DAY_W - 4;
+          // Noon-to-noon: arrival at noon (start at mid-column), departure at noon next day (end at mid next column)
+          const HALF = DAY_W / 2;
+          const rawLeft  = si * DAY_W + HALF;        // mid of arrival day
+          const rawRight = (ei + 1) * DAY_W + HALF;  // mid of departure day
+          const clLeft  = Math.max(rawLeft,  0);
+          const clRight = Math.min(rawRight, NUM_DAYS * DAY_W);
+          if (clLeft >= NUM_DAYS * DAY_W || clRight <= 0) return [];
+          const left  = clLeft + 2;
+          const width = clRight - clLeft - 4;
           if (width <= 0) return [];
           const name = `${r.prenom || ''} ${(r.nom || '').toUpperCase()}`.trim();
           const price = calculatePrice(r);
