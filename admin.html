@@ -1109,7 +1109,10 @@
       <div id="list-section">
         <div class="section-header">
           <div class="section-title">Réservations</div>
-          <div class="results-count" id="results-count"></div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="results-count" id="results-count"></div>
+            <button onclick="fixPrenoms()" style="font-size:0.78rem;padding:4px 10px;border:1px solid #ccc;border-radius:6px;background:#f5f5f5;cursor:pointer;color:#555;" title="Sépare prénom/nom quand les deux sont dans le champ nom">🔧 Corriger prénoms</button>
+          </div>
         </div>
         <div class="res-grid" id="reservations-list">
           <div class="loading-state" style="grid-column:1/-1;">
@@ -2890,6 +2893,36 @@
     } finally {
       btn.disabled=false; btn.textContent='Enregistrer';
     }
+  };
+
+  // ── Correction prénoms importés ───────────────────────────────
+  window.fixPrenoms = async function() {
+    const snap = await db.collection('reservations').get();
+    const toFix = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      const nomVal = (d.nom || '').trim();
+      const prenomVal = (d.prenom || '').trim();
+      // Cas 1 : prenom vide et nom contient un espace → split
+      // Cas 2 : prenom et nom identiques et contiennent un espace → split
+      if (!prenomVal && nomVal.includes(' ')) {
+        const idx = nomVal.indexOf(' ');
+        toFix.push({ id: doc.id, prenom: nomVal.slice(0, idx), nom: nomVal.slice(idx + 1) });
+      } else if (prenomVal && nomVal && prenomVal === nomVal && nomVal.includes(' ')) {
+        const idx = nomVal.indexOf(' ');
+        toFix.push({ id: doc.id, prenom: nomVal.slice(0, idx), nom: nomVal.slice(idx + 1) });
+      } else if (prenomVal.includes(' ') && !nomVal) {
+        // tout dans prenom, rien dans nom
+        const idx = prenomVal.indexOf(' ');
+        toFix.push({ id: doc.id, prenom: prenomVal.slice(0, idx), nom: prenomVal.slice(idx + 1) });
+      }
+    });
+    if (toFix.length === 0) { toast('Aucune correction nécessaire', 'info'); return; }
+    if (!confirm(`Corriger ${toFix.length} réservation(s) ?\n\nExemples :\n${toFix.slice(0,5).map(f=>`• "${f.prenom}" + "${f.nom}"`).join('\n')}`)) return;
+    const batch = db.batch();
+    toFix.forEach(f => batch.update(db.collection('reservations').doc(f.id), { prenom: f.prenom, nom: f.nom }));
+    await batch.commit();
+    toast(`${toFix.length} réservation(s) corrigée(s) ✓`, 'success');
   };
 
   // ── CALENDAR click-to-create helpers ─────────────────────────
