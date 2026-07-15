@@ -3523,14 +3523,16 @@
   async function syncFromText(text, src) {
     const events = parseICS(text, src.label);
 
-    // Emplacements occupés par réservations manuelles (non-ICS) — campingcar et tente séparés
+    // Emplacements occupés : réservations manuelles + ICS des AUTRES sources
     const occupiedCC = new Map(); // campingcar : clés "1"-"8"
     const occupiedTente = new Map(); // tente : clés "T1"-"T5"
+    // UIDs de la source courante (pour ne pas se bloquer soi-même)
+    const currentUids = new Set(events.map(ev => 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_')));
     try {
       const fsSnap = await db.collection('reservations')
         .where('type', 'in', ['campingcar', 'tente']).get();
       fsSnap.forEach(doc => {
-        if (doc.id.startsWith('ics_')) return;
+        if (currentUids.has(doc.id)) return; // même source : sera réassignée
         const d = doc.data();
         if (!d.emplacement || !d.dateDebut || !d.dateFin) return;
         const pool = d.type === 'tente' ? occupiedTente : occupiedCC;
