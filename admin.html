@@ -797,6 +797,23 @@
       box-shadow: var(--card-shadow);
       display: flex; overflow: hidden;
     }
+    .cal-planning-outer { display: flex; flex-direction: column; }
+    .cal-planning-sticky-header {
+      position: sticky; top: 60px; z-index: 10;
+      display: flex; background: var(--white);
+      border-bottom: 2px solid var(--border);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    }
+    .cal-planning-sticky-label {
+      flex-shrink: 0; width: var(--planning-label-w, 80px);
+      border-right: 2px solid var(--border);
+      background: var(--white);
+    }
+    .cal-planning-sticky-scroll {
+      overflow: hidden; flex: 1; min-width: 0;
+    }
+    .cal-planning-sticky-scroll .cal-planning-row { border-bottom: none; }
+    .cal-planning-body-wrap { display: flex; }
     .cal-planning-labels-col {
       flex-shrink: 0; width: var(--planning-label-w, 80px);
       border-right: 2px solid var(--border);
@@ -2459,12 +2476,21 @@
 
     const savedW = localStorage.getItem('planning-label-w');
     if (savedW) document.documentElement.style.setProperty('--planning-label-w', savedW + 'px');
+    // Separate header row (index 0) from body rows so it can be sticky
+    const [headerTimeline, ...bodyTimelines] = timelinesHtml;
+    const [headerLabel, ...bodyLabels] = labelsHtml;
     const html = `<div class="cal-planning-outer">
-      <div class="cal-planning-labels-col" id="planning-labels-col">
-        <div class="cal-planning-resize-handle" id="planning-resize-handle"></div>
-        ${labelsHtml.join('')}
+      <div class="cal-planning-sticky-header" id="planning-sticky-header">
+        <div class="cal-planning-sticky-label">${headerLabel}</div>
+        <div class="cal-planning-sticky-scroll" id="planning-sticky-scroll">${headerTimeline}</div>
       </div>
-      <div class="cal-planning-scroll-col">${timelinesHtml.join('')}</div>
+      <div class="cal-planning-body-wrap">
+        <div class="cal-planning-labels-col" id="planning-labels-col">
+          <div class="cal-planning-resize-handle" id="planning-resize-handle"></div>
+          ${bodyLabels.join('')}
+        </div>
+        <div class="cal-planning-scroll-col" id="planning-body-scroll">${bodyTimelines.join('')}</div>
+      </div>
     </div>`;
 
     c.innerHTML = html;
@@ -2500,13 +2526,24 @@
       handle.addEventListener('touchend', () => handle.classList.remove('dragging'), { passive: true });
     });
 
+    // Sync sticky header scroll with body scroll
+    requestAnimationFrame(() => {
+      const bodyScroll = document.getElementById('planning-body-scroll');
+      const stickyScroll = document.getElementById('planning-sticky-scroll');
+      if (bodyScroll && stickyScroll) {
+        bodyScroll.addEventListener('scroll', () => {
+          stickyScroll.scrollLeft = bodyScroll.scrollLeft;
+        }, { passive: true });
+      }
+    });
+
     // Auto-scroll so that (today - 7 days) is the first visible day (current month only)
     const realToday = new Date();
     if (realToday.getFullYear() === year && realToday.getMonth() === month) {
       const diffDays = realToday.getDate() - 1 - 7; // days from month start, minus 7
       const targetScroll = Math.max(0, diffDays * DAY_W);
       requestAnimationFrame(() => {
-        const scrollCol = c.querySelector('.cal-planning-scroll-col');
+        const scrollCol = document.getElementById('planning-body-scroll');
         if (scrollCol) scrollCol.scrollLeft = targetScroll;
       });
     }
