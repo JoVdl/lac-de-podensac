@@ -1924,13 +1924,15 @@
   function getDow(d) { return (d.getDay() + 6) % 7; } // 0=Lun … 6=Dim
 
   function expandDates(start, end) {
+    // Noon-to-noon: dateFin is departure day, free for next arrival → excluded
     const arr = [];
     const d = new Date(start + 'T00:00:00');
     const last = new Date((end || start) + 'T00:00:00');
-    while (d <= last) {
+    while (d < last) {
       arr.push(toDateStr(d));
       d.setDate(d.getDate() + 1);
     }
+    if (arr.length === 0) arr.push(start); // single-day reservation
     return arr;
   }
 
