@@ -19,6 +19,49 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!document.getElementById('lac-map')) return;
   if (typeof POSTES === 'undefined') return;
 
+  // ── Disponibilités dynamiques depuis Firebase ──────────────────
+  let _bookedByPoste = {}; // posteId → Set de dates réservées
+
+  const _today = new Date().toISOString().split('T')[0];
+
+  function _nextAvailDate(posteId) {
+    const booked = _bookedByPoste[posteId] || new Set();
+    const d = new Date(_today + 'T12:00:00');
+    for (let i = 0; i < 180; i++) {
+      const s = d.toISOString().split('T')[0];
+      if (!booked.has(s)) return s;
+      d.setDate(d.getDate() + 1);
+    }
+    return null;
+  }
+
+  function _fmtDate(str) {
+    if (!str) return '';
+    return new Date(str + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  }
+
+  function getAvailInfo(p) {
+    if (p.coming_soon) return { cls: 'partial', label: '🚧 Bientôt', short: 'Bientôt' };
+    if (!p.disponible) return { cls: 'busy', label: '● Fermé', short: 'Fermé' };
+    const booked = _bookedByPoste[p.id] || new Set();
+    if (!booked.has(_today)) return { cls: 'available', label: '✓ Dispo', short: 'Dispo' };
+    const next = _nextAvailDate(p.id);
+    const label = next ? `Dispo le ${_fmtDate(next)}` : '● Complet';
+    return { cls: 'busy', label, short: label };
+  }
+
+  if (typeof LacDB !== 'undefined') {
+    LacDB.watchAllReservations(function(reservations) {
+      _bookedByPoste = {};
+      reservations.filter(r => r.type === 'peche' && Array.isArray(r.dates)).forEach(r => {
+        if (!r.posteId) return;
+        if (!_bookedByPoste[r.posteId]) _bookedByPoste[r.posteId] = new Set();
+        r.dates.forEach(d => _bookedByPoste[r.posteId].add(d));
+      });
+      renderList(); // Re-rendre la liste avec les vraies dispo
+    });
+  }
+
   // Mise à jour du compteur de disponibilités
   const availCount = POSTES.filter(p => p.disponible).length;
   const availEl = document.getElementById('available-count');
@@ -187,7 +230,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     filtered.forEach(p => {
       const item = document.createElement('div');
-      item.className = `map-spot-item ${p.disponible && !p.coming_soon ? 'available' : 'busy'}`;
+      const avail = getAvailInfo(p);
+      item.className = `map-spot-item ${avail.cls === 'available' ? 'available' : 'busy'}`;
       item.id = `list-item-${p.id}`;
       const thumbHtml = (p.images && p.images.length)
         ? `<div class="map-spot-item__thumb"><img src="${p.images[0]}" alt="${p.nom}" loading="lazy"></div>`
@@ -197,15 +241,13 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="map-spot-item__header">
           <div class="map-spot-item__num">${p.id}</div>
           <div>
-            <div class="map-spot-item__name">${p.nom}${p.coming_soon ? ' <span style="font-size:0.65rem;background:#95a5a6;color:#fff;padding:1px 6px;border-radius:4px;vertical-align:middle;">Bientôt</span>' : ''}</div>
+            <div class="map-spot-item__name">${p.nom}</div>
             <div class="map-spot-item__fish">${p.poissons.slice(0,2).join(' · ')}</div>
           </div>
         </div>
         <div class="map-spot-item__meta">
           <div class="map-spot-item__price">${p.prix_jour}€<small style="font-weight:400;color:#6c7a89;font-size:0.72rem;">/j</small></div>
-          <span class="map-spot-item__avail ${p.disponible && !p.coming_soon ? 'available' : 'busy'}">
-            ${p.coming_soon ? '🚧 Bientôt' : p.disponible ? '✓ Dispo' : '● Complet'}
-          </span>
+          <span class="map-spot-item__avail ${avail.cls}" style="font-size:0.68rem;">${avail.label}</span>
         </div>
       `;
       item.addEventListener('click', () => {
@@ -311,8 +353,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('modal-title').textContent = `${p.icon} ${p.nom}`;
     document.getElementById('modal-badge').innerHTML = `
       Poste #${p.id} · ${p.zone_ha ? p.zone_ha + ' ha · ' : ''}
-      <span style="color:${p.disponible && !p.coming_soon ? '#7ecfa0' : '#f0a09a'};">
-        ${p.coming_soon ? '🚧 En cours d\'aménagement' : p.disponible ? '✓ Disponible' : '● Complet'}
+      <span style="color:${getAvailInfo(p).cls === 'available' ? '#7ecfa0' : '#f0a09a'};">
+        ${p.coming_soon ? '🚧 En cours d\'aménagement' : getAvailInfo(p).label}
       </span>
       ${p.premium ? ' · ⭐ Premium' : ''}
     `;

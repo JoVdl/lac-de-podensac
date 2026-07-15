@@ -571,6 +571,33 @@
     if (typeof LacDB !== 'undefined' && typeof POSTES !== 'undefined') {
       const today = new Date().toISOString().split('T')[0];
 
+      // Trouve la prochaine date libre pour un poste à partir d'aujourd'hui
+      function nextAvailableDate(bookedDates) {
+        const d = new Date(today + 'T12:00:00');
+        for (let i = 0; i < 180; i++) {
+          const s = d.toISOString().split('T')[0];
+          if (!bookedDates.has(s)) return s;
+          d.setDate(d.getDate() + 1);
+        }
+        return null;
+      }
+
+      function formatDate(str) {
+        if (!str) return '';
+        const d = new Date(str + 'T12:00:00');
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      }
+
+      function availInfo(p, bookedByPoste) {
+        if (p.coming_soon) return { cls: 'partial', label: '🚧 Bientôt' };
+        if (!p.disponible) return { cls: 'busy', label: '● Fermé' };
+        const booked = bookedByPoste[p.id] || new Set();
+        const next = nextAvailableDate(booked);
+        if (!booked.has(today)) return { cls: 'available', label: '✓ Disponible' };
+        const nextFmt = next ? formatDate(next) : null;
+        return { cls: 'busy', label: nextFmt ? `Dispo le ${nextFmt}` : '● Complet' };
+      }
+
       // Remplir la grille hero avec les postes réels (statique d'abord)
       if (grid) {
         grid.innerHTML = '';
@@ -582,20 +609,21 @@
       }
 
       LacDB.watchAllReservations(function(reservations) {
-        const bookedToday = new Set(
-          reservations
-            .filter(r => r.type === 'peche' && Array.isArray(r.dates) && r.dates.includes(today))
-            .map(r => r.posteId)
-        );
+        // Construire un map posteId → Set de toutes les dates réservées
+        const bookedByPoste = {};
+        reservations.filter(r => r.type === 'peche' && Array.isArray(r.dates)).forEach(r => {
+          if (!r.posteId) return;
+          if (!bookedByPoste[r.posteId]) bookedByPoste[r.posteId] = new Set();
+          r.dates.forEach(d => bookedByPoste[r.posteId].add(d));
+        });
 
         // Mettre à jour la grille hero
         if (grid && typeof POSTES !== 'undefined') {
           grid.innerHTML = '';
           POSTES.slice(0, 6).forEach(p => {
-            const isBooked = bookedToday.has(p.id);
-            const s = p.coming_soon ? 'partial' : (isBooked || !p.disponible) ? 'busy' : 'avail';
-            const l = p.coming_soon ? 'Bientôt' : isBooked ? 'Complet' : p.disponible ? 'Disponible' : 'Complet';
-            grid.innerHTML += `<div class="hero__avail-item ${s}" data-avail-id="${p.id}"><span class="hero__avail-spot">Poste #${p.id}</span><span class="hero__avail-status">${l}</span></div>`;
+            const { cls, label } = availInfo(p, bookedByPoste);
+            const s = cls === 'available' ? 'avail' : cls === 'partial' ? 'partial' : 'busy';
+            grid.innerHTML += `<div class="hero__avail-item ${s}" data-avail-id="${p.id}"><span class="hero__avail-spot">Poste #${p.id}</span><span class="hero__avail-status">${label}</span></div>`;
           });
         }
 
@@ -605,10 +633,9 @@
           if (!p) return;
           const badge = card.querySelector('.spot-card__avail');
           if (!badge) return;
-          const isBooked = bookedToday.has(p.id);
-          const avail = !isBooked && p.disponible && !p.coming_soon;
-          badge.className = `spot-card__avail ${avail ? 'available' : 'busy'}`;
-          badge.textContent = avail ? '✓ Disponible' : '● Complet';
+          const { cls, label } = availInfo(p, bookedByPoste);
+          badge.className = `spot-card__avail ${cls}`;
+          badge.textContent = label;
         });
       });
     }
