@@ -873,7 +873,7 @@ p { margin-bottom: 0; }
 .menu-item:hover { background: rgba(255,255,255,0.1); transform: translateY(-3px); }
 .menu-item__icon { font-size: 2.5rem; margin-bottom: 14px; }
 .menu-item__name { color: var(--white); font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
-.menu-item__desc { color: rgba(255,255,255,0.5); font-size: 0.8rem; line-height: 1.6; }
+.menu-item__desc { color: rgba(255,255,255,0.8); font-size: 0.8rem; line-height: 1.6; }
 .menu-section .section-title { color: var(--white); }
 .menu-section .section-subtitle { color: rgba(255,255,255,0.6); }
 .menu-section .section-label { background: rgba(232,149,30,0.2); color: var(--accent); }
