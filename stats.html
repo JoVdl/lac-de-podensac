@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistiques — Lac de Podensac</title>
+  <style>
+    :root {
+      --primary: #3d8a80; --primary-dark: #2a6059; --accent: #e8951e;
+      --success: #2e7d32; --warning: #b07800; --danger: #c0392b;
+      --white: #fff; --bg: #f4f6f5; --border: #e0e6e4; --gray: #7a8e8b;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --shadow: 0 2px 12px rgba(42,96,89,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: #1a2b29; min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--primary-dark); height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+    }
+    .nav-title { color: #fff; font-size: 1.05rem; font-weight: 800; }
+    .nav-title span { font-weight: 400; opacity: 0.6; font-size: 0.8rem; margin-left: 8px; }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link {
+      color: rgba(255,255,255,0.8); font-size: 0.8rem; text-decoration: none;
+      background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 8px;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.2); }
+
+    /* LOGIN */
+    #login-screen {
+      display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px);
+    }
+    .login-box {
+      background: var(--white); border-radius: 18px; padding: 36px 32px;
+      width: 340px; box-shadow: var(--shadow); text-align: center;
+    }
+    .login-box h2 { font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 20px; }
+    .login-input {
+      width: 100%; padding: 11px 14px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 0.95rem; margin-bottom: 10px; outline: none;
+    }
+    .login-input:focus { border-color: var(--primary); }
+    .login-btn {
+      width: 100%; padding: 12px; background: var(--primary); color: #fff;
+      border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    }
+    .login-err { color: var(--danger); font-size: 0.8rem; margin-top: 8px; min-height: 18px; }
+
+    /* CONTENT */
+    #app { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
+
+    /* YEAR SELECTOR */
+    .year-bar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .year-btn {
+      padding: 6px 16px; border-radius: 20px; border: 2px solid var(--border);
+      background: var(--white); font-size: 0.85rem; font-weight: 700;
+      color: var(--gray); cursor: pointer; transition: all .15s;
+    }
+    .year-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .year-label { font-size: 0.8rem; color: var(--gray); }
+
+    /* KPI CARDS */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .kpi-card {
+      background: var(--white); border-radius: 14px; padding: 18px 16px;
+      box-shadow: var(--shadow); border-left: 4px solid var(--border);
+    }
+    .kpi-card.primary { border-color: var(--primary); }
+    .kpi-card.success { border-color: var(--success); }
+    .kpi-card.warning { border-color: var(--warning); }
+    .kpi-card.accent  { border-color: var(--accent); }
+    .kpi-card.danger  { border-color: var(--danger); }
+    .kpi-value { font-size: 1.8rem; font-weight: 900; color: var(--primary-dark); line-height: 1; }
+    .kpi-label { font-size: 0.75rem; color: var(--gray); margin-top: 5px; font-weight: 600; }
+
+    /* SECTION TITLE */
+    .section-title { font-size: 0.85rem; font-weight: 800; color: var(--primary-dark); margin: 24px 0 12px; text-transform: uppercase; letter-spacing: .05em; }
+
+    /* TABLE */
+    .stats-table-wrap { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    thead th { background: rgba(42,96,89,0.06); padding: 10px 14px; text-align: left; font-weight: 800; color: var(--primary-dark); border-bottom: 2px solid var(--border); }
+    tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(42,96,89,0.03); }
+    .td-num { text-align: right; font-weight: 700; }
+    .td-euro { text-align: right; font-weight: 700; color: var(--primary-dark); }
+
+    /* BY-MONTH BARS */
+    .month-bars { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 24px; }
+    .month-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; }
+    .month-row:last-child { margin-bottom: 0; }
+    .month-name { width: 32px; color: var(--gray); font-weight: 700; flex-shrink: 0; }
+    .bar-track { flex: 1; background: var(--bg); border-radius: 6px; height: 22px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 6px; background: var(--primary); display: flex; align-items: center; padding: 0 8px; transition: width .4s; min-width: 0; }
+    .bar-label { font-size: 0.72rem; font-weight: 700; color: #fff; white-space: nowrap; }
+    .month-euro { width: 70px; text-align: right; font-weight: 700; color: var(--primary-dark); flex-shrink: 0; }
+
+    /* ACOMPTES TABLE */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
+    .badge.pending { background: #fff3cd; color: #856404; }
+    .badge.confirmed { background: #d1e7dd; color: #0f5132; }
+
+    @media (max-width: 600px) {
+      #app { padding: 12px; }
+      .kpi-value { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-title">Statistiques <span>Lac de Podensac</span></div>
+  <div class="nav-links">
+    <a href="admin.html" class="nav-link">⚙ Admin</a>
+    <a href="index.html" class="nav-link">← Site</a>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>🔒 Accès statistiques</h2>
+    <form id="login-form">
+      <input type="email" class="login-input" id="s-email" placeholder="Email" autocomplete="email">
+      <input type="password" class="login-input" id="s-pwd" placeholder="Mot de passe" autocomplete="current-password">
+      <button type="submit" class="login-btn">Se connecter</button>
+      <div class="login-err" id="login-err"></div>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="year-bar">
+    <span class="year-label">Année :</span>
+    <div id="year-tabs"></div>
+  </div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="section-title">CA par mois</div>
+  <div class="month-bars" id="month-bars"></div>
+  <div class="section-title">Répartition par type</div>
+  <div class="stats-table-wrap"><table id="type-table"></table></div>
+  <div class="section-title">Par poste de pêche</div>
+  <div class="stats-table-wrap"><table id="poste-table"></table></div>
+  <div class="section-title">Acomptes en attente de solde</div>
+  <div class="stats-table-wrap"><table id="acompte-table"></table></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/postes.js"></script>
+<script>
+const auth = firebase.auth();
+let allReservations = [];
+let selectedYear = new Date().getFullYear();
+
+// ── AUTH ──
+document.getElementById('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  try {
+    await auth.signInWithEmailAndPassword(
+      document.getElementById('s-email').value.trim(),
+      document.getElementById('s-pwd').value
+    );
+  } catch(ex) {
+    err.textContent = 'Email ou mot de passe incorrect.';
+  }
+});
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    startWatching();
+  }
+});
+
+// ── DATA ──
+function calculatePrice(r) {
+  if (r.totalPrice) return r.totalPrice;
+  if (r.type === 'peche') {
+    const duree = r.duree || 1;
+    let base = 0;
+    if (r.formule && r.formule.startsWith('nuit-')) {
+      const tarifs = {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
+      const n = parseInt(r.formule.split('-')[1])||duree;
+      base = tarifs[n] || n*35;
+    } else { base = (r.formule==='demi'?15:20)*duree; }
+    const accompTarif = r.formule==='demi'?5:10;
+    return base + accompTarif*(r.nbAccompagnants||0);
+  }
+  if (r.type === 'bateau') {
+    const t={'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270};
+    return t[r.formule]||0;
+  }
+  if (r.type === 'campingcar') {
+    const tarif = r.tarifNuit||13, nuits = r.duree||1;
+    const elec = Math.round((r.kwh||0)*(r.kwhTarif||3)*100)/100;
+    return tarif*nuits+elec;
+  }
+  return 0;
+}
+
+function startWatching() {
+  db.collection('reservations').orderBy('createdAt','desc').onSnapshot(snap => {
+    allReservations = snap.docs.map(d => ({id:d.id,...d.data()}));
+    buildYearTabs();
+    renderStats();
+  });
+}
+
+function getYear(r) {
+  const s = r.dateDebut || r.date || '';
+  return s ? parseInt(s.slice(0,4)) : null;
+}
+
+function buildYearTabs() {
+  const years = [...new Set(allReservations.map(getYear).filter(Boolean))].sort((a,b)=>b-a);
+  if (!years.includes(selectedYear)) selectedYear = years[0] || new Date().getFullYear();
+  const el = document.getElementById('year-tabs');
+  el.innerHTML = years.map(y =>
+    `<button class="year-btn${y===selectedYear?' active':''}" onclick="selectYear(${y})">${y}</button>`
+  ).join('');
+}
+
+window.selectYear = function(y) {
+  selectedYear = y;
+  buildYearTabs();
+  renderStats();
+};
+
+const MOIS_COURT = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const TYPE_LABELS = {peche:'🎣 Pêche', bateau:'🔥 Bateau BBQ', canoe:'🛶 Canoé', campingcar:'🚐 Camping-car', tente:'⛺ Tente'};
+
+function renderStats() {
+  const res = allReservations.filter(r => getYear(r) === selectedYear && r.status !== 'cancelled');
+  const all = allReservations.filter(r => getYear(r) === selectedYear);
+
+  // KPI
+  const total = all.length;
+  const confirmed = all.filter(r => r.status==='confirmed').length;
+  const pending = all.filter(r => !r.status||r.status==='pending').length;
+  const cancelled = all.filter(r => r.status==='cancelled').length;
+  const ca = res.reduce((s,r) => s+calculatePrice(r), 0);
+  const encaisse = res.reduce((s,r) => s+(r.acompte||0), 0);
+  const solde = ca - encaisse;
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card primary"><div class="kpi-value">${total}</div><div class="kpi-label">Total réservations</div></div>
+    <div class="kpi-card success"><div class="kpi-value">${confirmed}</div><div class="kpi-label">✓ Confirmées</div></div>
+    <div class="kpi-card warning"><div class="kpi-value">${pending}</div><div class="kpi-label">⏳ En attente</div></div>
+    <div class="kpi-card danger"><div class="kpi-value">${cancelled}</div><div class="kpi-label">✗ Annulées</div></div>
+    <div class="kpi-card accent"><div class="kpi-value">${ca}€</div><div class="kpi-label">💰 CA estimé</div></div>
+    <div class="kpi-card success"><div class="kpi-value">${encaisse}€</div><div class="kpi-label">💵 Encaissé (acomptes)</div></div>
+    <div class="kpi-card primary"><div class="kpi-value">${Math.round(solde)}€</div><div class="kpi-label">📋 Soldes restants</div></div>
+  `;
+
+  // Par mois
+  const byMonth = Array(12).fill(0).map(()=>({ca:0,nb:0}));
+  res.forEach(r => {
+    const s = r.dateDebut||r.date||'';
+    if (!s) return;
+    const m = parseInt(s.slice(5,7))-1;
+    byMonth[m].ca += calculatePrice(r);
+    byMonth[m].nb++;
+  });
+  const maxCA = Math.max(...byMonth.map(m=>m.ca), 1);
+  document.getElementById('month-bars').innerHTML = byMonth.map((m,i) => {
+    const pct = Math.round(m.ca/maxCA*100);
+    return `<div class="month-row">
+      <div class="month-name">${MOIS_COURT[i]}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%">
+          ${m.nb>0?`<span class="bar-label">${m.nb} rés.</span>`:''}
+        </div>
+      </div>
+      <div class="month-euro">${m.ca>0?m.ca+'€':'—'}</div>
+    </div>`;
+  }).join('');
+
+  // Par type
+  const byType = {};
+  all.forEach(r => {
+    if (!byType[r.type]) byType[r.type]={nb:0,nbConf:0,ca:0,acomptes:0};
+    byType[r.type].nb++;
+    if (r.status==='confirmed') byType[r.type].nbConf++;
+    if (r.status!=='cancelled') { byType[r.type].ca+=calculatePrice(r); byType[r.type].acomptes+=(r.acompte||0); }
+  });
+  document.getElementById('type-table').innerHTML = `
+    <thead><tr><th>Type</th><th class="td-num">Réservations</th><th class="td-num">Confirmées</th><th class="td-euro">CA</th><th class="td-euro">Acomptes</th></tr></thead>
+    <tbody>${Object.entries(byType).sort((a,b)=>b[1].ca-a[1].ca).map(([type,d])=>`
+      <tr>
+        <td>${TYPE_LABELS[type]||type}</td>
+        <td class="td-num">${d.nb}</td>
+        <td class="td-num">${d.nbConf}</td>
+        <td class="td-euro">${d.ca}€</td>
+        <td class="td-euro">${d.acomptes}€</td>
+      </tr>`).join('')}
+    </tbody>`;
+
+  // Par poste pêche
+  const peche = res.filter(r=>r.type==='peche');
+  const byPoste = {};
+  peche.forEach(r=>{
+    const k = r.posteId||'?';
+    if (!byPoste[k]) byPoste[k]={nb:0,nuits:0,ca:0};
+    byPoste[k].nb++;
+    byPoste[k].nuits+=r.duree||1;
+    byPoste[k].ca+=calculatePrice(r);
+  });
+  const postes = typeof POSTES!=='undefined'?POSTES:[];
+  document.getElementById('poste-table').innerHTML = `
+    <thead><tr><th>Poste</th><th class="td-num">Séjours</th><th class="td-num">Nuits/sessions</th><th class="td-euro">CA</th></tr></thead>
+    <tbody>${Object.entries(byPoste).sort((a,b)=>b[1].ca-a[1].ca).map(([id,d])=>{
+      const p=postes.find(x=>String(x.id)===String(id));
+      return `<tr>
+        <td>${p?`${p.icon||'🎣'} ${p.nom}`:`Poste ${id}`}</td>
+        <td class="td-num">${d.nb}</td>
+        <td class="td-num">${d.nuits}</td>
+        <td class="td-euro">${d.ca}€</td>
+      </tr>`;}).join('')}
+    </tbody>`;
+
+  // Acomptes en attente de solde
+  const avecSolde = allReservations.filter(r =>
+    getYear(r)===selectedYear && r.status!=='cancelled' && (r.acompte||0)>0
+  ).map(r => {
+    const total=calculatePrice(r);
+    const soldeR=Math.round((total-(r.acompte||0))*100)/100;
+    return {...r,_total:total,_solde:soldeR};
+  }).filter(r=>r._solde>0).sort((a,b)=>(a.dateDebut||a.date||'').localeCompare(b.dateDebut||b.date||''));
+
+  document.getElementById('acompte-table').innerHTML = avecSolde.length===0
+    ? `<tbody><tr><td style="padding:14px;color:var(--gray);text-align:center">Aucun solde en attente 🎉</td></tr></tbody>`
+    : `<thead><tr><th>Client</th><th>Date</th><th>Type</th><th>Statut</th><th class="td-euro">Total</th><th class="td-euro">Acompte</th><th class="td-euro">Solde</th></tr></thead>
+    <tbody>${avecSolde.map(r=>`<tr>
+      <td>${r.prenom||''} ${(r.nom||'').toUpperCase()}</td>
+      <td>${r.dateDebut||r.date||'—'}</td>
+      <td>${TYPE_LABELS[r.type]||r.type}</td>
+      <td><span class="badge ${r.status||'pending'}">${r.status==='confirmed'?'✓ Confirmé':'⏳ En attente'}</span></td>
+      <td class="td-euro">${r._total}€</td>
+      <td class="td-euro">${r.acompte}€</td>
+      <td class="td-euro" style="color:var(--accent);font-weight:800">${r._solde}€</td>
+    </tr>`).join('')}
+    </tbody>`;
+}
+</script>
+</body>
+</html>
