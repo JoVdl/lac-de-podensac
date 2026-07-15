@@ -35,7 +35,7 @@
 
 /* ---- Reset & Base ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   color: var(--dark);
@@ -554,7 +554,8 @@ p { margin-bottom: 0; }
 .social-card {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
   padding: 28px 32px; border-radius: 20px; text-decoration: none; color: #fff;
-  min-width: 180px; transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 160px; flex: 1 1 160px; max-width: 220px;
+  transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 4px 20px rgba(0,0,0,0.12);
 }
 .social-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
@@ -1338,6 +1339,51 @@ p { margin-bottom: 0; }
 }
 @media (max-width: 640px) {
   .materiel-cards-grid { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   CORRECTIONS OVERFLOW MOBILE
+   ================================================================ */
+@media (max-width: 640px) {
+  /* Empêcher tout débordement horizontal */
+  * { max-width: 100%; box-sizing: border-box; }
+  img, video, iframe, svg { max-width: 100%; }
+
+  /* Grille bateaux BBQ index.html — passer en colonne */
+  .boat-concept__visual [style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+  .boat-concept__visual [style*="grid-template-columns:1fr 1fr"] img:nth-child(3),
+  .boat-concept__visual [style*="grid-template-columns:1fr 1fr"] img:nth-child(4) {
+    display: none;
+  }
+
+  /* Badge flottant sous la grille photos bateaux */
+  [style*="white-space:nowrap"] {
+    white-space: normal !important;
+    flex-wrap: wrap !important;
+    width: calc(100% - 32px) !important;
+    left: 16px !important;
+    transform: none !important;
+  }
+
+  /* Cercles décoratifs CTA */
+  .cta-ring { display: none; }
+
+  /* Cartes sociales — pleine largeur sur très petit écran */
+  .social-card { min-width: 120px; padding: 20px 16px; }
+
+  /* Hero visual map — masquer sur mobile */
+  .hero__visual { display: none; }
+
+  /* Stats hero — réduire l'espacement */
+  .hero__stats { gap: 20px; }
+  .hero__stat-value { font-size: 1.6rem; }
+
+  /* Packages mini horizontal → vertical */
+  .packages-mini { flex-direction: column !important; }
+  .package-mini { min-width: 0 !important; }
 }
 
 /* Calendrier — état "pending" (en attente de confirmation) */
