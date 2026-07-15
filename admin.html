@@ -1827,7 +1827,7 @@
         <div class="res-detail-row"><span class="label">Durée</span><span class="value">${nbNuits} nuit${nbNuits > 1 ? 's' : ''}</span></div>
         ${r.emplacement ? `<div class="res-detail-row"><span class="label">Emplacement</span><span class="value">${r.emplacement}</span></div>` : ''}
         ${pax ? `<div class="res-detail-row"><span class="label">Voyageurs</span><span class="value">${pax}</span></div>` : ''}
-        ${r.totalPrice ? `<div class="res-detail-row"><span class="label">Montant total</span><span class="value" style="font-weight:700;">${r.totalPrice} €</span></div>` : r.tarifNuit ? `<div class="res-detail-row"><span class="label">Tarif/nuit</span><span class="value">${r.tarifNuit}€</span></div>` : ''}
+        ${r.totalPrice ? `<div class="res-detail-row"><span class="label">Montant total</span><span class="value" style="font-weight:700;">${r.totalPrice} €</span></div>` : r.tarifNuit ? `<div class="res-detail-row"><span class="label">Tarif/nuit</span><span class="value">${r.tarifNuit}€</span></div>` : r.source ? `<div class="res-detail-row"><span class="label">Montant</span><span class="value" style="color:#aaa;font-size:0.8em;">non fourni par ${r.source}</span></div>` : ''}
         ${r.resteAPayer > 0 ? `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:#c05000;font-weight:700;">${r.resteAPayer} €</span></div>` : r.resteAPayer === 0 ? `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--success);">✓ Soldé</span></div>` : ''}
         ${r.extras ? `<div class="res-detail-row"><span class="label">Extras</span><span class="value">${r.extras}</span></div>` : ''}
         ${r.demandesSpeciales ? `<div class="res-detail-row"><span class="label">Demandes</span><span class="value" style="font-style:italic;">${r.demandesSpeciales}</span></div>` : ''}
@@ -1845,11 +1845,16 @@
       `;
     } else if (r.type === 'tente') {
       const nbNuits = r.duree || 1;
+      const pax = [r.adultes ? `${r.adultes} adulte${r.adultes>1?'s':''}` : '', r.enfants ? `${r.enfants} enfant${r.enfants>1?'s':''}` : '', r.chiens ? `${r.chiens} chien${r.chiens>1?'s':''}` : ''].filter(Boolean).join(', ');
       detailsHtml = `
-        <div class="res-detail-row"><span class="label">Arrivée</span><span class="value">${formatDate(r.dateDebut)}</span></div>
+        <div class="res-detail-row"><span class="label">Arrivée</span><span class="value">${formatDate(r.dateDebut)}${r.heureArrivee ? ' · ' + r.heureArrivee : ''}</span></div>
         <div class="res-detail-row"><span class="label">Départ</span><span class="value">${formatDate(r.dateFin)}</span></div>
         <div class="res-detail-row"><span class="label">Durée</span><span class="value">${nbNuits} nuit${nbNuits > 1 ? 's' : ''}</span></div>
-        ${r.nb ? `<div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb} pers.</span></div>` : ''}
+        ${pax ? `<div class="res-detail-row"><span class="label">Voyageurs</span><span class="value">${pax}</span></div>` : r.nb ? `<div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb} pers.</span></div>` : ''}
+        ${r.totalPrice ? `<div class="res-detail-row"><span class="label">Montant total</span><span class="value" style="font-weight:700;">${r.totalPrice} €</span></div>` : r.source ? `<div class="res-detail-row"><span class="label">Montant</span><span class="value" style="color:#aaa;font-size:0.8em;">non fourni par ${r.source}</span></div>` : ''}
+        ${r.resteAPayer > 0 ? `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:#c05000;font-weight:700;">${r.resteAPayer} €</span></div>` : r.resteAPayer === 0 ? `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--success);">✓ Soldé</span></div>` : ''}
+        ${r.extras ? `<div class="res-detail-row"><span class="label">Extras</span><span class="value">${r.extras}</span></div>` : ''}
+        ${r.demandesSpeciales ? `<div class="res-detail-row"><span class="label">Demandes</span><span class="value" style="font-style:italic;">${r.demandesSpeciales}</span></div>` : ''}
       `;
     }
 
