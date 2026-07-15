@@ -650,6 +650,9 @@
     /* ── CALENDAR SECTION ── */
     .cal-section { display: none; }
     .cal-section.visible { display: block; }
+    #cal-container { user-select: none; }
+    #cal-container:not(:empty) { cursor: grab; }
+    #cal-container:not(:empty):active { cursor: grabbing; }
 
     .cal-header {
       background: var(--white); border-radius: 14px;
@@ -2854,6 +2857,50 @@
     if (event.target.closest('.cal-planning-block')) return;
     openNewResModal(ds, posteId || null, resourceKey || null);
   };
+
+  // Calendar drag-to-navigate (horizontal swipe/drag)
+  (function() {
+    const container = document.getElementById('cal-container');
+    let dragStartX = null;
+    let isDragging = false;
+    const THRESHOLD = 60; // px needed to trigger navigation
+
+    container.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      if (e.target.closest('.cal-planning-block, .cal-week-event, .cal-event-chip, .cal-day-event, button')) return;
+      dragStartX = e.clientX;
+      isDragging = false;
+      container.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (dragStartX === null) return;
+      if (Math.abs(e.clientX - dragStartX) > 8) isDragging = true;
+    });
+
+    window.addEventListener('mouseup', e => {
+      if (dragStartX === null) return;
+      const dx = e.clientX - dragStartX;
+      container.style.cursor = '';
+      if (isDragging && Math.abs(dx) >= THRESHOLD) {
+        calNavigate(dx < 0 ? 1 : -1);
+      }
+      dragStartX = null;
+      isDragging = false;
+    });
+
+    // Touch support
+    let touchStartX = null;
+    container.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    container.addEventListener('touchend', e => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) >= THRESHOLD) calNavigate(dx < 0 ? 1 : -1);
+      touchStartX = null;
+    }, { passive: true });
+  })();
 
   // Calendar controls
   document.getElementById('cal-prev').addEventListener('click', () => calNavigate(-1));
