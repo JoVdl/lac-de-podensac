@@ -2366,13 +2366,15 @@
 
     c.innerHTML = html;
 
-    // Auto-scroll so that (today - 7 days) is the first visible day
-    const scrollCol = c.querySelector('.cal-planning-scroll-col');
-    if (scrollCol) {
-      const today = new Date();
-      const startOfMonth = new Date(year, month, 1);
-      const diffDays = Math.floor((today - startOfMonth) / 86400000) - 7;
-      scrollCol.scrollLeft = Math.max(0, diffDays * DAY_W);
+    // Auto-scroll so that (today - 7 days) is the first visible day (current month only)
+    const realToday = new Date();
+    if (realToday.getFullYear() === year && realToday.getMonth() === month) {
+      const diffDays = realToday.getDate() - 1 - 7; // days from month start, minus 7
+      const targetScroll = Math.max(0, diffDays * DAY_W);
+      requestAnimationFrame(() => {
+        const scrollCol = c.querySelector('.cal-planning-scroll-col');
+        if (scrollCol) scrollCol.scrollLeft = targetScroll;
+      });
     }
   }
 
