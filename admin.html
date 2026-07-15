@@ -740,6 +740,8 @@
     }
     .cal-week-col { border-right: 1px solid var(--border); min-height: 280px; }
     .cal-week-col:last-child { border-right: none; }
+    .cal-week-col.today-col { background: rgba(61,138,128,0.06); }
+    .cal-week-col.today-col .cal-week-col-header { border-bottom-color: var(--primary); }
     .cal-week-col-header {
       padding: 10px 6px; border-bottom: 2px solid var(--border); text-align: center;
     }
@@ -2092,7 +2094,7 @@
         </button>`;
       }).join('');
 
-      cols += `<div class="cal-week-col">
+      cols += `<div class="cal-week-col${isToday?' today-col':''}">
         <div class="cal-week-col-header">
           <div class="cal-week-dow">${JOURS_CAL[i]}</div>
           <div class="cal-week-day-num${isToday?' today':''}">${day.getDate()}</div>
