@@ -191,15 +191,21 @@ function refreshDups(){
 function normalize(s){ return (s||'').toLowerCase().replace(/[\s\-_]/g,'').normalize('NFD').replace(/[̀-ͯ]/g,''); }
 
 function isDuplicate(r, existing){
-  // Match: même nom + même dateDebut + même type
   const rNom = normalize(r.nom + r.prenom);
   const rDate = r.dateDebut;
+  const rIsCarnassier = r.activity === 'carnassier' || r.posteId === 'zone-carnassier';
   return existing.some(e => {
     if(e.type !== r.type) return false;
     const eDate = e.dateDebut || e.date || '';
     if(eDate !== rDate) return false;
+    // Pour la pêche, distinguer carnassier des postes normaux
+    if(r.type === 'peche') {
+      const eIsCarnassier = e.activity === 'carnassier' || e.posteId === 'zone-carnassier';
+      if(rIsCarnassier !== eIsCarnassier) return false;
+      // Même poste ? (pour les postes normaux)
+      if(!rIsCarnassier && r.posteId && e.posteId && r.posteId !== e.posteId) return false;
+    }
     const eNom = normalize((e.nom||'')+(e.prenom||''));
-    // fuzzy: au moins 4 chars en commun dans les noms
     if(rNom.length < 3 || eNom.length < 3) return rNom === eNom;
     return rNom.includes(eNom.slice(0,4)) || eNom.includes(rNom.slice(0,4));
   });
