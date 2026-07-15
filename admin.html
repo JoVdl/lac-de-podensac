@@ -2364,6 +2364,9 @@
     const campingcarRows = Array.from({length:8},(_,i)=>({
       id:`campingcar-${i+1}`, label:`Place ${i+1}`, icon:'🚐', type:'campingcar', empl:`${i+1}`
     }));
+    const tenteRows = Array.from({length:5},(_,i)=>({
+      id:`tente-${i+1}`, label:`Tente ${i+1}`, icon:'⛺', type:'tente', empl:`T${i+1}`
+    }));
 
     // Bin-pack reservations across N slots (greedy: first available slot)
     function assignToSlots(reservations, numSlots) {
@@ -2413,6 +2416,7 @@
       else if (row.type === 'bateau')     relevant = allReservations.filter(r => r.type === 'bateau' && (r.bateau||'').trim() === row.bateau);
       else if (row.type === 'canoe')      relevant = canoeSlots[row.slot] || [];
       else if (row.type === 'campingcar') relevant = allReservations.filter(r => r.type === 'campingcar' && String(r.emplacement) === row.empl);
+      else if (row.type === 'tente')      relevant = allReservations.filter(r => r.type === 'tente' && String(r.emplacement) === row.empl);
       else relevant = [];
 
       return relevant.flatMap(r => {
@@ -2457,6 +2461,7 @@
           else if (r.type === 'bateau')      { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
           else if (r.type === 'canoe')       { bg = isConf ? '#1a6080' : '#2a7090'; color = '#fff'; }
           else if (r.type === 'campingcar')  { bg = isConf ? '#6040a0' : '#7050b0'; color = '#fff'; }
+          else if (r.type === 'tente')       { bg = isConf ? '#a05820' : '#b06828'; color = '#fff'; }
           else { bg = '#888'; color = '#fff'; }
           return [{ r, name, price, left, width, bg, color, isCancelled }];
         });
@@ -2481,6 +2486,7 @@
       if (row.type === 'bateau') resKey = `'${row.bateau}'`;
       else if (row.type === 'canoe') resKey = `'canoe'`;
       else if (row.type === 'campingcar') resKey = `'campingcar-${row.empl}'`;
+      else if (row.type === 'tente') resKey = `'tente-${row.empl}'`;
       const dayCols = days.map(({ str: ds, isWeekend, isToday }) => {
         const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
         return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;"
@@ -2528,6 +2534,8 @@
     canoeRows.forEach(buildRow);
     sectionHead('🚐 Camping-car');
     campingcarRows.forEach(buildRow);
+    sectionHead('⛺ Tentes');
+    tenteRows.forEach(buildRow);
 
     const savedW = localStorage.getItem('planning-label-w');
     if (savedW) document.documentElement.style.setProperty('--planning-label-w', savedW + 'px');
@@ -2879,6 +2887,7 @@
     if (resourceKey) {
       if (resourceKey === 'canoe') type = 'canoe';
       else if (resourceKey.startsWith('campingcar')) type = 'campingcar';
+      else if (resourceKey.startsWith('tente-')) type = 'tente';
       else if (resourceKey && resourceKey !== '') type = 'bateau';
     }
     nrmType = type;
@@ -3480,26 +3489,46 @@
 
   async function syncFromText(text, src) {
     const events = parseICS(text, src.label);
-    const occupied = new Map();
+
+    // Emplacements occupés par réservations manuelles (non-ICS) — campingcar et tente séparés
+    const occupiedCC = new Map(); // campingcar : clés "1"-"8"
+    const occupiedTente = new Map(); // tente : clés "T1"-"T5"
     try {
-      const fsSnap = await db.collection('reservations').where('type','==','campingcar').get();
+      const fsSnap = await db.collection('reservations')
+        .where('type', 'in', ['campingcar', 'tente']).get();
       fsSnap.forEach(doc => {
         if (doc.id.startsWith('ics_')) return;
         const d = doc.data();
         if (!d.emplacement || !d.dateDebut || !d.dateFin) return;
+        const pool = d.type === 'tente' ? occupiedTente : occupiedCC;
         const key = String(d.emplacement);
-        if (!occupied.has(key)) occupied.set(key, []);
-        occupied.get(key).push({ dateDebut: d.dateDebut, dateFin: d.dateFin });
+        if (!pool.has(key)) pool.set(key, []);
+        pool.get(key).push({ dateDebut: d.dateDebut, dateFin: d.dateFin });
       });
     } catch(_) {}
+
     const sorted = [...events].sort((a, b) => (a.dtstart || '').localeCompare(b.dtstart || ''));
     const emplacementMap = new Map();
     for (const ev of sorted) {
-      const free = pickFreeEmplacement(ev.dtstart, ev.dtend, occupied);
+      const isTente = ev.type === 'tente';
+      const pool = isTente ? occupiedTente : occupiedCC;
+      let free;
+      if (isTente) {
+        // Tentes : T1–T5
+        for (let n = 1; n <= 5; n++) {
+          const key = `T${n}`;
+          const bookings = pool.get(key) || [];
+          const arrDate = new Date(ev.dtstart), depDate = new Date(ev.dtend);
+          const conflict = bookings.some(b => arrDate < new Date(b.dateFin) && depDate > new Date(b.dateDebut));
+          if (!conflict) { free = key; break; }
+        }
+      } else {
+        free = pickFreeEmplacement(ev.dtstart, ev.dtend, pool);
+      }
       if (free) {
         emplacementMap.set(ev.uid, free);
-        if (!occupied.has(free)) occupied.set(free, []);
-        occupied.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        if (!pool.has(free)) pool.set(free, []);
+        pool.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
       }
     }
     let added = 0, updated = 0;
