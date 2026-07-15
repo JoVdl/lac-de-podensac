@@ -1952,7 +1952,11 @@
   });
 
   // ── VIEW TOGGLE ───────────────────────────────────────────────
-  let currentViewMode = 'list';
+  let currentViewMode = 'calendar';
+  document.getElementById('list-section').style.display = 'none';
+  document.getElementById('cal-section').classList.add('visible');
+  document.getElementById('view-toggle-list').classList.remove('active');
+  document.getElementById('view-toggle-cal').classList.add('active');
 
   document.getElementById('view-toggle-list').addEventListener('click', () => {
     currentViewMode = 'list';
