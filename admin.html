@@ -1760,6 +1760,34 @@
         <div class="res-detail-row"><span class="label">Date</span><span class="value">${formatDate(r.date)}${r.heure ? ' à ' + r.heure : ''}</span></div>
         <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb || 1} pers.</span></div>
       `;
+    } else if (r.type === 'campingcar') {
+      const nbNuits = r.duree || 1;
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Arrivée</span><span class="value">${formatDate(r.dateDebut)}</span></div>
+        <div class="res-detail-row"><span class="label">Départ</span><span class="value">${formatDate(r.dateFin)}</span></div>
+        <div class="res-detail-row"><span class="label">Durée</span><span class="value">${nbNuits} nuit${nbNuits > 1 ? 's' : ''}</span></div>
+        ${r.emplacement ? `<div class="res-detail-row"><span class="label">Emplacement</span><span class="value">${r.emplacement}</span></div>` : ''}
+        ${r.tarifNuit ? `<div class="res-detail-row"><span class="label">Tarif/nuit</span><span class="value">${r.tarifNuit}€</span></div>` : ''}
+        ${(r.kwh > 0) ? `<div class="res-detail-row"><span class="label">Électricité</span><span class="value">${r.kwh} kWh × ${r.kwhTarif || 3}€</span></div>` : ''}
+      `;
+    } else if (r.type === 'canoe') {
+      const nbJours = r.duree || 1;
+      const formuleLabel = r.formule === 'demi' ? 'Demi-journée' : 'Journée';
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Arrivée</span><span class="value">${formatDate(r.dateDebut)}</span></div>
+        ${r.dateFin && r.dateFin !== r.dateDebut ? `<div class="res-detail-row"><span class="label">Départ</span><span class="value">${formatDate(r.dateFin)}</span></div>` : ''}
+        <div class="res-detail-row"><span class="label">Durée</span><span class="value">${nbJours} jour${nbJours > 1 ? 's' : ''}</span></div>
+        <div class="res-detail-row"><span class="label">Formule</span><span class="value">${formuleLabel}</span></div>
+        <div class="res-detail-row"><span class="label">Canoés</span><span class="value">${r.nb || 1}</span></div>
+      `;
+    } else if (r.type === 'tente') {
+      const nbNuits = r.duree || 1;
+      detailsHtml = `
+        <div class="res-detail-row"><span class="label">Arrivée</span><span class="value">${formatDate(r.dateDebut)}</span></div>
+        <div class="res-detail-row"><span class="label">Départ</span><span class="value">${formatDate(r.dateFin)}</span></div>
+        <div class="res-detail-row"><span class="label">Durée</span><span class="value">${nbNuits} nuit${nbNuits > 1 ? 's' : ''}</span></div>
+        ${r.nb ? `<div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb} pers.</span></div>` : ''}
+      `;
     }
 
     const actionBtns = [];
