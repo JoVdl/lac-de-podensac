@@ -189,7 +189,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const item = document.createElement('div');
       item.className = `map-spot-item ${p.disponible && !p.coming_soon ? 'available' : 'busy'}`;
       item.id = `list-item-${p.id}`;
+      const thumbHtml = (p.images && p.images.length)
+        ? `<div class="map-spot-item__thumb"><img src="${p.images[0]}" alt="${p.nom}" loading="lazy"></div>`
+        : `<div class="map-spot-item__thumb map-spot-item__thumb--placeholder"><span>${p.icon}</span></div>`;
       item.innerHTML = `
+        ${thumbHtml}
         <div class="map-spot-item__header">
           <div class="map-spot-item__num">${p.id}</div>
           <div>
@@ -314,7 +318,19 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
 
     const body = document.getElementById('modal-body');
+    const galleryHtml = (p.images && p.images.length) ? `
+      <div class="modal__gallery" id="gallery-${p.id}">
+        <div class="modal__gallery-track">
+          ${p.images.map((src, i) => `<img src="${src}" alt="${p.nom} photo ${i+1}" class="modal__gallery-img${i===0?' active':''}" loading="lazy">`).join('')}
+        </div>
+        ${p.images.length > 1 ? `
+          <button class="modal__gallery-btn modal__gallery-btn--prev" onclick="galleryNav(${p.id},-1)">‹</button>
+          <button class="modal__gallery-btn modal__gallery-btn--next" onclick="galleryNav(${p.id},1)">›</button>
+          <div class="modal__gallery-dots">${p.images.map((_,i)=>`<span class="modal__gallery-dot${i===0?' active':''}" onclick="galleryGoto(${p.id},${i})"></span>`).join('')}</div>
+        ` : ''}
+      </div>` : '';
     body.innerHTML = `
+      ${galleryHtml}
       <div class="modal__section">
         <p style="color:var(--gray-dark);line-height:1.8;">${p.description}</p>
         ${p.note ? `<div style="margin-top:10px;padding:10px 14px;background:rgba(61,138,128,0.08);border-radius:8px;font-size:0.82rem;color:var(--primary);border-left:3px solid var(--primary-light);">📋 ${p.note}</div>` : ''}
@@ -365,6 +381,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.closeModal = function () {
     document.getElementById('modal-overlay').classList.remove('open');
+  };
+
+  window.galleryNav = function(id, dir) {
+    const g = document.getElementById('gallery-' + id);
+    if (!g) return;
+    const imgs = g.querySelectorAll('.modal__gallery-img');
+    const dots = g.querySelectorAll('.modal__gallery-dot');
+    let cur = [...imgs].findIndex(i => i.classList.contains('active'));
+    imgs[cur].classList.remove('active');
+    dots[cur] && dots[cur].classList.remove('active');
+    cur = (cur + dir + imgs.length) % imgs.length;
+    imgs[cur].classList.add('active');
+    dots[cur] && dots[cur].classList.add('active');
+  };
+  window.galleryGoto = function(id, idx) {
+    const g = document.getElementById('gallery-' + id);
+    if (!g) return;
+    const imgs = g.querySelectorAll('.modal__gallery-img');
+    const dots = g.querySelectorAll('.modal__gallery-dot');
+    imgs.forEach((i,n) => i.classList.toggle('active', n===idx));
+    dots.forEach((d,n) => d.classList.toggle('active', n===idx));
   };
   document.getElementById('modal-close').addEventListener('click', closeModal);
   document.getElementById('modal-overlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
