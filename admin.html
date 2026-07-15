@@ -2357,6 +2357,15 @@
     </div>`;
 
     c.innerHTML = html;
+
+    // Auto-scroll so that (today - 7 days) is the first visible day
+    const scrollCol = c.querySelector('.cal-planning-scroll-col');
+    if (scrollCol) {
+      const today = new Date();
+      const startOfMonth = new Date(year, month, 1);
+      const diffDays = Math.floor((today - startOfMonth) / 86400000) - 7;
+      scrollCol.scrollLeft = Math.max(0, diffDays * DAY_W);
+    }
   }
 
   window.switchToDay = function(ds) {
