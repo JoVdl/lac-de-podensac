@@ -3024,6 +3024,7 @@
 
     container.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
+      if (calView === 'planning') return;
       if (e.target.closest('.cal-planning-block, .cal-week-event, .cal-event-chip, .cal-day-event, button')) return;
       dragStartX = e.clientX;
       isDragging = false;
@@ -3050,6 +3051,7 @@
     let touchStartX = null;
     let touchStartY = null;
     container.addEventListener('touchstart', e => {
+      if (calView === 'planning') return;
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
     }, { passive: true });
