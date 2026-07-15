@@ -3406,11 +3406,11 @@
     });
   }
 
-  // Retourne l'emplacement libre (1–5) pour les dates données, en excluant les emplacements déjà pris
+  // Retourne l'emplacement libre (1–8) pour les dates données, en excluant les emplacements déjà pris
   function pickFreeEmplacement(dtstart, dtend, occupied) {
     // occupied = Map<emplacement, [{dateDebut, dateFin}]>
     const arrDate = new Date(dtstart), depDate = new Date(dtend);
-    for (let num = 1; num <= 5; num++) {
+    for (let num = 1; num <= 8; num++) {
       const bookings = occupied.get(String(num)) || [];
       const conflict = bookings.some(b => {
         const bArr = new Date(b.dateDebut), bDep = new Date(b.dateFin);
@@ -3460,15 +3460,17 @@
           dateDebut: ev.dtstart, dateFin: ev.dtend,
           duree: nbNuits,
           dates: makeDatesArray(ev.dtstart, nbNuits),
-          statut: ev.status,
+          status: ev.status,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         };
         delete data.dtstart; delete data.dtend;
         // Ne pas écraser les champs null (Pitchup peut ne pas avoir certains champs)
         Object.keys(data).forEach(k => data[k] === null && delete data[k]);
 
-        // Auto-assign emplacement si pas encore un numéro 1–5
-        if (!snap.exists && (!data.emplacement || !/^[1-5]$/.test(String(data.emplacement)))) {
+        // Auto-assign emplacement si pas encore un numéro 1–8 (nouveau doc OU doc existant sans emplacement valide)
+        const existingEmpl = snap.exists ? (snap.data().emplacement || '') : '';
+        const needsEmpl = !existingEmpl || !/^[1-8]$/.test(String(existingEmpl));
+        if (needsEmpl && (!data.emplacement || !/^[1-8]$/.test(String(data.emplacement)))) {
           const free = pickFreeEmplacement(data.dateDebut, data.dateFin, occupied);
           if (free) {
             data.emplacement = free;
@@ -3476,6 +3478,9 @@
             if (!occupied.has(free)) occupied.set(free, []);
             occupied.get(free).push({ dateDebut: data.dateDebut, dateFin: data.dateFin });
           }
+        } else if (!needsEmpl && !data.emplacement) {
+          // Conserver l'emplacement existant
+          data.emplacement = String(existingEmpl);
         }
 
         if (snap.exists) { batch.update(ref, data); updated++; }
