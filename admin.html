@@ -1115,20 +1115,16 @@
 
       <!-- ICS SYNC MODAL -->
       <div id="ics-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:16px;padding:28px;max-width:520px;width:94%;box-shadow:0 8px 40px rgba(0,0,0,0.18);position:relative;">
-          <h3 style="margin:0 0 6px;font-size:1.1rem;">🔄 Synchronisation ICS / Campspace</h3>
-          <p style="font-size:0.85rem;color:#666;margin:0 0 18px;">Collez l'URL du calendrier ICS (Campspace, Airbnb, Google…). Les réservations seront importées/mises à jour dans Firestore sans doublons.</p>
-          <label style="font-size:0.82rem;font-weight:600;color:#333;">URL du calendrier ICS</label>
-          <input id="ics-url-input" type="url" placeholder="https://campspace.com/…/calendar.ics"
-            style="width:100%;box-sizing:border-box;margin:6px 0 8px;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;">
-          <div style="font-size:0.78rem;color:#888;margin-bottom:16px;">L'URL est sauvegardée dans votre navigateur. La synchro est déclenchée manuellement ou à l'ouverture de l'admin.</div>
-          <label style="font-size:0.82rem;font-weight:600;color:#333;">Source / étiquette</label>
-          <input id="ics-label-input" type="text" placeholder="Campspace" value="Campspace"
-            style="width:100%;box-sizing:border-box;margin:6px 0 16px;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;">
-          <div id="ics-status" style="font-size:0.82rem;min-height:20px;margin-bottom:14px;"></div>
+        <div style="background:#fff;border-radius:16px;padding:28px;max-width:580px;width:96%;box-shadow:0 8px 40px rgba(0,0,0,0.18);position:relative;max-height:90vh;overflow-y:auto;">
+          <h3 style="margin:0 0 4px;font-size:1.1rem;">🔄 Synchronisation calendriers ICS</h3>
+          <p style="font-size:0.82rem;color:#666;margin:0 0 16px;">Ajoutez vos sources ICS (Pitchup, Campspace, Airbnb…). Les réservations sont importées sans doublons, avec téléphone, email, montant, extras.</p>
+          <div id="ics-sources-list"></div>
+          <button onclick="addIcsSource()" style="margin-bottom:16px;padding:7px 14px;border:1px dashed #3d8a80;border-radius:8px;background:#f0faf9;color:#3d8a80;cursor:pointer;font-size:0.82rem;">+ Ajouter une source</button>
+          <div style="font-size:0.75rem;color:#999;margin-bottom:14px;">Les URLs sont sauvegardées dans votre navigateur. Synchro auto à l'ouverture de l'admin.</div>
+          <div id="ics-status" style="font-size:0.82rem;min-height:18px;margin-bottom:14px;"></div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button onclick="closeIcsModal()" style="padding:9px 18px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;">Annuler</button>
-            <button onclick="runIcsSync()" style="padding:9px 18px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-weight:600;cursor:pointer;">🔄 Synchroniser</button>
+            <button onclick="closeIcsModal()" style="padding:9px 18px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;">Fermer</button>
+            <button onclick="runIcsSync()" style="padding:9px 20px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-weight:600;cursor:pointer;">🔄 Synchroniser maintenant</button>
           </div>
         </div>
       </div>
@@ -3207,13 +3203,25 @@
 
   <!-- ===== ICS SYNC ===== -->
   <script>
-  const ICS_URL_KEY  = 'ics_sync_url';
-  const ICS_LABEL_KEY = 'ics_sync_label';
+  const ICS_SOURCES_KEY = 'ics_sources_v2';
   const ICS_PROXY = 'https://corsproxy.io/?';
 
+  // Sources par défaut (Pitchup pré-configuré)
+  const ICS_DEFAULTS = [
+    { label: 'Pitchup', url: 'https://www.pitchup.com/ics/1828036/mGc7NyY5ako4zsP7JnRYtwFovi4xqIjYoAQM0ygjka8/bookings.ics' },
+    { label: 'Campspace', url: '' },
+  ];
+
+  function getIcsSources() {
+    try { return JSON.parse(localStorage.getItem(ICS_SOURCES_KEY)) || ICS_DEFAULTS; }
+    catch { return ICS_DEFAULTS; }
+  }
+  function saveIcsSources(sources) {
+    localStorage.setItem(ICS_SOURCES_KEY, JSON.stringify(sources));
+  }
+
   function openIcsModal() {
-    document.getElementById('ics-url-input').value   = localStorage.getItem(ICS_URL_KEY)   || '';
-    document.getElementById('ics-label-input').value = localStorage.getItem(ICS_LABEL_KEY) || 'Campspace';
+    renderIcsSources();
     document.getElementById('ics-status').textContent = '';
     document.getElementById('ics-modal').style.display = 'flex';
   }
@@ -3224,44 +3232,140 @@
     if (e.target === document.getElementById('ics-modal')) closeIcsModal();
   });
 
-  function icsDateToISO(dt) {
-    // DTSTART:20260705T120000Z  or  DTSTART;TZID=...:20260705T120000
-    const s = dt.replace(/[TZ]/g, '').replace(/\s/g, '');
-    const y = s.slice(0,4), m = s.slice(4,6), d = s.slice(6,8);
-    return `${y}-${m}-${d}`;
+  function renderIcsSources() {
+    const sources = getIcsSources();
+    const container = document.getElementById('ics-sources-list');
+    container.innerHTML = sources.map((s, i) => `
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+        <input type="text" value="${s.label}" placeholder="Nom" data-idx="${i}" data-field="label"
+          style="width:110px;padding:7px 10px;border:1px solid #ddd;border-radius:7px;font-size:0.82rem;" oninput="icsSourceChange(this)">
+        <input type="url" value="${s.url}" placeholder="URL ICS…" data-idx="${i}" data-field="url"
+          style="flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:7px;font-size:0.82rem;" oninput="icsSourceChange(this)">
+        <button onclick="removeIcsSource(${i})" style="padding:6px 10px;border:1px solid #fcc;border-radius:7px;background:#fff5f5;color:#c00;cursor:pointer;font-size:0.9rem;">✕</button>
+      </div>`).join('');
+  }
+  function icsSourceChange(el) {
+    const sources = getIcsSources();
+    sources[el.dataset.idx][el.dataset.field] = el.value;
+    saveIcsSources(sources);
+  }
+  function addIcsSource() {
+    const sources = getIcsSources();
+    sources.push({ label: 'Nouvelle source', url: '' });
+    saveIcsSources(sources);
+    renderIcsSources();
+  }
+  function removeIcsSource(i) {
+    const sources = getIcsSources();
+    sources.splice(i, 1);
+    saveIcsSources(sources);
+    renderIcsSources();
   }
 
-  function parseICS(text) {
+  // ── Parseur ICS universel ──────────────────────────────────────────────
+  function icsDateToISO(dt) {
+    const s = dt.replace(/[TZ]/g,'').replace(/\s/g,'');
+    return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+  }
+
+  function unfoldICS(text) {
+    // RFC 5545: lignes repliées commencent par espace/tab
+    return text.replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'');
+  }
+
+  function getField(block, key) {
+    // Matches KEY: or KEY;param=...: (case-insensitive)
+    const re = new RegExp(`^${key}(?:;[^:]*)?:(.*)$`, 'im');
+    const m = block.match(re);
+    return m ? m[1].trim() : '';
+  }
+
+  function cleanVal(v) {
+    return v.replace(/\\,/g,',').replace(/\\n/g,' ').replace(/\\;/g,';').replace(/\\\\/g,'\\').trim();
+  }
+
+  function parseMoney(v) {
+    // "16,00 €" → 16
+    const m = v.replace(/\s/g,'').replace(',','.').match(/([\d.]+)/);
+    return m ? parseFloat(m[1]) : 0;
+  }
+
+  function detectType(pitchtype) {
+    const p = (pitchtype || '').toLowerCase();
+    if (p.includes('tente')) return 'tente';
+    if (p.includes('véhicule') || p.includes('vehicule') || p.includes('camping-car') || p.includes('campingcar')) return 'campingcar';
+    return 'camping';
+  }
+
+  function mapStatus(s) {
+    const v = (s || '').toLowerCase();
+    if (v.includes('annul')) return 'cancelled';
+    if (v.includes('confirm')) return 'confirmed';
+    return 'pending';
+  }
+
+  function parseICS(text, sourceLabel) {
+    text = unfoldICS(text);
     const events = [];
-    const blocks = text.split('BEGIN:VEVENT');
+    const blocks = text.split(/BEGIN:VEVENT/i);
     for (let i = 1; i < blocks.length; i++) {
       const b = blocks[i];
-      const get = (key) => {
-        const re = new RegExp(`(?:^|\\n)${key}[;:][^\\n]*?:?([^\\n]+)`, 'i');
-        const m = b.match(re);
-        if (!m) return '';
-        // handle folded lines (lines starting with space)
-        let val = m[1].trim();
-        const lines = b.split('\n');
-        let collecting = false;
-        let full = '';
-        for (const l of lines) {
-          if (new RegExp(`^${key}[;:]`, 'i').test(l)) { collecting = true; full = l.replace(new RegExp(`^${key}[^:]*:`,'i'),'').trim(); continue; }
-          if (collecting && (l.startsWith(' ') || l.startsWith('\t'))) { full += l.trim(); continue; }
-          if (collecting) break;
-        }
-        return full || val;
-      };
-      const uid       = get('UID');
-      const dtstart   = get('DTSTART');
-      const dtend     = get('DTEND');
-      const summary   = get('SUMMARY');
-      const firstname = get('FIRSTNAME');
-      const pitchNums = get('PITCHNUMBERS');
-      const pitchIds  = get('PITCHIDS');
-      const desc      = get('DESCRIPTION').replace(/\\,/g,',').replace(/\\n/g,' ').replace(/https?:\/\/\S+/g,'').trim();
+      const uid     = getField(b, 'UID');
+      const dtstart = getField(b, 'DTSTART');
+      const dtend   = getField(b, 'DTEND');
       if (!uid || !dtstart || !dtend) continue;
-      events.push({ uid, dtstart: icsDateToISO(dtstart), dtend: icsDateToISO(dtend), summary, firstname, pitchNums, pitchIds, desc });
+
+      const summary   = cleanVal(getField(b, 'SUMMARY'));
+      // Campspace fields
+      const firstname = getField(b, 'FIRSTNAME');
+      const pitchNums = cleanVal(getField(b, 'PITCHNUMBERS'));
+      // Pitchup X-PU fields
+      const puId       = getField(b, 'X-PU-ID');
+      const puStatus   = cleanVal(getField(b, 'X-PU-STATUS'));
+      const puAdults   = getField(b, 'X-PU-ADULTS');
+      const puChildren = getField(b, 'X-PU-CHILDREN');
+      const puDogs     = getField(b, 'X-PU-DOGS');
+      const puPhone    = cleanVal(getField(b, 'X-PU-TELEPHONE'));
+      const puEmail    = cleanVal(getField(b, 'X-PU-EMAIL') || getField(b, 'EMAIL'));
+      const puAmount   = cleanVal(getField(b, 'X-PU-AMOUNT'));
+      const puRemainder= cleanVal(getField(b, 'X-PU-REMAINDER'));
+      const puComm     = cleanVal(getField(b, 'X-PU-COMMISSION'));
+      const puExtras   = cleanVal(getField(b, 'X-PU-EXTRAS'));
+      const puPitch    = cleanVal(getField(b, 'X-PU-PITCH'));
+      const puPitchtype= cleanVal(getField(b, 'X-PU-PITCHTYPE'));
+      const puArrival  = cleanVal(getField(b, 'X-PU-ESTIMATED-TIME-OF-ARRIVAL'));
+      const puAddr     = cleanVal(getField(b, 'X-PU-ADDRESS'));
+      const puRequests = cleanVal(getField(b, 'X-PU-SPECIAL-REQUESTS'));
+
+      // Nom : Pitchup met "Prénom Nom - Type emplacement" dans SUMMARY
+      let nom = firstname || '';
+      if (!nom && summary.includes(' - ')) nom = summary.split(' - ')[0].trim();
+      if (!nom) nom = summary;
+
+      const isPitchup = !!puId;
+      const type = isPitchup ? detectType(puPitchtype) : 'camping';
+      const status = isPitchup ? mapStatus(puStatus) : 'confirmed';
+
+      events.push({
+        uid, dtstart: icsDateToISO(dtstart), dtend: icsDateToISO(dtend),
+        nom, summary, type, status,
+        emplacement: puPitch || pitchNums || '',
+        pitchtype: puPitchtype,
+        telephone: puPhone,
+        email: puEmail,
+        adultes: puAdults ? parseInt(puAdults) : null,
+        enfants: puChildren ? parseInt(puChildren) : null,
+        chiens: puDogs ? parseInt(puDogs) : null,
+        totalPrice: puAmount ? parseMoney(puAmount) : null,
+        resteAPayer: puRemainder ? parseMoney(puRemainder) : null,
+        commission: puComm ? parseMoney(puComm) : null,
+        extras: puExtras,
+        heureArrivee: puArrival,
+        adresse: puAddr,
+        demandesSpeciales: puRequests,
+        source: sourceLabel,
+        icsUid: uid,
+      });
     }
     return events;
   }
@@ -3269,91 +3373,75 @@
   function daysBetween(d1, d2) {
     return Math.round((new Date(d2) - new Date(d1)) / 86400000);
   }
-  function makeDatesArray(startISO, nbNuits) {
-    const arr = [];
-    for (let i = 0; i < nbNuits; i++) {
-      const d = new Date(startISO);
-      d.setDate(d.getDate() + i);
-      arr.push(d.toISOString().slice(0,10));
+  function makeDatesArray(startISO, n) {
+    return Array.from({length: n}, (_, i) => {
+      const d = new Date(startISO); d.setDate(d.getDate() + i);
+      return d.toISOString().slice(0,10);
+    });
+  }
+
+  async function syncOneSource(src) {
+    if (!src.url) return { added:0, updated:0, errors:0, label: src.label };
+    let text;
+    try {
+      const res = await fetch(ICS_PROXY + encodeURIComponent(src.url));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      text = await res.text();
+    } catch(e) { return { added:0, updated:0, errors:1, label: src.label, err: e.message }; }
+
+    const events = parseICS(text, src.label);
+    let added = 0, updated = 0;
+    // Firestore batch max 500 ops — split if needed
+    for (let start = 0; start < events.length; start += 400) {
+      const batch = db.batch();
+      for (const ev of events.slice(start, start + 400)) {
+        const docId = 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_');
+        const ref   = db.collection('reservations').doc(docId);
+        const snap  = await ref.get();
+        const nbNuits = Math.max(1, daysBetween(ev.dtstart, ev.dtend));
+        const data = {
+          ...ev,
+          dateDebut: ev.dtstart, dateFin: ev.dtend,
+          duree: nbNuits,
+          dates: makeDatesArray(ev.dtstart, nbNuits),
+          statut: ev.status,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        };
+        delete data.dtstart; delete data.dtend;
+        // Ne pas écraser les champs null (Pitchup peut ne pas avoir certains champs)
+        Object.keys(data).forEach(k => data[k] === null && delete data[k]);
+        if (snap.exists) { batch.update(ref, data); updated++; }
+        else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); batch.set(ref, data); added++; }
+      }
+      await batch.commit();
     }
-    return arr;
+    return { added, updated, errors:0, label: src.label };
   }
 
   async function runIcsSync(silent = false) {
-    const url   = document.getElementById('ics-url-input').value.trim();
-    const label = document.getElementById('ics-label-input').value.trim() || 'Campspace';
     const statusEl = document.getElementById('ics-status');
-    if (!url) { statusEl.textContent = '⚠️ URL manquante'; statusEl.style.color = 'orange'; return; }
-    localStorage.setItem(ICS_URL_KEY,  url);
-    localStorage.setItem(ICS_LABEL_KEY, label);
+    // Sauvegarder les valeurs de la modal si elle est ouverte
+    const sources = getIcsSources().filter(s => s.url);
+    if (!sources.length) { statusEl.textContent = '⚠️ Aucune source configurée'; statusEl.style.color = 'orange'; return; }
+    statusEl.textContent = `⏳ Synchronisation de ${sources.length} source(s)…`; statusEl.style.color = '#3d8a80';
 
-    statusEl.textContent = '⏳ Récupération…'; statusEl.style.color = '#3d8a80';
-    let text;
-    try {
-      const res = await fetch(ICS_PROXY + encodeURIComponent(url));
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      text = await res.text();
-    } catch(e) {
-      statusEl.textContent = '❌ Erreur réseau : ' + e.message; statusEl.style.color = 'red'; return;
+    let totalAdded = 0, totalUpdated = 0, errors = [];
+    for (const src of sources) {
+      const r = await syncOneSource(src);
+      totalAdded += r.added; totalUpdated += r.updated;
+      if (r.errors) errors.push(`${r.label}: ${r.err}`);
     }
-
-    const events = parseICS(text);
-    if (!events.length) { statusEl.textContent = '⚠️ Aucun événement trouvé'; statusEl.style.color = 'orange'; return; }
-
-    statusEl.textContent = `⏳ Import de ${events.length} événements…`;
-    let added = 0, updated = 0, skipped = 0;
-    const batch = db.batch();
-
-    for (const ev of events) {
-      const docId = 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_');
-      const ref   = db.collection('reservations').doc(docId);
-      const snap  = await ref.get();
-      const nbNuits = Math.max(1, daysBetween(ev.dtstart, ev.dtend));
-      const data = {
-        source:     label,
-        icsUid:     ev.uid,
-        type:       'camping',
-        nom:        ev.firstname || ev.summary || label,
-        summary:    ev.summary,
-        emplacement: ev.pitchNums ? ev.pitchNums.replace(/\\/g,'') : '',
-        pitchIds:   ev.pitchIds  ? ev.pitchIds.replace(/\\/g,'')  : '',
-        dateDebut:  ev.dtstart,
-        dateFin:    ev.dtend,
-        duree:      nbNuits,
-        dates:      makeDatesArray(ev.dtstart, nbNuits),
-        description: ev.desc,
-        statut:     'confirmed',
-        status:     'confirmed',
-        updatedAt:  firebase.firestore.FieldValue.serverTimestamp(),
-      };
-      if (snap.exists) {
-        batch.update(ref, data);
-        updated++;
-      } else {
-        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        batch.set(ref, data);
-        added++;
-      }
-    }
-    try {
-      await batch.commit();
-      const msg = `✅ ${added} ajouté(s), ${updated} mis à jour`;
-      statusEl.textContent = msg; statusEl.style.color = 'green';
-      if (!silent) toast(msg, 'success');
-    } catch(e) {
-      statusEl.textContent = '❌ Erreur Firestore : ' + e.message; statusEl.style.color = 'red';
-    }
+    const msg = errors.length
+      ? `⚠️ ${totalAdded} ajouté(s), ${totalUpdated} mis à jour — Erreurs: ${errors.join('; ')}`
+      : `✅ ${totalAdded} ajouté(s), ${totalUpdated} mis à jour (${sources.map(s=>s.label).join(', ')})`;
+    statusEl.textContent = msg; statusEl.style.color = errors.length ? 'orange' : 'green';
+    if (!silent) toast(msg.replace(/^[✅⚠️] /,''), errors.length ? 'warning' : 'success');
   }
 
-  // Auto-sync au chargement si une URL est configurée
+  // Auto-sync 4s après chargement
   window.addEventListener('load', () => {
-    const savedUrl = localStorage.getItem(ICS_URL_KEY);
-    if (savedUrl) {
-      // On ouvre silencieusement sans afficher la modal
-      document.getElementById('ics-url-input').value   = savedUrl;
-      document.getElementById('ics-label-input').value = localStorage.getItem(ICS_LABEL_KEY) || 'Campspace';
-      setTimeout(() => runIcsSync(true), 3000); // après chargement Firebase
-    }
+    const sources = getIcsSources().filter(s => s.url);
+    if (sources.length) setTimeout(() => runIcsSync(true), 4000);
   });
   </script>
 </body>
