@@ -61,10 +61,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Mise à jour du compteur de disponibilités
-  const availCount = POSTES.filter(p => p.disponible).length;
+  // Mise à jour du compteur de disponibilités (postes carpe 1-6 uniquement)
+  const availCount = POSTES.filter(p => p.id >= 1 && p.id <= 6 && p.disponible && !p.coming_soon).length;
   const availEl = document.getElementById('available-count');
-  if (availEl) availEl.textContent = availCount + '/10';
+  if (availEl) availEl.textContent = availCount + '/6';
 
   // ── Initialisation de la carte ──────────────────────────────
   const center = window.LAC_CENTER || [44.6528, -0.3470];
@@ -481,8 +481,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // Mettre à jour le compteur de disponibilités
       const countEl = document.getElementById('available-count');
       if (countEl) {
-        const count = POSTES.filter(p => p.disponible && !p.coming_soon && !bookedToday.has(p.id)).length;
-        countEl.textContent = `${count}/10`;
+        const count = POSTES.filter(p => p.id >= 1 && p.id <= 6 && p.disponible && !p.coming_soon && !bookedToday.has(p.id)).length;
+        countEl.textContent = `${count}/6`;
       }
 
       // Mettre à jour la liste latérale
