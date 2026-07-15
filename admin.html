@@ -1088,12 +1088,13 @@
           <select id="sort-select" class="sort-select">
             <option value="created-desc">Date réservation (récent → ancien)</option>
             <option value="created-asc">Date réservation (ancien → récent)</option>
-            <option value="session-asc">Date session (prochain → lointain)</option>
+
+            <option value="session-asc" selected>Date session (prochain → lointain)</option>
             <option value="session-desc">Date session (lointain → prochain)</option>
           </select>
         </div>
         <label class="sort-bar__upcoming">
-          <input type="checkbox" id="filter-upcoming">
+          <input type="checkbox" id="filter-upcoming" checked>
           <span>📅 À venir uniquement</span>
         </label>
       </div>
@@ -1443,8 +1444,8 @@
   let activeTypeFilter = 'all';
   let activeStatusFilter = 'all';
   let searchQuery = '';
-  let activeSortOrder = 'created-desc';
-  let filterUpcoming = false;
+  let activeSortOrder = 'session-asc';
+  let filterUpcoming = true;
   let pendingDeleteId = null;
   let unsubscribeReservations = null;
 
