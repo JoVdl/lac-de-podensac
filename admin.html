@@ -1141,6 +1141,21 @@
           </div>
           <div style="font-size:0.72rem;color:#999;margin-bottom:14px;">Utile si l'URL ICS ne fonctionne pas — téléchargez le fichier depuis Pitchup puis importez-le ici.</div>
           <div id="ics-status" style="font-size:0.82rem;min-height:18px;margin-bottom:14px;"></div>
+          <hr style="border:none;border-top:1px solid #eee;margin:4px 0 14px;">
+          <div style="font-size:0.82rem;font-weight:600;color:#444;margin-bottom:8px;">📋 Importer depuis l'ancien logiciel (.html)</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px dashed #bbb;border-radius:8px;cursor:pointer;font-size:0.82rem;color:#555;background:#fafafa;">
+              <span>📎 Choisir le fichier HTML</span>
+              <input type="file" accept=".html,text/html" id="old-logiciel-input" style="display:none;" onchange="importOldLogiciel(this)">
+            </label>
+            <span id="old-logiciel-type" style="font-size:0.78rem;color:#666;"></span>
+          </div>
+          <div id="old-logiciel-buttons" style="display:none;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="doOldImport(false)" style="padding:7px 14px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">⬆️ Importer (sans doublons)</button>
+            <button onclick="doOldImport(true,'carnassier')" style="padding:7px 14px;border:none;border-radius:8px;background:#1a5028;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🐟 Carnassier uniquement</button>
+            <button onclick="doOldImport(true)" style="padding:7px 14px;border:none;border-radius:8px;background:#888;color:#fff;font-size:0.82rem;cursor:pointer;">Tout forcer</button>
+          </div>
+          <div id="old-logiciel-status" style="font-size:0.82rem;min-height:18px;margin-bottom:8px;"></div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
             <button onclick="closeIcsModal()" style="padding:9px 18px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;">Fermer</button>
             <button onclick="runIcsSync()" style="padding:9px 20px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-weight:600;cursor:pointer;">🔄 Synchroniser maintenant</button>
@@ -3620,6 +3635,135 @@
     statusEl.style.color = errors.length ? 'orange' : 'green';
     if (!silent) toast(msg.replace(/^[✅⚠️] /,''), errors.length ? 'warning' : 'success');
   }
+
+  // ── Import ancien logiciel HTML ───────────────────────────────
+  const OLD_MONTHS = {jan:1,janv:1,'fév':2,'févr':2,mars:3,avr:4,mai:5,juin:6,juil:7,juill:7,'aoû':8,'août':8,sep:9,sept:9,oct:10,nov:11,'déc':12};
+  function oldParseFrDate(s) {
+    const m = s.toLowerCase().match(/(\d+)\s+(\w+)\.?\s+(\d{4})/);
+    if (!m) return null;
+    const month = OLD_MONTHS[m[2].replace('.','')];
+    if (!month) return null;
+    return `${m[3]}-${String(month).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+  }
+  function oldParseDates(cell) {
+    const parts = cell.split(/\.{2,}/);
+    if (parts.length === 2) return [oldParseFrDate(parts[0]), oldParseFrDate(parts[1])];
+    const d = oldParseFrDate(cell); return [d, d];
+  }
+  function oldParseMoney(cell, key) {
+    const m = cell.match(new RegExp(key + ':\\s*([\\d\\s]+)€'));
+    return m ? parseFloat(m[1].replace(/\s/g,'')) || 0 : 0;
+  }
+  function oldParsePax(cell) {
+    const a = cell.match(/Adultes:\s*(\d+)/), e = cell.match(/Enfants:\s*(\d+)/);
+    return [a ? parseInt(a[1]) : 0, e ? parseInt(e[1]) : 0];
+  }
+  function oldParseName(cell) {
+    const name = cell.replace(/\+.*$/, '').trim().split(/\s+/);
+    if (name.length >= 2) return [name[0].charAt(0).toUpperCase()+name[0].slice(1).toLowerCase(), name.slice(1).join(' ').toUpperCase()];
+    return [name[0]||'', ''];
+  }
+  const OLD_POSTE_MAP = {'poste 1':1,'poste 2':2,'poste 3':3,'poste 4':4,'poste 5':5,'poste 6':6,'poste 7':7,'poste 8':8,'poste de la cale':9,'poste des iris':10,'ponton des gardiens':6};
+  function oldMapPoste(a) {
+    const al = a.toLowerCase();
+    for (const [k,v] of Object.entries(OLD_POSTE_MAP)) if (al.includes(k)) return v;
+    const m = al.match(/poste\s+(\d+)/); return m ? parseInt(m[1]) : null;
+  }
+  function oldDetectType(a) {
+    const al = a.toLowerCase();
+    if (/camping\s*-?\s*car|emplacement/.test(al)) return 'campingcar';
+    if (/tente/.test(al)) return 'tente';
+    if (/canoe|canoë|kayak/.test(al)) return 'canoe';
+    return 'peche';
+  }
+  function oldMakeDates(start, n) {
+    return Array.from({length:n}, (_,i) => { const d=new Date(start); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10); });
+  }
+
+  let oldLogicielData = [];
+
+  window.importOldLogiciel = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById('old-logiciel-status');
+    statusEl.textContent = '⏳ Lecture…';
+    const html = await file.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const rows = [...doc.querySelectorAll('tr')].filter(tr => tr.querySelectorAll('td').length === 8);
+    oldLogicielData = [];
+    for (const tr of rows) {
+      const cells = [...tr.querySelectorAll('td')].map(td => (td.innerText||td.textContent||'').trim());
+      const [dateCell,,actCell,nameCell,paxCell,,priceCell,noteCell] = cells;
+      const [dateDebut, dateFin] = oldParseDates(dateCell);
+      if (!dateDebut || !dateFin) continue;
+      const type = oldDetectType(actCell);
+      const [prenom, nom] = oldParseName(nameCell);
+      const [adultes, enfants] = oldParsePax(paxCell);
+      const totalPrice = oldParseMoney(priceCell,'Prix') || null;
+      const avance = oldParseMoney(priceCell,'Avance') || null;
+      const resteAPayer = oldParseMoney(priceCell,'Reste') || null;
+      const duree = Math.max(1, Math.round((new Date(dateFin)-new Date(dateDebut))/86400000));
+      const r = {type, status:'confirmed', prenom, nom, dateDebut, dateFin, duree, dates: oldMakeDates(dateDebut, duree), source:'import-manuel'};
+      if (adultes) r.adultes = adultes;
+      if (enfants) r.enfants = enfants;
+      if (totalPrice) r.totalPrice = totalPrice;
+      if (avance) r.avance = avance;
+      if (resteAPayer) r.resteAPayer = resteAPayer;
+      const note = (noteCell||'').trim(); if (note) r.message = note;
+      if (type === 'peche') {
+        if (/carnassier/i.test(actCell)) { r.posteId = 'zone-carnassier'; r.activity = 'carnassier'; }
+        else r.posteId = oldMapPoste(actCell);
+        r.formule = 'nuit'; r.nb = adultes || 1;
+        if (/\+barque/i.test(nameCell)) { r.barque = true; const bm = nameCell.match(/barque\s*(\d)/i); if (bm) r.barqueNum = parseInt(bm[1]); }
+      } else if (type === 'campingcar') {
+        if (totalPrice && duree) r.tarifNuit = Math.round(totalPrice/duree*100)/100;
+      } else if (type === 'canoe') { r.nb = adultes || 1; }
+      oldLogicielData.push(r);
+    }
+    const nCarn = oldLogicielData.filter(r => r.activity === 'carnassier').length;
+    const nCC   = oldLogicielData.filter(r => r.type === 'campingcar').length;
+    const nPeche= oldLogicielData.filter(r => r.type === 'peche' && r.activity !== 'carnassier').length;
+    statusEl.textContent = `✅ ${oldLogicielData.length} réservations trouvées — 🐟 ${nCarn} carnassier · 🎣 ${nPeche} pêche · 🚐 ${nCC} CC`;
+    document.getElementById('old-logiciel-buttons').style.display = 'flex';
+    input.value = '';
+  };
+
+  window.doOldImport = async function(forceAll = false, onlyType = null) {
+    const statusEl = document.getElementById('old-logiciel-status');
+    let toImport = [...oldLogicielData];
+    if (onlyType === 'carnassier') toImport = toImport.filter(r => r.activity === 'carnassier');
+    if (!forceAll) {
+      const snap = await db.collection('reservations').get();
+      const existing = snap.docs.map(d => ({...d.data()}));
+      toImport = toImport.filter(r => {
+        const rNom = (r.nom+r.prenom).toLowerCase().replace(/\s/g,'');
+        return !existing.some(e => {
+          if (e.type !== r.type) return false;
+          if ((e.dateDebut||e.date||'') !== r.dateDebut) return false;
+          if (r.type === 'peche') {
+            const rCarn = r.activity === 'carnassier';
+            const eCarn = e.activity === 'carnassier' || e.posteId === 'zone-carnassier';
+            if (rCarn !== eCarn) return false;
+          }
+          const eNom = ((e.nom||'')+(e.prenom||'')).toLowerCase().replace(/\s/g,'');
+          return rNom.length >= 3 && eNom.length >= 3 && (rNom.includes(eNom.slice(0,4)) || eNom.includes(rNom.slice(0,4)));
+        });
+      });
+    }
+    if (!toImport.length) { statusEl.textContent = 'Aucune réservation à importer (tout déjà présent).'; return; }
+    statusEl.textContent = `⏳ Import de ${toImport.length} réservations…`;
+    let done = 0;
+    for (let start = 0; start < toImport.length; start += 400) {
+      const batch = db.batch();
+      for (const r of toImport.slice(start, start+400))
+        batch.set(db.collection('reservations').doc(), {...r, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+      await batch.commit();
+      done += Math.min(400, toImport.length - start);
+      statusEl.textContent = `⏳ ${done}/${toImport.length}…`;
+    }
+    statusEl.textContent = `✅ ${done} réservation(s) importée(s)`;
+    setTimeout(() => { closeIcsModal(); }, 1500);
+  };
 
   // Auto-sync 4s après chargement
   window.addEventListener('load', () => {
