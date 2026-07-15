@@ -2732,7 +2732,7 @@
     document.getElementById('nrm-message').value = r.message || '';
     document.getElementById('nrm-note-interne').value = r.noteInterne || '';
     document.getElementById('nrm-acompte').value = r.acompte || 0;
-    document.getElementById('nrm-price-override').value = '';
+    document.getElementById('nrm-price-override').value = (r.totalPrice != null) ? r.totalPrice : '';
     const statusInput = document.querySelector(`input[name="nrm-status"][value="${r.status||'pending'}"]`);
     if (statusInput) statusInput.checked = true;
 
