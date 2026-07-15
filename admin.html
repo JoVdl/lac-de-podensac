@@ -730,8 +730,8 @@
     .cancelled        { background: #f0f0f0; color: #999; }
     /* Source badges */
     .source-badge { display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;letter-spacing:0.03em;white-space:nowrap; }
-    .source-badge.pitchup   { background:repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 4px,#f5e100 4px,#f5e100 8px); color:#1a3a00; border:1px solid #2d7a3a; text-shadow:0 1px 2px rgba(255,255,255,0.6); }
-    .source-badge.campspace { background:repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 4px,#ffffff 4px,#ffffff 8px); color:#1a3a00; border:1px solid #2d7a3a; text-shadow:0 1px 2px rgba(255,255,255,0.6); }
+    .source-badge.pitchup   { background:#f5e100; color:#5a4a00; border:1px solid #c8ba00; }
+    .source-badge.campspace { background:#2d7a3a; color:#fff; border:1px solid #1a5228; }
     .source-badge.ics       { background:#f0f0f0; color:#555; border:1px solid #ddd; }
     .cal-more-link {
       font-size: 0.64rem; color: var(--primary); font-weight: 700;
@@ -2087,8 +2087,8 @@
   // Couleurs & infos par source ICS
   function sourceInfo(r) {
     const src = (r.source || '').toLowerCase();
-    if (src.includes('pitchup'))   return { key: 'pitchup',   label: 'Pitchup',    icon: '🟡', bg: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 5px,#f5e100 5px,#f5e100 10px)', bgSolid: '#2d7a3a', bgLight: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 3px,#f5e10044 3px,#f5e10044 6px)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.5)' };
-    if (src.includes('campspace')) return { key: 'campspace', label: 'Campspace',  icon: '🟢', bg: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 5px,#ffffff 5px,#ffffff 10px)', bgSolid: '#2d7a3a', bgLight: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 3px,#ffffff88 3px,#ffffff88 6px)', color: '#1a3a00', textShadow: '0 1px 2px rgba(255,255,255,0.6)' };
+    if (src.includes('pitchup'))   return { key: 'pitchup',   label: 'Pitchup',   icon: '🟡', bg: '#f5e100', bgSolid: '#c8ba00', bgLight: '#f5e10066', color: '#5a4a00', textShadow: 'none' };
+    if (src.includes('campspace')) return { key: 'campspace', label: 'Campspace', icon: '🟢', bg: '#2d7a3a', bgSolid: '#1a5228', bgLight: '#2d7a3a66', color: '#fff',    textShadow: 'none' };
     return null; // réservation directe, pas de badge source
   }
 
