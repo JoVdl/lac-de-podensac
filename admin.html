@@ -1593,6 +1593,8 @@
       const tarifs = { 'petit-dej':70,'midi':210,'apres-midi':110,'soiree':210,'demi-matin':270,'demi-soir':270 };
       return tarifs[r.formule] || 0;
     }
+    if (r.totalPrice) return r.totalPrice;
+    if (r.tarifNuit && r.duree) return r.tarifNuit * r.duree + (r.kwh || 0) * (r.kwhTarif || 3);
     return 0;
   }
 
