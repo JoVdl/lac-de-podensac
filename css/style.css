@@ -531,10 +531,36 @@ p { margin-bottom: 0; }
 .footer__social-link {
   width: 38px; height: 38px; border-radius: 10px;
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-  display: flex; align-items: center; justify-content: center; font-size: 1rem;
-  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); color: #fff;
 }
-.footer__social-link:hover { background: var(--accent); border-color: var(--accent); }
+.footer__social-link svg { width: 18px; height: 18px; fill: currentColor; }
+.footer__social-link.fb:hover  { background: #1877f2; border-color: #1877f2; }
+.footer__social-link.ig:hover  { background: linear-gradient(135deg,#e1306c,#f77737); border-color: #e1306c; }
+.footer__social-link.tt:hover  { background: #010101; border-color: #69C9D0; }
+
+/* ── SOCIAL SECTION ── */
+.social-section { background: var(--white); }
+.social-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.social-card {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 28px 32px; border-radius: 20px; text-decoration: none; color: #fff;
+  min-width: 180px; transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.social-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.social-card.fb { background: #1877f2; }
+.social-card.ig { background: linear-gradient(135deg,#833ab4,#e1306c,#f77737); }
+.social-card.tt { background: #010101; }
+.social-card__logo svg { width: 40px; height: 40px; fill: #fff; }
+.social-card__count {
+  font-family: var(--font-head); font-size: 2rem; font-weight: 900; line-height: 1;
+}
+.social-card__label { font-size: 0.78rem; font-weight: 600; opacity: 0.85; text-align: center; }
+.social-card__cta {
+  background: rgba(255,255,255,0.2); border-radius: 50px;
+  padding: 6px 14px; font-size: 0.75rem; font-weight: 700;
+}
 .footer__col-title { color: var(--white); font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.08em; }
 .footer__links { display: flex; flex-direction: column; gap: 10px; }
 .footer__link { font-size: 0.88rem; transition: color 0.2s; }
