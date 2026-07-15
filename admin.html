@@ -3432,12 +3432,13 @@
 
     const events = parseICS(text, src.label);
 
-    // Charger les réservations campingcar existantes pour l'attribution d'emplacement
-    // Map<emplacement, [{dateDebut, dateFin}]>
+    // Charger uniquement les réservations manuelles (non-ICS) pour la base de conflits
+    // Les ICS sont toujours réassignés proprement à chaque sync
     const occupied = new Map();
     try {
-      const snap = await db.collection('reservations').where('type','==','campingcar').get();
-      snap.forEach(doc => {
+      const fsSnap = await db.collection('reservations').where('type','==','campingcar').get();
+      fsSnap.forEach(doc => {
+        if (doc.id.startsWith('ics_')) return; // on ignore les ICS existants (réassignés ci-dessous)
         const d = doc.data();
         if (!d.emplacement || !d.dateDebut || !d.dateFin) return;
         const key = String(d.emplacement);
@@ -3446,8 +3447,22 @@
       });
     } catch(_) {}
 
+    // Trier les événements par date d'arrivée pour que les plus proches gardent la priorité
+    const sorted = [...events].sort((a, b) => (a.dtstart || '').localeCompare(b.dtstart || ''));
+
+    // Pré-attribuer les emplacements sans conflit
+    const emplacementMap = new Map(); // uid → emplacement
+    for (const ev of sorted) {
+      const free = pickFreeEmplacement(ev.dtstart, ev.dtend, occupied);
+      if (free) {
+        emplacementMap.set(ev.uid, free);
+        if (!occupied.has(free)) occupied.set(free, []);
+        occupied.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+      }
+    }
+
     let added = 0, updated = 0;
-    // Firestore batch max 500 ops — split if needed
+    // Firestore batch max 500 ops — split si nécessaire
     for (let start = 0; start < events.length; start += 400) {
       const batch = db.batch();
       for (const ev of events.slice(start, start + 400)) {
@@ -3462,26 +3477,10 @@
           dates: makeDatesArray(ev.dtstart, nbNuits),
           status: ev.status,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          emplacement: emplacementMap.get(ev.uid) || ev.emplacement || '',
         };
         delete data.dtstart; delete data.dtend;
-        // Ne pas écraser les champs null (Pitchup peut ne pas avoir certains champs)
         Object.keys(data).forEach(k => data[k] === null && delete data[k]);
-
-        // Auto-assign emplacement si pas encore un numéro 1–8 (nouveau doc OU doc existant sans emplacement valide)
-        const existingEmpl = snap.exists ? (snap.data().emplacement || '') : '';
-        const needsEmpl = !existingEmpl || !/^[1-8]$/.test(String(existingEmpl));
-        if (needsEmpl && (!data.emplacement || !/^[1-8]$/.test(String(data.emplacement)))) {
-          const free = pickFreeEmplacement(data.dateDebut, data.dateFin, occupied);
-          if (free) {
-            data.emplacement = free;
-            // Enregistrer dans la map locale pour les prochains événements du même batch
-            if (!occupied.has(free)) occupied.set(free, []);
-            occupied.get(free).push({ dateDebut: data.dateDebut, dateFin: data.dateFin });
-          }
-        } else if (!needsEmpl && !data.emplacement) {
-          // Conserver l'emplacement existant
-          data.emplacement = String(existingEmpl);
-        }
 
         if (snap.exists) { batch.update(ref, data); updated++; }
         else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); batch.set(ref, data); added++; }
