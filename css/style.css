@@ -1503,3 +1503,11 @@ p { margin-bottom: 0; }
 .boat-option-item__price { font-size: 0.82rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
 [data-theme="dark"] .boat-option-item { background: #162220; border-color: rgba(255,255,255,0.07); }
 [data-theme="dark"] .boat-option-item:has(input:checked) { background: rgba(232,149,30,0.08); }
+
+/* ================================================================
+   INVERTED COLORS MODE (accessibility / display setting)
+   Re-invert media elements so they appear normal; OS handles text.
+   ================================================================ */
+@media (inverted-colors: inverted) {
+  img, video, canvas, iframe, svg { filter: invert(1) hue-rotate(180deg); }
+}
