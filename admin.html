@@ -728,6 +728,11 @@
     .bateau-confirmed { background: rgba(232,149,30,0.14);color: #965800; }
     .bateau-pending   { background: rgba(232,149,30,0.09);color: #b07000; }
     .cancelled        { background: #f0f0f0; color: #999; }
+    /* Source badges */
+    .source-badge { display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;letter-spacing:0.03em;white-space:nowrap; }
+    .source-badge.pitchup   { background:#e6f4ec; color:#1a6b30; border:1px solid #a8d9b8; }
+    .source-badge.campspace { background:#fff0e6; color:#bf4d00; border:1px solid #f9c49a; }
+    .source-badge.ics       { background:#f0f0f0; color:#555;    border:1px solid #ddd; }
     .cal-more-link {
       font-size: 0.64rem; color: var(--primary); font-weight: 700;
       cursor: pointer; background: none; border: none; padding: 0;
@@ -1843,16 +1848,19 @@
     actionBtns.push(`<button class="btn-action btn-delete" title="Supprimer" onclick="confirmDelete('${r.id}')">🗑</button>`);
 
     return `
-      <div class="res-card ${status}" onclick="openEditResModal('${r.id}')" style="cursor:pointer;" title="Cliquer pour modifier">
+      <div class="res-card ${status}" onclick="openEditResModal('${r.id}')" style="cursor:pointer;${sourceInfo(r) ? `border-left:3px solid ${sourceInfo(r).bg};` : ''}" title="Cliquer pour modifier">
         <div class="res-card__header">
-          <div class="res-type-badge ${r.type}">${
-            r.type === 'peche' ? '🎣 Pêche' :
-            r.type === 'bateau' ? '🔥 Bateau BBQ' :
-            r.type === 'canoe' ? '🛶 Canoé' :
-            r.type === 'campingcar' ? '🚐 Camping-car' :
-            r.type === 'tente' ? '⛺ Tente' :
-            '📋 ' + (r.type || 'Réservation')
-          }</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="res-type-badge ${r.type}">${
+              r.type === 'peche' ? '🎣 Pêche' :
+              r.type === 'bateau' ? '🔥 Bateau BBQ' :
+              r.type === 'canoe' ? '🛶 Canoé' :
+              r.type === 'campingcar' ? '🚐 Camping-car' :
+              r.type === 'tente' ? '⛺ Tente' :
+              '📋 ' + (r.type || 'Réservation')
+            }</div>
+            ${sourceInfo(r) ? `<span class="source-badge ${sourceInfo(r).key}">${sourceInfo(r).icon} ${sourceInfo(r).label}</span>` : ''}
+          </div>
           <div class="res-header-right">
             ${statusBadge}
             <span class="res-received-date">${received}</span>
@@ -2071,6 +2079,14 @@
     _drag.resId = null;
   };
 
+  // Couleurs & infos par source ICS
+  function sourceInfo(r) {
+    const src = (r.source || '').toLowerCase();
+    if (src.includes('pitchup'))   return { key: 'pitchup',   label: 'Pitchup',    icon: '🟢', bg: '#2d7a3a', bgLight: 'rgba(45,122,58,0.13)',  color: '#1a5c28' };
+    if (src.includes('campspace')) return { key: 'campspace', label: 'Campspace',  icon: '🟠', bg: '#e85d00', bgLight: 'rgba(232,93,0,0.12)',    color: '#bf4d00' };
+    return null; // réservation directe, pas de badge source
+  }
+
   function chipClass(r) {
     const s = r.status || 'pending';
     if (s === 'cancelled') return 'cancelled';
@@ -2169,10 +2185,13 @@
       const chips = dayRes.slice(0, 3).map(r => {
         const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
         const icon = r.type === 'peche' ? '🎣' : r.type === 'bateau' ? '🔥' : r.type === 'canoe' ? '🛶' : r.type === 'campingcar' ? '🚐' : r.type === 'tente' ? '⛺' : '📋';
+        const si = sourceInfo(r);
+        const chipStyle = si && (r.status||'pending') !== 'cancelled' ? `style="background:${si.bgLight};color:${si.color};border-left:2px solid ${si.bg};"` : '';
         return `<button class="cal-event-chip ${chipClass(r)}" draggable="true"
           ondragstart="event.stopPropagation();calChipDragStart(event,'${r.id}')"
           ondragend="calChipDragEnd(event)"
-          onclick="event.stopPropagation();openResDetail('${r.id}')">${icon} ${name}</button>`;
+          onclick="event.stopPropagation();openResDetail('${r.id}')"
+          ${chipStyle}>${icon} ${name}</button>`;
       }).join('');
 
       const more = dayRes.length - 3;
@@ -2407,7 +2426,9 @@
           const isConf = status === 'confirmed';
           const isCancelled = status === 'cancelled';
           let bg, color;
+          const si = sourceInfo(r);
           if (isCancelled)                   { bg = '#e8e8e8'; color = '#999'; }
+          else if (si)                       { bg = isConf ? si.bg : si.bg + 'bb'; color = '#fff'; }
           else if (r.type === 'peche' || row.type === 'carnassier') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
           else if (r.type === 'bateau')      { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
           else if (r.type === 'canoe')       { bg = isConf ? '#1a6080' : '#2a7090'; color = '#fff'; }
