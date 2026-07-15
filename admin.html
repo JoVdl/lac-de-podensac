@@ -1938,8 +1938,28 @@
 
   function getResDates(r) {
     if (r.date) return [r.date];
-    if (r.dateDebut) return expandDates(r.dateDebut, r.dateFin || r.dateDebut);
-    if (r.type === 'peche' && r.dates && r.dates.length) return r.dates;
+    if (r.dateDebut) {
+      let end = r.dateFin;
+      // Fallback: infer dateFin from formule nuit (nuit-N = N nights)
+      if (!end || end === r.dateDebut) {
+        if (r.formule && r.formule.startsWith('nuit-')) {
+          const nuits = parseInt(r.formule.split('-')[1]) || 0;
+          if (nuits > 0) {
+            const d = new Date(r.dateDebut + 'T00:00:00');
+            d.setDate(d.getDate() + nuits);
+            end = toDateStr(d);
+          }
+        }
+        // Fallback: use duree field
+        if ((!end || end === r.dateDebut) && r.duree > 1) {
+          const d = new Date(r.dateDebut + 'T00:00:00');
+          d.setDate(d.getDate() + r.duree);
+          end = toDateStr(d);
+        }
+      }
+      return expandDates(r.dateDebut, end || r.dateDebut);
+    }
+    if (r.dates && r.dates.length) return r.dates;
     return [];
   }
 
@@ -2917,7 +2937,15 @@
         const isNuit = formule.startsWith('nuit-');
         const nuits = isNuit ? parseInt(formule.split('-')[1]) : 0;
         const unitPrice = isNuit ? (TARIFS_NUITS[nuits] || nuits * 35) : (formule === 'demi' ? 15 : 20);
-        const dates = makeDates(dateDebut, 1);
+        // Auto-compute dateFin: for nuit, departure = dateDebut + nuits; for jour/demi, same day
+        const autoDateFin = (() => {
+          if (!isNuit || nuits <= 0) return dateDebut;
+          const d = new Date(dateDebut + 'T00:00:00');
+          d.setDate(d.getDate() + nuits);
+          return toDateStr(d);
+        })();
+        const finalDateFin = dateFin || autoDateFin;
+        const dates = makeDates(dateDebut, isNuit ? nuits : 1);
         let totalPrice = unitPrice;
         const accomp=parseInt(document.getElementById('nrm-accomp').value)||0;
         const aT = formule==='demi' ? 5 : 10;
@@ -2931,7 +2959,7 @@
           totalPrice+=parseFloat(cb.dataset.prix)||0;
           materiel.push(cb.dataset.id);
         });
-        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
+        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:finalDateFin,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
 
       } else if (nrmType === 'bateau') {
         const date=document.getElementById('nrm-date-bateau').value;
