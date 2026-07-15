@@ -3230,7 +3230,11 @@
   <!-- ===== ICS SYNC ===== -->
   <script>
   const ICS_SOURCES_KEY = 'ics_sources_v2';
-  const ICS_PROXY = 'https://corsproxy.io/?';
+  const ICS_PROXIES = [
+    'https://corsproxy.io/?',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
 
   // Sources par défaut (Pitchup pré-configuré)
   const ICS_DEFAULTS = [
@@ -3320,7 +3324,7 @@
     const p = (pitchtype || '').toLowerCase();
     if (p.includes('tente')) return 'tente';
     if (p.includes('véhicule') || p.includes('vehicule') || p.includes('camping-car') || p.includes('campingcar')) return 'campingcar';
-    return 'camping';
+    return 'campingcar'; // défaut
   }
 
   function mapStatus(s) {
@@ -3369,7 +3373,7 @@
       if (!nom) nom = summary;
 
       const isPitchup = !!puId;
-      const type = 'campingcar'; // toutes les réservations ICS → camping-car
+      const type = detectType(puPitchtype || summary);
       const status = isPitchup ? mapStatus(puStatus) : 'confirmed';
 
       events.push({
@@ -3424,11 +3428,16 @@
   async function syncOneSource(src) {
     if (!src.url) return { added:0, updated:0, errors:0, label: src.label };
     let text;
-    try {
-      const res = await fetch(ICS_PROXY + encodeURIComponent(src.url));
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      text = await res.text();
-    } catch(e) { return { added:0, updated:0, errors:1, parsed:0, label: src.label, err: e.message }; }
+    let lastErr = '';
+    for (const proxy of ICS_PROXIES) {
+      try {
+        const res = await fetch(proxy + encodeURIComponent(src.url));
+        if (!res.ok) { lastErr = `HTTP ${res.status} (${proxy.split('/')[2]})`; continue; }
+        text = await res.text();
+        break;
+      } catch(e) { lastErr = `${e.message} (${proxy.split('/')[2]})`; }
+    }
+    if (!text) return { added:0, updated:0, errors:1, parsed:0, label: src.label, err: lastErr };
 
     const events = parseICS(text, src.label);
 
