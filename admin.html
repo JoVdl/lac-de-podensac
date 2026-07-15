@@ -1316,7 +1316,7 @@
             </div>
             <div class="nrm-field">
               <label class="nrm-label">Tarif / nuit (€)</label>
-              <input type="number" class="nrm-input" id="nrm-cc-tarif" value="20" min="1" onchange="nrmUpdatePrice()">
+              <input type="number" class="nrm-input" id="nrm-cc-tarif" value="13" min="1" onchange="nrmUpdatePrice()">
             </div>
           </div>
           <div class="nrm-row">
@@ -1327,6 +1327,16 @@
             <div class="nrm-field">
               <label class="nrm-label">Date départ *</label>
               <input type="date" class="nrm-input" id="nrm-date-cc-fin" onchange="nrmUpdatePrice()">
+            </div>
+          </div>
+          <div class="nrm-row">
+            <div class="nrm-field">
+              <label class="nrm-label">Électricité (kWh consommés)</label>
+              <input type="number" class="nrm-input" id="nrm-cc-kwh" value="0" min="0" step="1" onchange="nrmUpdatePrice()" placeholder="0">
+            </div>
+            <div class="nrm-field">
+              <label class="nrm-label">Tarif élec. (€/kWh)</label>
+              <input type="number" class="nrm-input" id="nrm-cc-kwh-tarif" value="3" min="0" step="0.5" onchange="nrmUpdatePrice()">
             </div>
           </div>
           <div id="nrm-cc-duree" class="nrm-duree-tag" style="display:none;"></div>
@@ -2615,11 +2625,17 @@
       el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
 
     } else if (nrmType === 'campingcar') {
-      const tarif = parseInt(document.getElementById('nrm-cc-tarif').value)||20;
+      const tarif = parseInt(document.getElementById('nrm-cc-tarif').value)||13;
+      const kwh = parseFloat(document.getElementById('nrm-cc-kwh').value)||0;
+      const kwhTarif = parseFloat(document.getElementById('nrm-cc-kwh-tarif').value)||3;
       const diff = nrmDaysBetween('nrm-date-cc-debut', 'nrm-date-cc-fin');
       const nbNuits = Math.max(diff, 0);
-      dureeTxt = nbNuits > 0 ? `${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €` : '';
-      calcPrice = tarif * nbNuits;
+      const elecPrice = Math.round(kwh * kwhTarif * 100) / 100;
+      let parts = [];
+      if (nbNuits > 0) parts.push(`${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €`);
+      if (elecPrice > 0) parts.push(`Élec. ${kwh} kWh × ${kwhTarif} € = ${elecPrice} €`);
+      dureeTxt = parts.join(' · ');
+      calcPrice = tarif * nbNuits + elecPrice;
       const el = document.getElementById('nrm-cc-duree');
       el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
     }
@@ -2757,7 +2773,9 @@
       document.getElementById('nrm-date-cc-debut').value = r.dateDebut || '';
       document.getElementById('nrm-date-cc-fin').value = r.dateFin || '';
       document.getElementById('nrm-cc-duree').style.display = 'none';
-      document.getElementById('nrm-cc-tarif').value = r.tarifNuit || 20;
+      document.getElementById('nrm-cc-tarif').value = r.tarifNuit || 13;
+      document.getElementById('nrm-cc-kwh').value = r.kwh || 0;
+      document.getElementById('nrm-cc-kwh-tarif').value = r.kwhTarif || 3;
       if (r.emplacement) document.getElementById('nrm-cc-emplacement').value = r.emplacement;
     }
 
@@ -2839,9 +2857,13 @@
         const dateDebut=document.getElementById('nrm-date-cc-debut').value;
         const dateFin=document.getElementById('nrm-date-cc-fin').value;
         if(!dateDebut||!dateFin){toast('Dates requises','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
-        const tarif=parseInt(document.getElementById('nrm-cc-tarif').value)||20;
+        const tarif=parseInt(document.getElementById('nrm-cc-tarif').value)||13;
+        const kwh=parseFloat(document.getElementById('nrm-cc-kwh').value)||0;
+        const kwhTarif=parseFloat(document.getElementById('nrm-cc-kwh-tarif').value)||3;
+        const elecPrice=Math.round(kwh*kwhTarif*100)/100;
         const nbNuits=Math.max(1,nrmDaysBetween('nrm-date-cc-debut','nrm-date-cc-fin'));
-        Object.assign(data,{type:'campingcar',emplacement:document.getElementById('nrm-cc-emplacement').value,tarifNuit:tarif,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice:tarif*nbNuits});
+        const totalPrice=tarif*nbNuits+elecPrice;
+        Object.assign(data,{type:'campingcar',emplacement:document.getElementById('nrm-cc-emplacement').value,tarifNuit:tarif,kwh,kwhTarif,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice});
       }
 
       // Price override
