@@ -1923,10 +1923,21 @@
 
   function getDow(d) { return (d.getDay() + 6) % 7; } // 0=Lun … 6=Dim
 
+  function expandDates(start, end) {
+    const arr = [];
+    const d = new Date(start + 'T00:00:00');
+    const last = new Date((end || start) + 'T00:00:00');
+    while (d <= last) {
+      arr.push(toDateStr(d));
+      d.setDate(d.getDate() + 1);
+    }
+    return arr;
+  }
+
   function getResDates(r) {
-    if (r.type === 'peche' && r.dates && r.dates.length) return r.dates;
     if (r.date) return [r.date];
-    if (r.dateDebut) return [r.dateDebut];
+    if (r.dateDebut) return expandDates(r.dateDebut, r.dateFin || r.dateDebut);
+    if (r.type === 'peche' && r.dates && r.dates.length) return r.dates;
     return [];
   }
 
