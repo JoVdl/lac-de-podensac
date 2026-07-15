@@ -1514,4 +1514,16 @@ p { margin-bottom: 0; }
    ================================================================ */
 @media (inverted-colors: inverted) {
   img, video, canvas, iframe, svg { filter: invert(1) hue-rotate(180deg); }
+  .booking-summary,
+  .menu-section,
+  .menu-item,
+  .nav,
+  .footer,
+  .hero,
+  .section--dark { filter: invert(1) hue-rotate(180deg); }
+  .booking-summary img,
+  .menu-section img,
+  .nav img,
+  .footer img,
+  .hero img { filter: invert(1) hue-rotate(180deg); }
 }
