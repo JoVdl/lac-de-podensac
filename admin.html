@@ -2008,6 +2008,13 @@
     renderCalendarView();
   }
 
+  function calNavigateByDay(dir) {
+    const d = new Date(calDate);
+    d.setDate(d.getDate() + dir);
+    calDate = d;
+    renderCalendarView();
+  }
+
   function renderCalendarView() {
     updateCalHeader();
     const c = document.getElementById('cal-container');
@@ -2893,7 +2900,7 @@
       const dx = e.clientX - dragStartX;
       container.style.cursor = '';
       if (isDragging && Math.abs(dx) >= THRESHOLD) {
-        calNavigate(dx < 0 ? 1 : -1);
+        calNavigateByDay(dx < 0 ? 1 : -1);
       }
       dragStartX = null;
       isDragging = false;
