@@ -41,6 +41,8 @@ const LOCATION_MATERIEL = [
   { id: 'moteur-electrique',label:'Moteur électrique',           emoji: '⚡', prix_jour: 10, note: '3 disponibles' },
   { id: 'epuisette',       label: 'Épuisette',                   emoji: '🪣', prix_jour: 10, note: '1 disponible' },
   { id: 'tapis',           label: 'Tapis de réception',          emoji: '🟫', prix_jour: 10, note: '1 disponible' },
+  { id: 'toilettes-seches',label: 'Kit toilettes sèches',        emoji: '🚽', prix_jour: 10, note: '' },
+  { id: 'canne-coup-mat',  label: 'Canne au coup + ligne & matériel', emoji: '🎣', prix_jour: 20, note: 'Matériel complet inclus' },
 ];
 window.LOCATION_MATERIEL = LOCATION_MATERIEL;
 
