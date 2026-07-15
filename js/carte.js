@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function getAvailInfo(p) {
     if (p.coming_soon) return { cls: 'partial', label: '🚧 Bientôt', short: 'Bientôt' };
-    if (!p.disponible) return { cls: 'busy', label: '● Fermé', short: 'Fermé' };
     const booked = _bookedByPoste[p.id] || new Set();
     if (!booked.has(_today)) return { cls: 'available', label: '✓ Dispo', short: 'Dispo' };
     const next = _nextAvailDate(p.id);

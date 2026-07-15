@@ -590,10 +590,9 @@
 
       function availInfo(p, bookedByPoste) {
         if (p.coming_soon) return { cls: 'partial', label: '🚧 Bientôt' };
-        if (!p.disponible) return { cls: 'busy', label: '● Fermé' };
         const booked = bookedByPoste[p.id] || new Set();
-        const next = nextAvailableDate(booked);
         if (!booked.has(today)) return { cls: 'available', label: '✓ Disponible' };
+        const next = nextAvailableDate(booked);
         const nextFmt = next ? formatDate(next) : null;
         return { cls: 'busy', label: nextFmt ? `Dispo le ${nextFmt}` : '● Complet' };
       }
