@@ -80,6 +80,37 @@
     </div>
   </div>
 
+  <!-- BATHYMÉTRIE -->
+  <section class="section" id="bathymetrie" style="background:var(--white);padding-top:40px;padding-bottom:48px;">
+    <div class="container">
+      <div class="section-header text-center" style="margin-bottom:24px;">
+        <span class="section-label">Profondeurs</span>
+        <h2 class="section-title">Carte bathymétrique du lac</h2>
+        <p class="section-subtitle">Cliquez sur la carte pour l'agrandir.</p>
+      </div>
+      <div style="text-align:center;">
+        <img id="bathy-thumb"
+          src="images/bathymetrie-lac.jpg"
+          alt="Carte bathymétrique du lac de Podensac"
+          style="max-width:100%;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.14);cursor:zoom-in;"
+          onclick="document.getElementById('bathy-modal').classList.add('open')">
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal plein écran bathymétrie -->
+  <div id="bathy-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;padding:16px;"
+       onclick="this.classList.remove('open')">
+    <img src="images/bathymetrie-lac.jpg" alt="Bathymétrie"
+         style="max-width:100%;max-height:100%;border-radius:10px;object-fit:contain;">
+    <button onclick="document.getElementById('bathy-modal').classList.remove('open')"
+            style="position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:1.8rem;width:44px;height:44px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
+  </div>
+  <style>
+    #bathy-modal { display: none; }
+    #bathy-modal.open { display: flex; }
+  </style>
+
   <!-- CARTE INTERACTIVE -->
   <section class="section map-section" id="carte">
     <div class="container--wide">
