@@ -2801,8 +2801,8 @@
 
     document.getElementById('nrm-price').textContent = finalPrice > 0 ? finalPrice + ' €' : '— €';
 
-    const acompte = parseInt(document.getElementById('nrm-acompte').value)||0;
-    const reste = finalPrice > 0 ? Math.max(0, finalPrice - acompte) : 0;
+    const acompte = parseFloat(document.getElementById('nrm-acompte').value)||0;
+    const reste = finalPrice > 0 ? Math.round(Math.max(0, finalPrice - acompte) * 100) / 100 : 0;
     document.getElementById('nrm-reste').textContent = finalPrice > 0 ? reste + ' €' : '—';
     const sub = document.getElementById('nrm-footer-sub');
     sub.textContent = (acompte > 0 && finalPrice > 0) ? `Acompte ${acompte} € · Reste ${reste} €` : '';
@@ -2948,7 +2948,7 @@
     const nom = document.getElementById('nrm-nom').value.trim();
     if (!prenom || !nom) { toast('Prénom et nom requis', 'error'); return; }
     const status = document.querySelector('input[name="nrm-status"]:checked')?.value || 'pending';
-    const acompte = parseInt(document.getElementById('nrm-acompte').value)||0;
+    const acompte = parseFloat(document.getElementById('nrm-acompte').value)||0;
     const message = document.getElementById('nrm-message').value.trim();
     btn.disabled = true; btn.textContent = 'Enregistrement…';
 
