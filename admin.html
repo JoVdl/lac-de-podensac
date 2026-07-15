@@ -2418,7 +2418,9 @@
       else if (row.type === 'bateau')     relevant = allReservations.filter(r => r.type === 'bateau' && (r.bateau||'').trim() === row.bateau);
       else if (row.type === 'canoe')      relevant = canoeSlots[row.slot] || [];
       else if (row.type === 'campingcar') relevant = allReservations.filter(r => r.type === 'campingcar' && String(r.emplacement) === row.empl);
-      else if (row.type === 'tente')      relevant = allReservations.filter(r => r.type === 'tente' && String(r.emplacement) === row.empl);
+      else if (row.type === 'tente')               relevant = allReservations.filter(r => r.type === 'tente' && String(r.emplacement) === row.empl);
+      else if (row.type === 'tente-unassigned')    relevant = row._reservations || [];
+      else if (row.type === 'campingcar-unassigned') relevant = row._reservations || [];
       else relevant = [];
 
       return relevant.flatMap(r => {
@@ -2538,6 +2540,23 @@
     campingcarRows.forEach(buildRow);
     sectionHead('⛺ Tentes');
     tenteRows.forEach(buildRow);
+
+    // Ligne de secours : tentes sans emplacement assigné
+    const tenteUnassigned = allReservations.filter(r => r.type === 'tente' && !r.emplacement);
+    if (tenteUnassigned.length) {
+      buildRow({
+        id: 'tente-unassigned', label: '⚠️ Tente ?', icon: '', type: 'tente-unassigned', empl: '__none__',
+        _reservations: tenteUnassigned
+      });
+    }
+    // Ligne de secours : campingcar sans emplacement assigné
+    const ccUnassigned = allReservations.filter(r => r.type === 'campingcar' && !r.emplacement);
+    if (ccUnassigned.length) {
+      buildRow({
+        id: 'cc-unassigned', label: '⚠️ CC ?', icon: '', type: 'campingcar-unassigned', empl: '__none__',
+        _reservations: ccUnassigned
+      });
+    }
 
     const savedW = localStorage.getItem('planning-label-w');
     if (savedW) document.documentElement.style.setProperty('--planning-label-w', savedW + 'px');
