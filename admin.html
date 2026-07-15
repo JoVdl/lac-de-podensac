@@ -2208,7 +2208,7 @@
       const price = calculatePrice(r);
       const status = r.status || 'pending';
       const statusLabel = { confirmed:'✓ Confirmée', cancelled:'✗ Annulée', pending:'⏳ En attente' }[status];
-      const typeLabel = r.type === 'peche' ? 'Pêche' : 'Bateau BBQ';
+      const typeLabel = {peche:'Pêche', bateau:'Bateau BBQ', canoe:'Canoé', campingcar:'Camping-car', tente:'Tente'}[r.type] || r.type;
       const formuleLabel = r.formule || '—';
       return `<div class="cal-day-event" onclick="openResDetail('${r.id}')">
         <div class="cal-day-event-dot" style="background:${dotColor(r)}"></div>
