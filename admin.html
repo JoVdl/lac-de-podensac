@@ -1187,6 +1187,10 @@
             <input type="checkbox" id="nrm-canne4" onchange="nrmUpdatePrice()">
             <span>4ème canne (+10 € / nuit max(20 €, n×10 €))</span>
           </label>
+          <label class="nrm-checkbox-row" id="nrm-barque-row" hidden>
+            <input type="checkbox" id="nrm-barque" onchange="nrmUpdatePrice()">
+            <span>Location de barque (30 € / 1j · 40 € / 2j · 15 €/j × 3j+)</span>
+          </label>
         </div>
 
         <!-- ── BATEAU BBQ ── -->
@@ -2479,6 +2483,12 @@
       const aT = formule === 'demi' ? 5 : 10;
       calcPrice += aT * accomp;
       if (document.getElementById('nrm-canne4').checked && formule !== 'demi') calcPrice += 10;
+      // Barque: shown only for carpe en batterie (nuit formules)
+      const barqueRow = document.getElementById('nrm-barque-row');
+      barqueRow.hidden = !isNuit;
+      if (isNuit && document.getElementById('nrm-barque').checked) {
+        calcPrice += nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
+      }
       document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb => {
         calcPrice += parseFloat(cb.dataset.prix) || 0;
       });
@@ -2552,6 +2562,7 @@
       document.getElementById('nrm-nb').value = 1;
       document.getElementById('nrm-accomp').value = 0;
       document.getElementById('nrm-canne4').checked = false;
+      document.getElementById('nrm-barque').checked = false;
     } else if (type === 'bateau') {
       document.getElementById('nrm-date-bateau').value = dateStr || '';
       if (resourceKey && resourceKey !== 'bateau') document.getElementById('nrm-bateau').value = resourceKey;
@@ -2615,6 +2626,7 @@
       document.getElementById('nrm-nb').value = r.nb || 1;
       document.getElementById('nrm-accomp').value = r.nbAccompagnants || 0;
       document.getElementById('nrm-canne4').checked = !!r.canne4;
+      document.getElementById('nrm-barque').checked = !!r.barque;
       // Pre-check material options
       nrmRenderMateriel();
       const checkedMat = new Set(r.materiel || []);
@@ -2691,12 +2703,14 @@
         totalPrice += aT * accomp;
         const canne4=document.getElementById('nrm-canne4').checked;
         if(canne4 && formule!=='demi') totalPrice+=10;
+        const barque=isNuit && document.getElementById('nrm-barque').checked;
+        if(barque) totalPrice += nuits===1?30:nuits===2?40:15*nuits;
         const materiel=[];
         document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb=>{
           totalPrice+=parseFloat(cb.dataset.prix)||0;
           materiel.push(cb.dataset.id);
         });
-        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,materiel,totalPrice});
+        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:dateFin||dateDebut,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
 
       } else if (nrmType === 'bateau') {
         const date=document.getElementById('nrm-date-bateau').value;
