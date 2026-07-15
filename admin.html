@@ -3428,7 +3428,7 @@
       const res = await fetch(ICS_PROXY + encodeURIComponent(src.url));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       text = await res.text();
-    } catch(e) { return { added:0, updated:0, errors:1, label: src.label, err: e.message }; }
+    } catch(e) { return { added:0, updated:0, errors:1, parsed:0, label: src.label, err: e.message }; }
 
     const events = parseICS(text, src.label);
 
@@ -3487,7 +3487,7 @@
       }
       await batch.commit();
     }
-    return { added, updated, errors:0, label: src.label };
+    return { added, updated, errors:0, label: src.label, parsed: events.length };
   }
 
   async function runIcsSync(silent = false) {
@@ -3498,15 +3498,23 @@
     statusEl.textContent = `⏳ Synchronisation de ${sources.length} source(s)…`; statusEl.style.color = '#3d8a80';
 
     let totalAdded = 0, totalUpdated = 0, errors = [];
+    const details = [];
     for (const src of sources) {
+      statusEl.textContent = `⏳ Sync ${src.label}…`; statusEl.style.color = '#3d8a80';
       const r = await syncOneSource(src);
       totalAdded += r.added; totalUpdated += r.updated;
-      if (r.errors) errors.push(`${r.label}: ${r.err}`);
+      if (r.errors) {
+        errors.push(`${r.label}: ${r.err}`);
+        details.push(`${r.label}: ❌ ${r.err}`);
+      } else {
+        details.push(`${r.label}: ${r.parsed} événement(s) lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour`);
+      }
     }
     const msg = errors.length
-      ? `⚠️ ${totalAdded} ajouté(s), ${totalUpdated} mis à jour — Erreurs: ${errors.join('; ')}`
-      : `✅ ${totalAdded} ajouté(s), ${totalUpdated} mis à jour (${sources.map(s=>s.label).join(', ')})`;
-    statusEl.textContent = msg; statusEl.style.color = errors.length ? 'orange' : 'green';
+      ? `⚠️ Erreurs: ${errors.join('; ')}`
+      : `✅ ${totalAdded} ajouté(s), ${totalUpdated} mis à jour`;
+    statusEl.innerHTML = `${msg}<br><small style="color:#666">${details.join('<br>')}</small>`;
+    statusEl.style.color = errors.length ? 'orange' : 'green';
     if (!silent) toast(msg.replace(/^[✅⚠️] /,''), errors.length ? 'warning' : 'success');
   }
 
