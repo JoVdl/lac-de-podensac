@@ -50,10 +50,12 @@ input[type=text]{padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-s
   <label><input type="checkbox" id="hide-dups" onchange="applyFilter()"> Masquer les doublons</label>
 </div>
 
-<div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
   <button class="btn" id="btn-import" onclick="doImport()" disabled>⬆️ Importer (sans doublons)</button>
   <button class="btn" onclick="doImportAll()" id="btn-import-all" disabled>⬆️ Tout importer (avec doublons)</button>
+  <button class="btn" onclick="doImportCarnassier()" id="btn-import-carn" disabled style="background:#1a5028;">🐟 Importer carnassier (forcer)</button>
 </div>
+<div id="type-counts" style="font-size:.8rem;color:#666;margin-bottom:8px;"></div>
 <div id="progress" style="display:none"><div id="progress-bar"></div></div>
 <div id="status"></div>
 
@@ -178,13 +180,20 @@ function refreshDups(){
   dupFlags = data.map(r => isDuplicate(r, existingRes));
   const nDup = dupFlags.filter(Boolean).length;
   const nNew = dupFlags.filter(x=>!x).length;
+  const nCarn = data.filter(r => r.activity==='carnassier'||r.posteId==='zone-carnassier').length;
+  const nCC   = data.filter(r => r.type==='campingcar').length;
+  const nPeche= data.filter(r => r.type==='peche' && r.activity!=='carnassier' && r.posteId!=='zone-carnassier').length;
+  const nCanoe= data.filter(r => r.type==='canoe').length;
   document.getElementById('summary').innerHTML =
     '<b>'+data.length+' réservations à importer</b> — '+
     '<span style="color:#2a6059">'+nNew+' nouvelles</span> · '+
     '<span style="color:#c06000">'+nDup+' doublons potentiels</span> · '+
     existingRes.length+' déjà dans Firestore';
+  document.getElementById('type-counts').textContent =
+    '🐟 Carnassier: '+nCarn+' · 🎣 Pêche postes: '+nPeche+' · 🚐 Camping-car: '+nCC+' · 🛶 Canoë: '+nCanoe;
   document.getElementById('btn-import').disabled = false;
   document.getElementById('btn-import-all').disabled = false;
+  document.getElementById('btn-import-carn').disabled = false;
   renderTable();
 }
 
@@ -290,6 +299,26 @@ async function doImport(importAll=false){
 }
 
 async function doImportAll(){ doImport(true); }
+
+async function doImportCarnassier(){
+  const toImport = getCurrentData().filter(r => r.activity==='carnassier' || r.posteId==='zone-carnassier');
+  if(!toImport.length){ document.getElementById('status').textContent = 'Aucun carnassier trouvé.'; return; }
+  document.getElementById('btn-import-carn').disabled = true;
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = '⏳ Import de '+toImport.length+' carnassier…';
+  document.getElementById('progress').style.display = '';
+  let done = 0, errors = 0;
+  for(let start=0; start<toImport.length; start+=400){
+    const batch = db.batch();
+    for(const r of toImport.slice(start, start+400)){
+      batch.set(db.collection('reservations').doc(), {...r, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    }
+    try { await batch.commit(); done += Math.min(400, toImport.length-start); }
+    catch(e){ errors++; statusEl.textContent = '❌ '+e.message; }
+    document.getElementById('progress-bar').style.width = Math.round(done/toImport.length*100)+'%';
+  }
+  statusEl.textContent = '✅ '+done+' carnassier importés'+(errors?' · ❌ '+errors+' erreurs':'');
+}
 
 init();
 </script>
