@@ -795,9 +795,10 @@
     .cal-planning-outer {
       background: var(--white); border-radius: 14px;
       box-shadow: var(--card-shadow);
-      display: flex; overflow: hidden;
+      display: flex; flex-direction: column;
+      /* overflow: hidden retiré — il cassait position:sticky du header */
     }
-    .cal-planning-outer { display: flex; flex-direction: column; }
+    .cal-planning-body-wrap { border-radius: 0 0 14px 14px; overflow: hidden; }
     .cal-planning-sticky-header {
       position: sticky; top: 60px; z-index: 10;
       display: flex; background: var(--white);
