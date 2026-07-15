@@ -614,6 +614,26 @@
     .modal-btn-cancel-del { background: var(--bg); color: var(--gray); }
     .modal-btn-confirm-del { background: var(--danger); color: #fff; }
 
+    /* ── SORT BAR ── */
+    .sort-bar {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      gap: 10px; margin-bottom: 12px;
+      padding: 10px 14px; background: var(--white); border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .sort-bar__left { display: flex; align-items: center; gap: 8px; }
+    .sort-bar__label { font-size: 0.8rem; font-weight: 600; color: var(--gray); white-space: nowrap; }
+    .sort-select {
+      font-size: 0.82rem; padding: 5px 10px; border: 1.5px solid var(--border);
+      border-radius: 7px; background: var(--white); color: var(--dark); cursor: pointer;
+    }
+    .sort-select:focus { outline: none; border-color: var(--primary); }
+    .sort-bar__upcoming {
+      display: flex; align-items: center; gap: 6px; cursor: pointer;
+      font-size: 0.82rem; font-weight: 600; color: var(--dark);
+    }
+    .sort-bar__upcoming input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+
     /* ── VIEW TOGGLE ── */
     .view-toggle-bar {
       display: flex; gap: 6px; margin-bottom: 20px;
@@ -1056,6 +1076,23 @@
         </div>
       </div>
 
+      <!-- SORT BAR -->
+      <div class="sort-bar">
+        <div class="sort-bar__left">
+          <label class="sort-bar__label">Trier par</label>
+          <select id="sort-select" class="sort-select">
+            <option value="created-desc">Date réservation (récent → ancien)</option>
+            <option value="created-asc">Date réservation (ancien → récent)</option>
+            <option value="session-asc">Date session (prochain → lointain)</option>
+            <option value="session-desc">Date session (lointain → prochain)</option>
+          </select>
+        </div>
+        <label class="sort-bar__upcoming">
+          <input type="checkbox" id="filter-upcoming">
+          <span>📅 À venir uniquement</span>
+        </label>
+      </div>
+
       <!-- VIEW TOGGLE -->
       <div class="view-toggle-bar">
         <button class="view-toggle-btn active" id="view-toggle-list">📋 Liste</button>
@@ -1401,6 +1438,8 @@
   let activeTypeFilter = 'all';
   let activeStatusFilter = 'all';
   let searchQuery = '';
+  let activeSortOrder = 'created-desc';
+  let filterUpcoming = false;
   let pendingDeleteId = null;
   let unsubscribeReservations = null;
 
@@ -1600,17 +1639,53 @@
     renderList();
   });
 
+  document.getElementById('sort-select').addEventListener('change', e => {
+    activeSortOrder = e.target.value;
+    renderList();
+  });
+
+  document.getElementById('filter-upcoming').addEventListener('change', e => {
+    filterUpcoming = e.target.checked;
+    renderList();
+  });
+
   // ── Render ────────────────────────────────────────────────────
+  function getSessionDate(r) {
+    return r.dateDebut || r.date || '';
+  }
+
   function renderList() {
+    const today = new Date().toISOString().slice(0, 10);
     let filtered = allReservations.filter(r => {
       if (activeTypeFilter !== 'all' && r.type !== activeTypeFilter) return false;
       const status = r.status || 'pending';
       if (activeStatusFilter !== 'all' && status !== activeStatusFilter) return false;
+      if (filterUpcoming) {
+        const d = getSessionDate(r);
+        if (!d || d < today) return false;
+      }
       if (searchQuery) {
         const hay = [r.nom, r.prenom, r.email, r.tel, r.message].filter(Boolean).join(' ').toLowerCase();
         if (!hay.includes(searchQuery)) return false;
       }
       return true;
+    });
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (activeSortOrder === 'created-desc') {
+        const aT = a.createdAt?.toMillis?.() || 0;
+        const bT = b.createdAt?.toMillis?.() || 0;
+        return bT - aT;
+      } else if (activeSortOrder === 'created-asc') {
+        const aT = a.createdAt?.toMillis?.() || 0;
+        const bT = b.createdAt?.toMillis?.() || 0;
+        return aT - bT;
+      } else if (activeSortOrder === 'session-asc') {
+        return getSessionDate(a).localeCompare(getSessionDate(b));
+      } else {
+        return getSessionDate(b).localeCompare(getSessionDate(a));
+      }
     });
 
     const listEl = document.getElementById('reservations-list');
