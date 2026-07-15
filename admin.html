@@ -1765,7 +1765,14 @@
     return `
       <div class="res-card ${status}" onclick="openEditResModal('${r.id}')" style="cursor:pointer;" title="Cliquer pour modifier">
         <div class="res-card__header">
-          <div class="res-type-badge ${r.type}">${r.type === 'peche' ? '🎣 Pêche' : '🔥 Bateau BBQ'}</div>
+          <div class="res-type-badge ${r.type}">${
+            r.type === 'peche' ? '🎣 Pêche' :
+            r.type === 'bateau' ? '🔥 Bateau BBQ' :
+            r.type === 'canoe' ? '🛶 Canoé' :
+            r.type === 'campingcar' ? '🚐 Camping-car' :
+            r.type === 'tente' ? '⛺ Tente' :
+            '📋 ' + (r.type || 'Réservation')
+          }</div>
           <div class="res-header-right">
             ${statusBadge}
             <span class="res-received-date">${received}</span>
@@ -2048,7 +2055,7 @@
 
       const chips = dayRes.slice(0, 3).map(r => {
         const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
-        const icon = r.type === 'peche' ? '🎣' : '🔥';
+        const icon = r.type === 'peche' ? '🎣' : r.type === 'bateau' ? '🔥' : r.type === 'canoe' ? '🛶' : r.type === 'campingcar' ? '🚐' : r.type === 'tente' ? '⛺' : '📋';
         return `<button class="cal-event-chip ${chipClass(r)}" draggable="true"
           ondragstart="event.stopPropagation();calChipDragStart(event,'${r.id}')"
           ondragend="calChipDragEnd(event)"
@@ -2091,7 +2098,7 @@
 
       const events = dayRes.map(r => {
         const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
-        const icon = r.type === 'peche' ? '🎣' : '🔥';
+        const icon = r.type === 'peche' ? '🎣' : r.type === 'bateau' ? '🔥' : r.type === 'canoe' ? '🛶' : r.type === 'campingcar' ? '🚐' : r.type === 'tente' ? '⛺' : '📋';
         const price = calculatePrice(r);
         const status = r.status || 'pending';
         const statusLabel = status === 'confirmed' ? '✓' : status === 'cancelled' ? '✗' : '⏳';
@@ -2133,7 +2140,7 @@
 
     const events = dayRes.map(r => {
       const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
-      const icon = r.type === 'peche' ? '🎣' : '🔥';
+      const icon = r.type === 'peche' ? '🎣' : r.type === 'bateau' ? '🔥' : r.type === 'canoe' ? '🛶' : r.type === 'campingcar' ? '🚐' : r.type === 'tente' ? '⛺' : '📋';
       const price = calculatePrice(r);
       const status = r.status || 'pending';
       const statusLabel = { confirmed:'✓ Confirmée', cancelled:'✗ Annulée', pending:'⏳ En attente' }[status];
