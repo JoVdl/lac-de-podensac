@@ -1032,6 +1032,13 @@ p { margin-bottom: 0; }
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2,1fr); }
   .stats-bar__grid { grid-template-columns: repeat(2,1fr); }
+  .stats-bar__value { font-size: 1.35rem; word-break: break-word; }
+  .stats-bar__item { padding: 12px 8px; }
+  .stats-bar__label { font-size: 0.68rem; letter-spacing: 0.03em; }
+}
+@media (max-width: 400px) {
+  .stats-bar__grid { grid-template-columns: 1fr 1fr; }
+  .stats-bar__value { font-size: 1.1rem; }
   .services__grid { grid-template-columns: 1fr; }
   .spots-grid { grid-template-columns: repeat(2,1fr); }
   .boat-concept { grid-template-columns: 1fr; }
