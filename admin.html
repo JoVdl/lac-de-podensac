@@ -3000,14 +3000,20 @@
 
     // Touch support
     let touchStartX = null;
+    let touchStartY = null;
     container.addEventListener('touchstart', e => {
       touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
     }, { passive: true });
     container.addEventListener('touchend', e => {
       if (touchStartX === null) return;
       const dx = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(dx) >= THRESHOLD) calNavigate(dx < 0 ? 1 : -1);
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      // Ignorer si le mouvement est principalement vertical (scroll)
+      if (Math.abs(dy) > Math.abs(dx)) { touchStartX = null; touchStartY = null; return; }
+      if (Math.abs(dx) >= THRESHOLD) calNavigateByDay(dx < 0 ? 1 : -1);
       touchStartX = null;
+      touchStartY = null;
     }, { passive: true });
   })();
 
