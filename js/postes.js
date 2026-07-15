@@ -147,7 +147,7 @@ const POSTES = [
     id: 5,
     nom: "Poste 5",
     lat: 44.6534109, lng: -0.3455524,
-    icon: "🚧",
+    icon: "🎣",
     images: ["images/poste 5.jpg", "images/illustation poste 5.jpg"],
     description: "Grand poste de 1,82 ha, actuellement en cours d'aménagement. Ouverture prévue prochainement. Zone prometteuse avec de belles perspectives de captures.",
     poissons: ["Carpe", "Amour blanc", "Tanche"],
