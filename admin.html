@@ -1762,7 +1762,7 @@
     actionBtns.push(`<button class="btn-action btn-delete" title="Supprimer" onclick="confirmDelete('${r.id}')">🗑</button>`);
 
     return `
-      <div class="res-card ${status}">
+      <div class="res-card ${status}" onclick="openEditResModal('${r.id}')" style="cursor:pointer;" title="Cliquer pour modifier">
         <div class="res-card__header">
           <div class="res-type-badge ${r.type}">${r.type === 'peche' ? '🎣 Pêche' : '🔥 Bateau BBQ'}</div>
           <div class="res-header-right">
@@ -1774,14 +1774,14 @@
           <div class="res-client">
             <div class="res-client__name">${r.prenom || ''} ${(r.nom || '').toUpperCase()}</div>
             <div class="res-client__contact">
-              ${r.tel ? `<a href="tel:${r.tel}">📞 ${r.tel}</a>` : ''}
-              ${r.email ? `<a href="mailto:${r.email}">✉ ${r.email}</a>` : ''}
+              ${r.tel ? `<a href="tel:${r.tel}" onclick="event.stopPropagation()">📞 ${r.tel}</a>` : ''}
+              ${r.email ? `<a href="mailto:${r.email}" onclick="event.stopPropagation()">✉ ${r.email}</a>` : ''}
             </div>
           </div>
           <div class="res-details">${detailsHtml}</div>
           ${r.message ? `<div class="res-message">💬 ${r.message}</div>` : ''}
         </div>
-        <div class="res-card__footer">
+        <div class="res-card__footer" onclick="event.stopPropagation()">
           <div class="res-total">${price > 0 ? price + '€' : '—'}</div>
           <div class="res-actions">${actionBtns.join('')}</div>
         </div>
