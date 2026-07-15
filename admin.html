@@ -1153,6 +1153,7 @@
           <div id="old-logiciel-buttons" style="display:none;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap;">
             <button onclick="doOldImport(false)" style="padding:7px 14px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">⬆️ Importer (sans doublons)</button>
             <button onclick="doOldImport(true,'carnassier')" style="padding:7px 14px;border:none;border-radius:8px;background:#1a5028;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🐟 Carnassier uniquement</button>
+            <button onclick="doOldImport(true,'peche')" style="padding:7px 14px;border:none;border-radius:8px;background:#2a5a30;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🎣 Postes uniquement</button>
             <button onclick="doOldImport(true)" style="padding:7px 14px;border:none;border-radius:8px;background:#888;color:#fff;font-size:0.82rem;cursor:pointer;">Tout forcer</button>
           </div>
           <div id="old-logiciel-status" style="font-size:0.82rem;min-height:18px;margin-bottom:8px;"></div>
@@ -3732,11 +3733,12 @@
     const statusEl = document.getElementById('old-logiciel-status');
     let toImport = [...oldLogicielData];
     if (onlyType === 'carnassier') toImport = toImport.filter(r => r.activity === 'carnassier');
+    else if (onlyType === 'peche') toImport = toImport.filter(r => r.type === 'peche' && r.activity !== 'carnassier');
     if (!forceAll) {
       const snap = await db.collection('reservations').get();
       const existing = snap.docs.map(d => ({...d.data()}));
       toImport = toImport.filter(r => {
-        const rNom = (r.nom+r.prenom).toLowerCase().replace(/\s/g,'');
+        const rNom = (r.nom+r.prenom).toLowerCase().replace(/\s/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
         return !existing.some(e => {
           if (e.type !== r.type) return false;
           if ((e.dateDebut||e.date||'') !== r.dateDebut) return false;
@@ -3744,9 +3746,12 @@
             const rCarn = r.activity === 'carnassier';
             const eCarn = e.activity === 'carnassier' || e.posteId === 'zone-carnassier';
             if (rCarn !== eCarn) return false;
+            // Même poste requis pour éviter faux positifs
+            if (!rCarn && r.posteId && e.posteId && String(r.posteId) !== String(e.posteId)) return false;
           }
-          const eNom = ((e.nom||'')+(e.prenom||'')).toLowerCase().replace(/\s/g,'');
-          return rNom.length >= 3 && eNom.length >= 3 && (rNom.includes(eNom.slice(0,4)) || eNom.includes(rNom.slice(0,4)));
+          const eNom = ((e.nom||'')+(e.prenom||'')).toLowerCase().replace(/\s/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+          // Correspondance exacte sur au moins 5 caractères
+          return rNom.length >= 5 && eNom.length >= 5 && (rNom === eNom || rNom.includes(eNom.slice(0,6)) || eNom.includes(rNom.slice(0,6)));
         });
       });
     }
