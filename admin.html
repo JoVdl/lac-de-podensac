@@ -2409,10 +2409,10 @@
         segments.push([segStart, segEnd]);
 
         return segments.flatMap(([sd, ed]) => {
-          const si = dayIndex(sd), ei = dayIndex(ed);
+          const di = dayIndex(sd), ei = dayIndex(ed);
           // Noon-to-noon: arrival at noon (start at mid-column), departure at noon next day (end at mid next column)
           const HALF = DAY_W / 2;
-          const rawLeft  = si * DAY_W + HALF;        // mid of arrival day
+          const rawLeft  = di * DAY_W + HALF;        // mid of arrival day
           const rawRight = (ei + 1) * DAY_W + HALF;  // mid of departure day
           const clLeft  = Math.max(rawLeft,  0);
           const clRight = Math.min(rawRight, NUM_DAYS * DAY_W);
