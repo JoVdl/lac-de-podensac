@@ -299,8 +299,8 @@ const AMENITIES = [
   { id: 'rampe',   nom: "Rampe de mise à l'eau",      lat: 44.6537339, lng: -0.3519588, icon: '⛵', desc: "Rampe bétonnée — accès toute l'année" },
 ];
 
-const LAC_CENTER = [44.6528, -0.3470];
-const LAC_ZOOM   = 15;
+const LAC_CENTER = [44.6545, -0.3420];
+const LAC_ZOOM   = 16;
 
 window.POSTES       = POSTES;
 window.AMENITIES    = AMENITIES;
