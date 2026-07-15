@@ -730,9 +730,9 @@
     .cancelled        { background: #f0f0f0; color: #999; }
     /* Source badges */
     .source-badge { display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;letter-spacing:0.03em;white-space:nowrap; }
-    .source-badge.pitchup   { background:#e6f4ec; color:#1a6b30; border:1px solid #a8d9b8; }
-    .source-badge.campspace { background:#fff0e6; color:#bf4d00; border:1px solid #f9c49a; }
-    .source-badge.ics       { background:#f0f0f0; color:#555;    border:1px solid #ddd; }
+    .source-badge.pitchup   { background:repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 4px,#f5e100 4px,#f5e100 8px); color:#1a3a00; border:1px solid #2d7a3a; text-shadow:0 1px 2px rgba(255,255,255,0.6); }
+    .source-badge.campspace { background:repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 4px,#ffffff 4px,#ffffff 8px); color:#1a3a00; border:1px solid #2d7a3a; text-shadow:0 1px 2px rgba(255,255,255,0.6); }
+    .source-badge.ics       { background:#f0f0f0; color:#555; border:1px solid #ddd; }
     .cal-more-link {
       font-size: 0.64rem; color: var(--primary); font-weight: 700;
       cursor: pointer; background: none; border: none; padding: 0;
@@ -1848,7 +1848,7 @@
     actionBtns.push(`<button class="btn-action btn-delete" title="Supprimer" onclick="confirmDelete('${r.id}')">🗑</button>`);
 
     return `
-      <div class="res-card ${status}" onclick="openEditResModal('${r.id}')" style="cursor:pointer;${sourceInfo(r) ? `border-left:3px solid ${sourceInfo(r).bg};` : ''}" title="Cliquer pour modifier">
+      <div class="res-card ${status}" onclick="openEditResModal('${r.id}')" style="cursor:pointer;${sourceInfo(r) ? `border-left:4px solid ${sourceInfo(r).bgSolid};` : ''}" title="Cliquer pour modifier">
         <div class="res-card__header">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div class="res-type-badge ${r.type}">${
@@ -2082,8 +2082,8 @@
   // Couleurs & infos par source ICS
   function sourceInfo(r) {
     const src = (r.source || '').toLowerCase();
-    if (src.includes('pitchup'))   return { key: 'pitchup',   label: 'Pitchup',    icon: '🟢', bg: '#2d7a3a', bgLight: 'rgba(45,122,58,0.13)',  color: '#1a5c28' };
-    if (src.includes('campspace')) return { key: 'campspace', label: 'Campspace',  icon: '🟠', bg: '#e85d00', bgLight: 'rgba(232,93,0,0.12)',    color: '#bf4d00' };
+    if (src.includes('pitchup'))   return { key: 'pitchup',   label: 'Pitchup',    icon: '🟡', bg: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 5px,#f5e100 5px,#f5e100 10px)', bgSolid: '#2d7a3a', bgLight: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 3px,#f5e10044 3px,#f5e10044 6px)', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.5)' };
+    if (src.includes('campspace')) return { key: 'campspace', label: 'Campspace',  icon: '🟢', bg: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 5px,#ffffff 5px,#ffffff 10px)', bgSolid: '#2d7a3a', bgLight: 'repeating-linear-gradient(45deg,#2d7a3a 0px,#2d7a3a 3px,#ffffff88 3px,#ffffff88 6px)', color: '#1a3a00', textShadow: '0 1px 2px rgba(255,255,255,0.6)' };
     return null; // réservation directe, pas de badge source
   }
 
@@ -2186,7 +2186,7 @@
         const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim();
         const icon = r.type === 'peche' ? '🎣' : r.type === 'bateau' ? '🔥' : r.type === 'canoe' ? '🛶' : r.type === 'campingcar' ? '🚐' : r.type === 'tente' ? '⛺' : '📋';
         const si = sourceInfo(r);
-        const chipStyle = si && (r.status||'pending') !== 'cancelled' ? `style="background:${si.bgLight};color:${si.color};border-left:2px solid ${si.bg};"` : '';
+        const chipStyle = si && (r.status||'pending') !== 'cancelled' ? `style="background:${si.bgLight};color:${si.color};border-left:2px solid ${si.bgSolid};text-shadow:${si.textShadow};"` : '';
         return `<button class="cal-event-chip ${chipClass(r)}" draggable="true"
           ondragstart="event.stopPropagation();calChipDragStart(event,'${r.id}')"
           ondragend="calChipDragEnd(event)"
@@ -2428,7 +2428,7 @@
           let bg, color;
           const si = sourceInfo(r);
           if (isCancelled)                   { bg = '#e8e8e8'; color = '#999'; }
-          else if (si)                       { bg = isConf ? si.bg : si.bg + 'bb'; color = '#fff'; }
+          else if (si)                       { bg = si.bg; color = si.color; }
           else if (r.type === 'peche' || row.type === 'carnassier') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
           else if (r.type === 'bateau')      { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
           else if (r.type === 'canoe')       { bg = isConf ? '#1a6080' : '#2a7090'; color = '#fff'; }
