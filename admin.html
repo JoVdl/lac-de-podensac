@@ -1152,9 +1152,10 @@
           </div>
           <div id="old-logiciel-buttons" style="display:none;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap;">
             <button onclick="doOldImport(false)" style="padding:7px 14px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">⬆️ Importer (sans doublons)</button>
-            <button onclick="doOldImport(true,'carnassier')" style="padding:7px 14px;border:none;border-radius:8px;background:#1a5028;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🐟 Carnassier uniquement</button>
-            <button onclick="doOldImport(true,'peche')" style="padding:7px 14px;border:none;border-radius:8px;background:#2a5a30;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🎣 Postes uniquement</button>
+            <button onclick="doOldImport(false,'carnassier')" style="padding:7px 14px;border:none;border-radius:8px;background:#1a5028;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🐟 Carnassier uniquement</button>
+            <button onclick="doOldImport(false,'peche')" style="padding:7px 14px;border:none;border-radius:8px;background:#2a5a30;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🎣 Postes uniquement</button>
             <button onclick="doOldImport(true)" style="padding:7px 14px;border:none;border-radius:8px;background:#888;color:#fff;font-size:0.82rem;cursor:pointer;">Tout forcer</button>
+            <button onclick="deduplicateReservations()" style="padding:7px 14px;border:none;border-radius:8px;background:#c05000;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🧹 Supprimer les doublons</button>
           </div>
           <div id="old-logiciel-status" style="font-size:0.82rem;min-height:18px;margin-bottom:8px;"></div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -3774,6 +3775,34 @@
     }
     statusEl.textContent = `✅ ${done} réservation(s) importée(s)`;
     setTimeout(() => { closeIcsModal(); }, 1500);
+  };
+
+  window.deduplicateReservations = async function() {
+    const statusEl = document.getElementById('old-logiciel-status');
+    statusEl.textContent = '⏳ Analyse des doublons…';
+    const snap = await db.collection('reservations').get();
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const seen = new Map();
+    const toDelete = [];
+    for (const doc of docs) {
+      if (doc.type !== 'peche' && doc.type !== 'campingcar' && doc.type !== 'tente') continue;
+      const nom = ((doc.nom||'')+(doc.prenom||'')).toLowerCase().replace(/\s/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+      const isCarn = doc.activity === 'carnassier' || doc.posteId === 'zone-carnassier';
+      const key = `${doc.type}|${isCarn?'carn':''}|${doc.posteId||''}|${doc.dateDebut||doc.date||''}|${nom.slice(0,8)}`;
+      if (seen.has(key)) {
+        toDelete.push(doc.id);
+      } else {
+        seen.set(key, doc.id);
+      }
+    }
+    if (!toDelete.length) { statusEl.textContent = '✅ Aucun doublon trouvé.'; return; }
+    statusEl.textContent = `⏳ Suppression de ${toDelete.length} doublon(s)…`;
+    for (let i = 0; i < toDelete.length; i += 400) {
+      const batch = db.batch();
+      for (const id of toDelete.slice(i, i+400)) batch.delete(db.collection('reservations').doc(id));
+      await batch.commit();
+    }
+    statusEl.textContent = `✅ ${toDelete.length} doublon(s) supprimé(s).`;
   };
 
   // Auto-sync 4s après chargement
