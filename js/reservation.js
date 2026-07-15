@@ -240,12 +240,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Emplacement ──
     if (cfg.emplacement) {
-      const date  = el('f-empl-date')?.value;
-      const duree = parseInt(el('f-empl-duree')?.value || 1);
+      const date    = el('f-empl-date')?.value;
+      const dateFin = el('f-empl-date-fin')?.value;
+      const duree   = (date && dateFin) ? Math.max(1, Math.round((new Date(dateFin) - new Date(date)) / 86400000)) : 1;
       const materielPrice = calcMaterielPrice();
 
       if (el('sum-date'))  el('sum-date').textContent  = date ? formatDateFR(date) : '—';
-      if (el('sum-duree')) el('sum-duree').textContent = `${duree} nuit${duree > 1 ? 's' : ''}`;
+      if (el('sum-duree')) el('sum-duree').textContent = dateFin ? `${duree} nuit${duree > 1 ? 's' : ''} (départ ${formatDateFR(dateFin)})` : '—';
       if (el('sum-total')) el('sum-total').textContent = materielPrice > 0 ? `${materielPrice} €` : 'Sur devis';
 
       const matLine = el('sum-materiel-line');
@@ -483,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e) e.addEventListener('change', updateSummary);
   });
   document.querySelectorAll('.boat-opt-cb').forEach(cb => cb.addEventListener('change', updateSummary));
-  ['f-empl-date','f-empl-duree','f-empl-nb'].forEach(id => {
+  ['f-empl-date','f-empl-date-fin','f-empl-nb'].forEach(id => {
     const e = el(id);
     if (e) e.addEventListener('change', updateSummary);
   });
@@ -688,12 +689,17 @@ document.addEventListener('DOMContentLoaded', function () {
         toastMsg = `🔥 Réservation enregistrée ! Emplacement BBQ — ${creneau}, ${nb} pers. — ${total} €. Confirmation à ${email}.`;
 
       } else if (cfg.emplacement) {
-        const date  = el('f-empl-date')?.value;
-        const duree = parseInt(el('f-empl-duree')?.value || 1);
-        const nb    = parseInt(el('f-empl-nb')?.value || 1);
+        const date    = el('f-empl-date')?.value;
+        const dateFin = el('f-empl-date-fin')?.value;
+        const nb      = parseInt(el('f-empl-nb')?.value || 1);
+        const duree   = (date && dateFin) ? Math.max(1, Math.round((new Date(dateFin) - new Date(date)) / 86400000)) : 1;
 
         if (!date) {
           showToast('Veuillez choisir une date d\'arrivée.', 'error', '⚠️');
+          return;
+        }
+        if (!dateFin || dateFin <= date) {
+          showToast('Veuillez choisir une date de départ valide.', 'error', '⚠️');
           return;
         }
 
@@ -701,7 +707,7 @@ document.addEventListener('DOMContentLoaded', function () {
         total = materielPrice;
 
         Object.assign(booking, {
-          type:'emplacement', date, duree, nb,
+          type:'emplacement', dateDebut: date, dateFin, duree, nb,
           materiel: Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id),
           materielPrice,
           totalPrice: total,

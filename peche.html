@@ -850,28 +850,18 @@
 
             <!-- ── 9. EMPLACEMENT ──────────────────────────────── -->
             <div id="sec-emplacement" hidden>
-              <div class="form-group">
-                <label>Date d'arrivée *</label>
-                <input type="date" class="form-control" id="f-empl-date">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label>Date d'arrivée *</label>
+                  <input type="date" class="form-control" id="f-empl-date" oninput="emplSyncDuree()">
+                </div>
+                <div class="form-group">
+                  <label>Date de départ *</label>
+                  <input type="date" class="form-control" id="f-empl-date-fin" oninput="emplSyncDuree()">
+                </div>
               </div>
-              <div class="form-group">
-                <label>Nombre de nuits</label>
-                <select class="form-control" id="f-empl-duree">
-                  <option value="1">1 nuit</option>
-                  <option value="2">2 nuits</option>
-                  <option value="3">3 nuits</option>
-                  <option value="4">4 nuits</option>
-                  <option value="5">5 nuits</option>
-                  <option value="6">6 nuits</option>
-                  <option value="7">7 nuits</option>
-                  <option value="8">8 nuits</option>
-                  <option value="9">9 nuits</option>
-                  <option value="10">10 nuits</option>
-                  <option value="11">11 nuits</option>
-                  <option value="12">12 nuits</option>
-                  <option value="13">13 nuits</option>
-                  <option value="14">14 nuits</option>
-                </select>
+              <div class="form-group" id="f-empl-duree-tag" style="display:none;">
+                <span style="font-size:0.85rem;color:var(--primary);font-weight:600;" id="f-empl-duree-txt"></span>
               </div>
               <div class="form-group">
                 <label>Nombre de personnes</label>
@@ -1110,5 +1100,26 @@
   <script src="js/main.js"></script>
   <script src="js/social.js"></script>
   <script src="js/reservation.js"></script>
+  <script>
+    function emplSyncDuree() {
+      const d1 = document.getElementById('f-empl-date')?.value;
+      const d2 = document.getElementById('f-empl-date-fin')?.value;
+      const tag = document.getElementById('f-empl-duree-tag');
+      const txt = document.getElementById('f-empl-duree-txt');
+      if (d1 && d2 && d2 > d1 && tag && txt) {
+        const n = Math.round((new Date(d2) - new Date(d1)) / 86400000);
+        txt.textContent = `${n} nuit${n > 1 ? 's' : ''}`;
+        tag.style.display = '';
+        // sync date-fin minimum
+        document.getElementById('f-empl-date-fin').min = d1;
+      } else if (tag) {
+        tag.style.display = 'none';
+      }
+      if (d1) {
+        const finEl = document.getElementById('f-empl-date-fin');
+        if (finEl) finEl.min = d1;
+      }
+    }
+  </script>
 </body>
 </html>
