@@ -1126,6 +1126,20 @@
           <div id="ics-sources-list"></div>
           <button onclick="addIcsSource()" style="margin-bottom:16px;padding:7px 14px;border:1px dashed #3d8a80;border-radius:8px;background:#f0faf9;color:#3d8a80;cursor:pointer;font-size:0.82rem;">+ Ajouter une source</button>
           <div style="font-size:0.75rem;color:#999;margin-bottom:14px;">Les URLs sont sauvegardées dans votre navigateur. Synchro auto à l'ouverture de l'admin.</div>
+          <hr style="border:none;border-top:1px solid #eee;margin:4px 0 14px;">
+          <div style="font-size:0.82rem;font-weight:600;color:#444;margin-bottom:8px;">📂 Importer un fichier .ics manuellement</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <select id="ics-file-label" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:0.82rem;flex:0 0 auto;">
+              <option value="Pitchup">Pitchup</option>
+              <option value="Campspace">Campspace</option>
+              <option value="Autre">Autre</option>
+            </select>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px dashed #bbb;border-radius:8px;cursor:pointer;font-size:0.82rem;color:#555;background:#fafafa;">
+              <span>📎 Choisir un fichier .ics</span>
+              <input type="file" accept=".ics,text/calendar" id="ics-file-input" style="display:none;" onchange="importIcsFile(this)">
+            </label>
+          </div>
+          <div style="font-size:0.72rem;color:#999;margin-bottom:14px;">Utile si l'URL ICS ne fonctionne pas — téléchargez le fichier depuis Pitchup puis importez-le ici.</div>
           <div id="ics-status" style="font-size:0.82rem;min-height:18px;margin-bottom:14px;"></div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
             <button onclick="closeIcsModal()" style="padding:9px 18px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;">Fermer</button>
@@ -3426,9 +3440,8 @@
   }
 
   async function syncOneSource(src) {
-    if (!src.url) return { added:0, updated:0, errors:0, label: src.label };
-    let text;
-    let lastErr = '';
+    if (!src.url) return { added:0, updated:0, errors:0, parsed:0, label: src.label };
+    let text, lastErr = '';
     for (const proxy of ICS_PROXIES) {
       try {
         const res = await fetch(proxy + encodeURIComponent(src.url));
@@ -3438,16 +3451,33 @@
       } catch(e) { lastErr = `${e.message} (${proxy.split('/')[2]})`; }
     }
     if (!text) return { added:0, updated:0, errors:1, parsed:0, label: src.label, err: lastErr };
+    return syncFromText(text, src);
+  }
 
+  async function importIcsFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const label = document.getElementById('ics-file-label').value;
+    const statusEl = document.getElementById('ics-status');
+    statusEl.textContent = `⏳ Lecture de ${file.name}…`; statusEl.style.color = '#3d8a80';
+    const text = await file.text();
+    const src = { label, url: null };
+    const r = await syncFromText(text, src);
+    statusEl.innerHTML = r.errors
+      ? `⚠️ ${label}: ❌ ${r.err}`
+      : `✅ ${r.parsed} événement(s) lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour (${label})`;
+    statusEl.style.color = r.errors ? 'orange' : 'green';
+    input.value = '';
+    if (!r.errors) { setTimeout(() => { closeIcsModal(); loadReservations(); }, 1200); }
+  }
+
+  async function syncFromText(text, src) {
     const events = parseICS(text, src.label);
-
-    // Charger uniquement les réservations manuelles (non-ICS) pour la base de conflits
-    // Les ICS sont toujours réassignés proprement à chaque sync
     const occupied = new Map();
     try {
       const fsSnap = await db.collection('reservations').where('type','==','campingcar').get();
       fsSnap.forEach(doc => {
-        if (doc.id.startsWith('ics_')) return; // on ignore les ICS existants (réassignés ci-dessous)
+        if (doc.id.startsWith('ics_')) return;
         const d = doc.data();
         if (!d.emplacement || !d.dateDebut || !d.dateFin) return;
         const key = String(d.emplacement);
@@ -3455,12 +3485,8 @@
         occupied.get(key).push({ dateDebut: d.dateDebut, dateFin: d.dateFin });
       });
     } catch(_) {}
-
-    // Trier les événements par date d'arrivée pour que les plus proches gardent la priorité
     const sorted = [...events].sort((a, b) => (a.dtstart || '').localeCompare(b.dtstart || ''));
-
-    // Pré-attribuer les emplacements sans conflit
-    const emplacementMap = new Map(); // uid → emplacement
+    const emplacementMap = new Map();
     for (const ev of sorted) {
       const free = pickFreeEmplacement(ev.dtstart, ev.dtend, occupied);
       if (free) {
@@ -3469,15 +3495,13 @@
         occupied.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
       }
     }
-
     let added = 0, updated = 0;
-    // Firestore batch max 500 ops — split si nécessaire
     for (let start = 0; start < events.length; start += 400) {
       const batch = db.batch();
       for (const ev of events.slice(start, start + 400)) {
         const docId = 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_');
-        const ref   = db.collection('reservations').doc(docId);
-        const snap  = await ref.get();
+        const ref = db.collection('reservations').doc(docId);
+        const snap = await ref.get();
         const nbNuits = Math.max(1, daysBetween(ev.dtstart, ev.dtend));
         const data = {
           ...ev,
@@ -3490,13 +3514,12 @@
         };
         delete data.dtstart; delete data.dtend;
         Object.keys(data).forEach(k => data[k] === null && delete data[k]);
-
         if (snap.exists) { batch.update(ref, data); updated++; }
         else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); batch.set(ref, data); added++; }
       }
       await batch.commit();
     }
-    return { added, updated, errors:0, label: src.label, parsed: events.length };
+    return { added, updated, errors: 0, parsed: events.length, label: src.label };
   }
 
   async function runIcsSync(silent = false) {
