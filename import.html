@@ -17,6 +17,7 @@ tr.dup td:first-child::before{content:'⚠️ ';font-size:.7rem;}
 tr.new{background:#f0faf0;}
 .badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.7rem;font-weight:600;}
 .badge.peche{background:#e8f4ee;color:#2a6059;}
+.badge.carnassier{background:#e8f0e8;color:#1a5028;}
 .badge.campingcar{background:#ede8f8;color:#5040a0;}
 .badge.canoe{background:#e8f0f8;color:#1a5080;}
 .btn{padding:10px 22px;background:#2a6059;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;margin-right:8px;}
@@ -220,20 +221,23 @@ function renderTable(filterText='', showOnlyDups=false, hideDups=false){
   const rows = getCurrentData().map((r,i)=>({r,i,dup:dupFlags[i]})).filter(({r,i,dup})=>{
     if(showOnlyDups && !dup) return false;
     if(hideDups && dup) return false;
-    if(ft && !normalize(r.nom+r.prenom).includes(ft) && !normalize(r.dateDebut).includes(ft)) return false;
+    const detail2 = r.activity==='carnassier'?'carnassier':(r.posteId?String(r.posteId):'');
+    if(ft && !normalize(r.nom+r.prenom).includes(ft) && !normalize(r.dateDebut).includes(ft) && !normalize(detail2).includes(ft)) return false;
     return true;
   });
 
   const tb = document.getElementById('tbody');
   tb.innerHTML = rows.map(({r,i,dup})=>{
-    const typeLabel = {peche:'🎣 Pêche',campingcar:'🚐 CC',canoe:'🛶 Canoë'}[r.type]||r.type;
-    const detail = r.type==='peche' ? (r.activity==='carnassier'?'Carnassier':'Poste '+r.posteId) : (r.type==='campingcar'?r.duree+'n':'');
+    const isCarnassier = r.activity==='carnassier' || r.posteId==='zone-carnassier';
+    const badgeClass = isCarnassier ? 'carnassier' : r.type;
+    const typeLabel = isCarnassier ? '🐟 Carnassier' : ({peche:'🎣 Pêche',campingcar:'🚐 CC',canoe:'🛶 Canoë'}[r.type]||r.type);
+    const detail = r.type==='peche' ? (isCarnassier?'Zone carnassier':'Poste '+r.posteId) : (r.type==='campingcar'?r.duree+' nuit(s)':'');
     const prix = r.totalPrice ? r.totalPrice+'€' : '—';
     const dupBadge = dup ? '<span style="color:#c06000;font-size:.7rem;">⚠️ doublon?</span>' : '<span style="color:#2a6059;font-size:.7rem;">✓ nouveau</span>';
     return '<tr class="'+(dup?'dup':'new')+'" data-idx="'+i+'">'+
       '<td>'+r.dateDebut+'</td>'+
       '<td>'+r.dateFin+'</td>'+
-      '<td><span class="badge '+r.type+'">'+typeLabel+'</span></td>'+
+      '<td><span class="badge '+badgeClass+'">'+typeLabel+'</span></td>'+
       '<td>'+r.prenom+' '+r.nom+'</td>'+
       '<td>'+detail+'</td>'+
       '<td>'+prix+'</td>'+
