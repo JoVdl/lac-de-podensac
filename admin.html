@@ -1110,6 +1110,27 @@
       <div class="view-toggle-bar">
         <button class="view-toggle-btn active" id="view-toggle-list">📋 Liste</button>
         <button class="view-toggle-btn" id="view-toggle-cal">📅 Calendrier</button>
+        <button class="view-toggle-btn" id="ics-sync-btn" onclick="openIcsModal()" style="margin-left:auto;background:#f0f7ff;border-color:#3d8a80;color:#3d8a80;" title="Synchroniser depuis Campspace ou autre agenda ICS">🔄 Sync ICS</button>
+      </div>
+
+      <!-- ICS SYNC MODAL -->
+      <div id="ics-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:28px;max-width:520px;width:94%;box-shadow:0 8px 40px rgba(0,0,0,0.18);position:relative;">
+          <h3 style="margin:0 0 6px;font-size:1.1rem;">🔄 Synchronisation ICS / Campspace</h3>
+          <p style="font-size:0.85rem;color:#666;margin:0 0 18px;">Collez l'URL du calendrier ICS (Campspace, Airbnb, Google…). Les réservations seront importées/mises à jour dans Firestore sans doublons.</p>
+          <label style="font-size:0.82rem;font-weight:600;color:#333;">URL du calendrier ICS</label>
+          <input id="ics-url-input" type="url" placeholder="https://campspace.com/…/calendar.ics"
+            style="width:100%;box-sizing:border-box;margin:6px 0 8px;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;">
+          <div style="font-size:0.78rem;color:#888;margin-bottom:16px;">L'URL est sauvegardée dans votre navigateur. La synchro est déclenchée manuellement ou à l'ouverture de l'admin.</div>
+          <label style="font-size:0.82rem;font-weight:600;color:#333;">Source / étiquette</label>
+          <input id="ics-label-input" type="text" placeholder="Campspace" value="Campspace"
+            style="width:100%;box-sizing:border-box;margin:6px 0 16px;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;">
+          <div id="ics-status" style="font-size:0.82rem;min-height:20px;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="closeIcsModal()" style="padding:9px 18px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;">Annuler</button>
+            <button onclick="runIcsSync()" style="padding:9px 18px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-weight:600;cursor:pointer;">🔄 Synchroniser</button>
+          </div>
+        </div>
       </div>
 
       <!-- LIST SECTION -->
@@ -3182,6 +3203,158 @@
     tab.addEventListener('click', () => { calView = tab.dataset.view; renderCalendarView(); });
   });
 
+  </script>
+
+  <!-- ===== ICS SYNC ===== -->
+  <script>
+  const ICS_URL_KEY  = 'ics_sync_url';
+  const ICS_LABEL_KEY = 'ics_sync_label';
+  const ICS_PROXY = 'https://corsproxy.io/?';
+
+  function openIcsModal() {
+    document.getElementById('ics-url-input').value   = localStorage.getItem(ICS_URL_KEY)   || '';
+    document.getElementById('ics-label-input').value = localStorage.getItem(ICS_LABEL_KEY) || 'Campspace';
+    document.getElementById('ics-status').textContent = '';
+    document.getElementById('ics-modal').style.display = 'flex';
+  }
+  function closeIcsModal() {
+    document.getElementById('ics-modal').style.display = 'none';
+  }
+  document.getElementById('ics-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('ics-modal')) closeIcsModal();
+  });
+
+  function icsDateToISO(dt) {
+    // DTSTART:20260705T120000Z  or  DTSTART;TZID=...:20260705T120000
+    const s = dt.replace(/[TZ]/g, '').replace(/\s/g, '');
+    const y = s.slice(0,4), m = s.slice(4,6), d = s.slice(6,8);
+    return `${y}-${m}-${d}`;
+  }
+
+  function parseICS(text) {
+    const events = [];
+    const blocks = text.split('BEGIN:VEVENT');
+    for (let i = 1; i < blocks.length; i++) {
+      const b = blocks[i];
+      const get = (key) => {
+        const re = new RegExp(`(?:^|\\n)${key}[;:][^\\n]*?:?([^\\n]+)`, 'i');
+        const m = b.match(re);
+        if (!m) return '';
+        // handle folded lines (lines starting with space)
+        let val = m[1].trim();
+        const lines = b.split('\n');
+        let collecting = false;
+        let full = '';
+        for (const l of lines) {
+          if (new RegExp(`^${key}[;:]`, 'i').test(l)) { collecting = true; full = l.replace(new RegExp(`^${key}[^:]*:`,'i'),'').trim(); continue; }
+          if (collecting && (l.startsWith(' ') || l.startsWith('\t'))) { full += l.trim(); continue; }
+          if (collecting) break;
+        }
+        return full || val;
+      };
+      const uid       = get('UID');
+      const dtstart   = get('DTSTART');
+      const dtend     = get('DTEND');
+      const summary   = get('SUMMARY');
+      const firstname = get('FIRSTNAME');
+      const pitchNums = get('PITCHNUMBERS');
+      const pitchIds  = get('PITCHIDS');
+      const desc      = get('DESCRIPTION').replace(/\\,/g,',').replace(/\\n/g,' ').replace(/https?:\/\/\S+/g,'').trim();
+      if (!uid || !dtstart || !dtend) continue;
+      events.push({ uid, dtstart: icsDateToISO(dtstart), dtend: icsDateToISO(dtend), summary, firstname, pitchNums, pitchIds, desc });
+    }
+    return events;
+  }
+
+  function daysBetween(d1, d2) {
+    return Math.round((new Date(d2) - new Date(d1)) / 86400000);
+  }
+  function makeDatesArray(startISO, nbNuits) {
+    const arr = [];
+    for (let i = 0; i < nbNuits; i++) {
+      const d = new Date(startISO);
+      d.setDate(d.getDate() + i);
+      arr.push(d.toISOString().slice(0,10));
+    }
+    return arr;
+  }
+
+  async function runIcsSync(silent = false) {
+    const url   = document.getElementById('ics-url-input').value.trim();
+    const label = document.getElementById('ics-label-input').value.trim() || 'Campspace';
+    const statusEl = document.getElementById('ics-status');
+    if (!url) { statusEl.textContent = '⚠️ URL manquante'; statusEl.style.color = 'orange'; return; }
+    localStorage.setItem(ICS_URL_KEY,  url);
+    localStorage.setItem(ICS_LABEL_KEY, label);
+
+    statusEl.textContent = '⏳ Récupération…'; statusEl.style.color = '#3d8a80';
+    let text;
+    try {
+      const res = await fetch(ICS_PROXY + encodeURIComponent(url));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      text = await res.text();
+    } catch(e) {
+      statusEl.textContent = '❌ Erreur réseau : ' + e.message; statusEl.style.color = 'red'; return;
+    }
+
+    const events = parseICS(text);
+    if (!events.length) { statusEl.textContent = '⚠️ Aucun événement trouvé'; statusEl.style.color = 'orange'; return; }
+
+    statusEl.textContent = `⏳ Import de ${events.length} événements…`;
+    let added = 0, updated = 0, skipped = 0;
+    const batch = db.batch();
+
+    for (const ev of events) {
+      const docId = 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_');
+      const ref   = db.collection('reservations').doc(docId);
+      const snap  = await ref.get();
+      const nbNuits = Math.max(1, daysBetween(ev.dtstart, ev.dtend));
+      const data = {
+        source:     label,
+        icsUid:     ev.uid,
+        type:       'camping',
+        nom:        ev.firstname || ev.summary || label,
+        summary:    ev.summary,
+        emplacement: ev.pitchNums ? ev.pitchNums.replace(/\\/g,'') : '',
+        pitchIds:   ev.pitchIds  ? ev.pitchIds.replace(/\\/g,'')  : '',
+        dateDebut:  ev.dtstart,
+        dateFin:    ev.dtend,
+        duree:      nbNuits,
+        dates:      makeDatesArray(ev.dtstart, nbNuits),
+        description: ev.desc,
+        statut:     'confirmed',
+        status:     'confirmed',
+        updatedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+      };
+      if (snap.exists) {
+        batch.update(ref, data);
+        updated++;
+      } else {
+        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        batch.set(ref, data);
+        added++;
+      }
+    }
+    try {
+      await batch.commit();
+      const msg = `✅ ${added} ajouté(s), ${updated} mis à jour`;
+      statusEl.textContent = msg; statusEl.style.color = 'green';
+      if (!silent) toast(msg, 'success');
+    } catch(e) {
+      statusEl.textContent = '❌ Erreur Firestore : ' + e.message; statusEl.style.color = 'red';
+    }
+  }
+
+  // Auto-sync au chargement si une URL est configurée
+  window.addEventListener('load', () => {
+    const savedUrl = localStorage.getItem(ICS_URL_KEY);
+    if (savedUrl) {
+      // On ouvre silencieusement sans afficher la modal
+      document.getElementById('ics-url-input').value   = savedUrl;
+      document.getElementById('ics-label-input').value = localStorage.getItem(ICS_LABEL_KEY) || 'Campspace';
+      setTimeout(() => runIcsSync(true), 3000); // après chargement Firebase
+    }
+  });
   </script>
 </body>
 </html>
