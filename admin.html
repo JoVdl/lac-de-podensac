@@ -1150,12 +1150,14 @@
             </label>
             <span id="old-logiciel-type" style="font-size:0.78rem;color:#666;"></span>
           </div>
-          <div id="old-logiciel-buttons" style="display:none;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="margin-bottom:8px;">
+            <button onclick="deduplicateReservations()" style="padding:7px 14px;border:none;border-radius:8px;background:#c05000;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🧹 Supprimer les doublons en base</button>
+          </div>
+          <div id="old-logiciel-buttons" style="display:none;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
             <button onclick="doOldImport(false)" style="padding:7px 14px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">⬆️ Importer (sans doublons)</button>
             <button onclick="doOldImport(false,'carnassier')" style="padding:7px 14px;border:none;border-radius:8px;background:#1a5028;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🐟 Carnassier uniquement</button>
             <button onclick="doOldImport(false,'peche')" style="padding:7px 14px;border:none;border-radius:8px;background:#2a5a30;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🎣 Postes uniquement</button>
             <button onclick="doOldImport(true)" style="padding:7px 14px;border:none;border-radius:8px;background:#888;color:#fff;font-size:0.82rem;cursor:pointer;">Tout forcer</button>
-            <button onclick="deduplicateReservations()" style="padding:7px 14px;border:none;border-radius:8px;background:#c05000;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🧹 Supprimer les doublons</button>
           </div>
           <div id="old-logiciel-status" style="font-size:0.82rem;min-height:18px;margin-bottom:8px;"></div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
