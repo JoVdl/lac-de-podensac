@@ -3839,9 +3839,63 @@
     } catch(e) { console.warn('[AutoDedup] Erreur:', e.message); }
   }
 
+  // Assigne un emplacement libre aux campingcar/tente sans emplacement
+  async function autoAssignEmplacements() {
+    try {
+      const snap = await db.collection('reservations').get();
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Construire la carte des emplacements occupés (campingcar)
+      const occupiedCC = new Map();
+      const occupiedTente = new Map();
+      for (const d of docs) {
+        if (!d.emplacement) continue;
+        const map = d.type === 'tente' ? occupiedTente : d.type === 'campingcar' ? occupiedCC : null;
+        if (!map) continue;
+        const key = String(d.emplacement);
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push({ dateDebut: d.dateDebut || (d.dates&&d.dates[0]) || d.date, dateFin: d.dateFin || (d.dates&&d.dates[d.dates.length-1]) || d.date });
+      }
+
+      const unassignedCC = docs.filter(d => d.type === 'campingcar' && !d.emplacement);
+      const unassignedTente = docs.filter(d => d.type === 'tente' && !d.emplacement);
+      if (!unassignedCC.length && !unassignedTente.length) return;
+
+      const batch = db.batch();
+      let count = 0;
+
+      for (const d of unassignedCC) {
+        const dtstart = d.dateDebut || (d.dates&&d.dates[0]) || d.date;
+        const dtend = d.dateFin || (d.dates&&d.dates[d.dates.length-1]) || dtstart;
+        if (!dtstart) continue;
+        const slot = pickFreeEmplacement(dtstart, dtend, occupiedCC);
+        if (!slot) continue;
+        batch.update(db.collection('reservations').doc(d.id), { emplacement: slot });
+        // Marquer ce slot comme pris pour les suivants
+        if (!occupiedCC.has(slot)) occupiedCC.set(slot, []);
+        occupiedCC.get(slot).push({ dateDebut: dtstart, dateFin: dtend });
+        count++;
+      }
+
+      for (const d of unassignedTente) {
+        const dtstart = d.dateDebut || (d.dates&&d.dates[0]) || d.date;
+        const dtend = d.dateFin || (d.dates&&d.dates[d.dates.length-1]) || dtstart;
+        if (!dtstart) continue;
+        const slot = pickFreeEmplacement(dtstart, dtend, occupiedTente);
+        if (!slot) continue;
+        batch.update(db.collection('reservations').doc(d.id), { emplacement: slot });
+        if (!occupiedTente.has(slot)) occupiedTente.set(slot, []);
+        occupiedTente.get(slot).push({ dateDebut: dtstart, dateFin: dtend });
+        count++;
+      }
+
+      if (count) { await batch.commit(); console.log(`[AutoAssign] ${count} emplacement(s) assigné(s)`); }
+    } catch(e) { console.warn('[AutoAssign] Erreur:', e.message); }
+  }
+
   // Auto-sync 4s après chargement
   window.addEventListener('load', () => {
-    autoDedup();
+    autoDedup().then(() => autoAssignEmplacements());
     const sources = getIcsSources().filter(s => s.url);
     if (sources.length) setTimeout(() => runIcsSync(true), 4000);
   });
