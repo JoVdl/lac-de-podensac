@@ -3790,7 +3790,8 @@
       if (doc.type !== 'peche' && doc.type !== 'campingcar' && doc.type !== 'tente') continue;
       const nom = ((doc.nom||'')+(doc.prenom||'')).toLowerCase().replace(/\s/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
       const isCarn = doc.activity === 'carnassier' || doc.posteId === 'zone-carnassier';
-      const key = `${doc.type}|${isCarn?'carn':''}|${doc.posteId||''}|${doc.dateDebut||doc.date||''}|${nom.slice(0,8)}`;
+      const posteKey = isCarn ? 'carn' : (doc.posteId || '');
+      const key = `${doc.type}|${posteKey}|${doc.dateDebut||doc.date||''}|${nom.slice(0,6)}`;
       if (seen.has(key)) {
         toDelete.push(doc.id);
       } else {
@@ -3817,7 +3818,9 @@
       for (const doc of docs) {
         const nom = ((doc.nom||'')+(doc.prenom||'')).toLowerCase().replace(/\s/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
         const isCarn = doc.activity === 'carnassier' || doc.posteId === 'zone-carnassier';
-        const key = `${doc.type}|${isCarn?'carn':''}|${doc.posteId||''}|${doc.dateDebut||doc.date||''}|${nom.slice(0,8)}`;
+        // Pour carnassier : on ignore le posteId (slot 1-5 peut différer entre doublons)
+        const posteKey = isCarn ? 'carn' : (doc.posteId || '');
+        const key = `${doc.type}|${posteKey}|${doc.dateDebut||doc.date||''}|${nom.slice(0,6)}`;
         if (seen.has(key)) toDelete.push(doc.id);
         else seen.set(key, doc.id);
       }
