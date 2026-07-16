@@ -3807,8 +3807,33 @@
     statusEl.textContent = `✅ ${toDelete.length} doublon(s) supprimé(s).`;
   };
 
+  // Déduplication automatique silencieuse au chargement
+  async function autoDedup() {
+    try {
+      const snap = await db.collection('reservations').get();
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const seen = new Map();
+      const toDelete = [];
+      for (const doc of docs) {
+        const nom = ((doc.nom||'')+(doc.prenom||'')).toLowerCase().replace(/\s/g,'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+        const isCarn = doc.activity === 'carnassier' || doc.posteId === 'zone-carnassier';
+        const key = `${doc.type}|${isCarn?'carn':''}|${doc.posteId||''}|${doc.dateDebut||doc.date||''}|${nom.slice(0,8)}`;
+        if (seen.has(key)) toDelete.push(doc.id);
+        else seen.set(key, doc.id);
+      }
+      if (!toDelete.length) return;
+      console.log(`[AutoDedup] ${toDelete.length} doublon(s) supprimé(s)`);
+      for (let i = 0; i < toDelete.length; i += 400) {
+        const batch = db.batch();
+        for (const id of toDelete.slice(i, i+400)) batch.delete(db.collection('reservations').doc(id));
+        await batch.commit();
+      }
+    } catch(e) { console.warn('[AutoDedup] Erreur:', e.message); }
+  }
+
   // Auto-sync 4s après chargement
   window.addEventListener('load', () => {
+    autoDedup();
     const sources = getIcsSources().filter(s => s.url);
     if (sources.length) setTimeout(() => runIcsSync(true), 4000);
   });
