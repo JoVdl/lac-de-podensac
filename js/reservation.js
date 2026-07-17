@@ -5,6 +5,7 @@
 const ACTIVITY_SECTIONS = {
   'carnassier-bord':     { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carnassier-barque':   { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
+  'carnassier-proprio':  { peche:true, poste:true, zones:[{id:'zone-carnassier', label:'Zone carnassier'}], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'carpe-batterie':      { peche:true, poste:true, posteFilter:[1,2,3,4,5,6], formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true, barqueOption:true },
   'coup':                { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
   'feeder':              { peche:true, poste:true, formule:true, calendar:true, nbPecheurs:true, optionsPeche:true, materiel:true },
@@ -19,6 +20,7 @@ const ACTIVITY_SECTIONS = {
 const ACTIVITY_LABELS = {
   'carnassier-bord':     'Pêche au carnassier du bord',
   'carnassier-barque':   'Pêche au carnassier en barque équipée',
+  'carnassier-proprio':  'Pêche au carnassier — embarcation personnelle',
   'carpe-batterie':      'Pêche à la carpe en batterie',
   'coup':                'Pêche au coup',
   'feeder':              'Pêche au feeder',
@@ -122,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ── Gestion de la catégorie (premier niveau) ─────────────────
   const CAT_ACTIVITIES = {
-    peche:       ['carnassier-bord','carnassier-barque','carpe-batterie','coup','feeder','carnassier-pose'],
+    peche:       ['carnassier-bord','carnassier-barque','carnassier-proprio','carpe-batterie','coup','feeder','carnassier-pose'],
     bateau:      ['barbecue-boat'],
     hebergement: ['emplacement-bbq','emplacement-camping'],
     nautique:    ['canoe','barque-sans-peche'],
