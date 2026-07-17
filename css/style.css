@@ -148,11 +148,11 @@ p { margin-bottom: 0; }
   display: flex; align-items: center; justify-content: center;
 }
 .nav__logo-icon img { width: 44px; height: 44px; object-fit: cover; }
-.nav__logo-text { color: var(--white); }
+.nav__logo-text { color: var(--accent); }
 .nav__logo-text strong {
   display: block; font-family: var(--font-head); font-size: 0.92rem; font-weight: 700; line-height: 1.2;
 }
-.nav__logo-text span { font-size: 0.68rem; opacity: 0.7; letter-spacing: 0.1em; text-transform: uppercase; }
+.nav__logo-text span { font-size: 0.68rem; opacity: 0.85; letter-spacing: 0.1em; text-transform: uppercase; }
 .nav__menu {
   display: flex; align-items: center; gap: 8px;
 }
@@ -168,7 +168,7 @@ p { margin-bottom: 0; }
 }
 .nav__hamburger span {
   display: block; width: 24px; height: 2px;
-  background: var(--white); border-radius: 2px; transition: var(--transition);
+  background: var(--accent); border-radius: 2px; transition: var(--transition);
 }
 .nav__mobile {
   display: none; position: fixed; top: 76px; left: 0; right: 0;
