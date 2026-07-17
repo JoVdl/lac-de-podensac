@@ -2516,10 +2516,17 @@
 
         return segments.flatMap(([sd, ed]) => {
           const di = dayIndex(sd), ei = dayIndex(ed);
-          // Noon-to-noon: arrival at noon (start at mid-column), departure at noon next day (end at mid next column)
           const HALF = DAY_W / 2;
-          const rawLeft  = di * DAY_W + HALF;        // mid of arrival day
-          const rawRight = (ei + 1) * DAY_W + HALF;  // mid of departure day
+          let rawLeft, rawRight;
+          if (sd === ed) {
+            // Single-day reservation: fill the whole column
+            rawLeft  = di * DAY_W;
+            rawRight = (di + 1) * DAY_W;
+          } else {
+            // Multi-day noon-to-noon: arrival mid start-day, departure mid end-day+1
+            rawLeft  = di * DAY_W + HALF;
+            rawRight = (ei + 1) * DAY_W + HALF;
+          }
           const clLeft  = Math.max(rawLeft,  0);
           const clRight = Math.min(rawRight, NUM_DAYS * DAY_W);
           if (clLeft >= NUM_DAYS * DAY_W || clRight <= 0) return [];
