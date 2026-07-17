@@ -1253,6 +1253,17 @@
         <div id="nrm-peche-section">
           <div class="nrm-group-title">Réservation pêche</div>
           <div class="nrm-row">
+            <div class="nrm-field" style="flex:1 1 100%;">
+              <label class="nrm-label">Activité *</label>
+              <select class="nrm-select" id="nrm-activity" onchange="nrmOnActivityChange()">
+                <option value="postes">🎣 Pêche aux postes (carpe, feeder…)</option>
+                <option value="carnassier-bord">🐟 Carnassier — du bord</option>
+                <option value="carnassier-barque">🚤 Carnassier — barque lac</option>
+                <option value="carnassier-proprio">🛥️ Carnassier — embarcation personnelle</option>
+              </select>
+            </div>
+          </div>
+          <div class="nrm-row" id="nrm-poste-row">
             <div class="nrm-field">
               <label class="nrm-label">Poste *</label>
               <select class="nrm-select" id="nrm-poste"></select>
@@ -1271,6 +1282,7 @@
                 <option value="nuit-7">168 h (1 semaine) — 170 €</option>
               </select>
             </div>
+          </div>
           </div>
           <div class="nrm-row">
             <div class="nrm-field">
@@ -2824,6 +2836,13 @@
     }
   };
 
+  window.nrmOnActivityChange = function() {
+    const act = document.getElementById('nrm-activity').value;
+    const isCarn = act.startsWith('carnassier');
+    document.getElementById('nrm-poste-row').style.display = isCarn ? 'none' : '';
+    nrmUpdatePrice();
+  };
+
   window.nrmSetType = function(type, reset = true) {
     nrmType = type;
     NRM_TYPES.forEach(t => {
@@ -2966,6 +2985,10 @@
       sel.innerHTML = (typeof POSTES !== 'undefined' ? POSTES : [])
         .filter(p => !p.coming_soon)
         .map(p => `<option value="${p.id}" ${p.id === posteId ? 'selected':''}>${p.icon||''} ${p.nom}</option>`).join('');
+      // Detect carnassier from resourceKey / posteId
+      const isCarnResource = posteId === 'zone-carnassier' || (typeof posteId === 'string' && posteId.includes('carn'));
+      document.getElementById('nrm-activity').value = isCarnResource ? 'carnassier-bord' : 'postes';
+      document.getElementById('nrm-poste-row').style.display = isCarnResource ? 'none' : '';
       document.getElementById('nrm-formule').value = 'jour';
       document.getElementById('nrm-nb').value = 1;
       document.getElementById('nrm-accomp').value = 0;
@@ -3033,6 +3056,9 @@
       document.getElementById('nrm-date-debut').value = r.dateDebut || '';
       document.getElementById('nrm-date-fin').value = r.dateFin || '';
       document.getElementById('nrm-peche-duree').style.display = 'none';
+      const isCarnEdit = r.activity && r.activity.startsWith('carnassier') || r.posteId === 'zone-carnassier' || (typeof r.posteId === 'string' && r.posteId.includes('carn'));
+      document.getElementById('nrm-activity').value = isCarnEdit ? (r.activity || 'carnassier-bord') : 'postes';
+      document.getElementById('nrm-poste-row').style.display = isCarnEdit ? 'none' : '';
       const sel = document.getElementById('nrm-poste');
       sel.innerHTML = (typeof POSTES !== 'undefined' ? POSTES : [])
         .filter(p => !p.coming_soon)
@@ -3141,7 +3167,10 @@
           totalPrice+=parseFloat(cb.dataset.prix)||0;
           materiel.push(cb.dataset.id);
         });
-        Object.assign(data,{type:'peche',posteId:parseInt(document.getElementById('nrm-poste').value),formule,dateDebut,dateFin:finalDateFin,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
+        const nrmActivity = document.getElementById('nrm-activity').value;
+        const isCarnassier = nrmActivity.startsWith('carnassier');
+        const posteIdVal = isCarnassier ? 'zone-carnassier' : parseInt(document.getElementById('nrm-poste').value);
+        Object.assign(data,{type:'peche',posteId:posteIdVal,activity:isCarnassier?nrmActivity:null,formule,dateDebut,dateFin:finalDateFin,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
 
       } else if (nrmType === 'bateau') {
         const date=document.getElementById('nrm-date-bateau').value;
