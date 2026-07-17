@@ -2840,6 +2840,7 @@
     const act = document.getElementById('nrm-activity').value;
     const isCarn = act.startsWith('carnassier');
     document.getElementById('nrm-poste-row').style.display = isCarn ? 'none' : '';
+    // barque row visibility is handled inside nrmUpdatePrice
     nrmUpdatePrice();
   };
 
@@ -2885,6 +2886,7 @@
 
     if (nrmType === 'peche') {
       const formule = document.getElementById('nrm-formule').value;
+      const activity = document.getElementById('nrm-activity').value;
       const TARIFS_NUITS = {1:35,2:70,3:90,4:110,5:130,6:150,7:170};
       const isNuit = formule.startsWith('nuit-');
       const nuits = isNuit ? parseInt(formule.split('-')[1]) : 0;
@@ -2894,10 +2896,15 @@
       const aT = formule === 'demi' ? 5 : 10;
       calcPrice += aT * accomp;
       if (document.getElementById('nrm-canne4').checked && formule !== 'demi') calcPrice += 10;
-      // Barque: shown only for carpe en batterie (nuit formules)
+      // Barque checkbox: shown for postes night formulas; hidden for carnassier-barque (auto-included)
       const barqueRow = document.getElementById('nrm-barque-row');
-      barqueRow.hidden = !isNuit;
-      if (isNuit && document.getElementById('nrm-barque').checked) {
+      const isCarnBarque = activity === 'carnassier-barque';
+      barqueRow.hidden = isCarnBarque || !isNuit;
+      if (isCarnBarque) {
+        // Barque auto-included: demi=20€, jour=30€, nuit-1=30€, nuit-2=40€, nuit-3+=15€/nuit
+        const barqueTarif = formule === 'demi' ? 20 : !isNuit ? 30 : nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
+        calcPrice += barqueTarif;
+      } else if (isNuit && document.getElementById('nrm-barque').checked) {
         calcPrice += nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
       }
       document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb => {
@@ -3160,15 +3167,21 @@
         totalPrice += aT * accomp;
         const canne4=document.getElementById('nrm-canne4').checked;
         if(canne4 && formule!=='demi') totalPrice+=10;
-        const barque=isNuit && document.getElementById('nrm-barque').checked;
-        if(barque) totalPrice += nuits===1?30:nuits===2?40:15*nuits;
+        const nrmActivity = document.getElementById('nrm-activity').value;
+        const isCarnassier = nrmActivity.startsWith('carnassier');
+        const isCarnBarque = nrmActivity === 'carnassier-barque';
+        let barque = isCarnBarque || (isNuit && document.getElementById('nrm-barque').checked);
+        if (isCarnBarque) {
+          const barqueTarif = formule === 'demi' ? 20 : !isNuit ? 30 : nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
+          totalPrice += barqueTarif;
+        } else if (isNuit && document.getElementById('nrm-barque').checked) {
+          totalPrice += nuits===1?30:nuits===2?40:15*nuits;
+        }
         const materiel=[];
         document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb=>{
           totalPrice+=parseFloat(cb.dataset.prix)||0;
           materiel.push(cb.dataset.id);
         });
-        const nrmActivity = document.getElementById('nrm-activity').value;
-        const isCarnassier = nrmActivity.startsWith('carnassier');
         const posteIdVal = isCarnassier ? 'zone-carnassier' : parseInt(document.getElementById('nrm-poste').value);
         Object.assign(data,{type:'peche',posteId:posteIdVal,activity:isCarnassier?nrmActivity:null,formule,dateDebut,dateFin:finalDateFin,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
 
