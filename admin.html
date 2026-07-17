@@ -801,11 +801,12 @@
       background: var(--white); border-radius: 14px;
       box-shadow: var(--card-shadow);
       display: flex; flex-direction: column;
-      /* overflow: hidden retiré — il cassait position:sticky du header */
+      max-height: calc(100vh - 130px);
+      overflow-y: auto;
     }
     .cal-planning-body-wrap { border-radius: 0 0 14px 14px; overflow: hidden; }
     .cal-planning-sticky-header {
-      position: sticky; top: 60px; z-index: 10;
+      position: sticky; top: 0; z-index: 10;
       display: flex; background: var(--white);
       border-bottom: 2px solid var(--border);
       box-shadow: 0 2px 6px rgba(0,0,0,0.07);
