@@ -2501,31 +2501,22 @@
         const rDates = getResDates(r);
         if (!rDates.length) return [];
 
-        // Group consecutive date runs into segments
-        const sorted = [...rDates].sort();
-        const segments = [];
-        let segStart = sorted[0], segEnd = sorted[0];
-        for (let i = 1; i < sorted.length; i++) {
-          const prev = new Date(sorted[i-1] + 'T00:00:00');
-          const curr = new Date(sorted[i]   + 'T00:00:00');
-          const diff = Math.round((curr - prev) / 86400000);
-          if (diff <= 1) { segEnd = sorted[i]; }
-          else { segments.push([segStart, segEnd]); segStart = segEnd = sorted[i]; }
-        }
-        segments.push([segStart, segEnd]);
+        // Use dateDebut/dateFin directly for accurate span; fall back to dates array
+        const sd = r.dateDebut || rDates[0];
+        const ed = r.dateFin   || rDates[rDates.length - 1] || sd;
 
-        return segments.flatMap(([sd, ed]) => {
+        return [sd].flatMap((_) => {
           const di = dayIndex(sd), ei = dayIndex(ed);
           const HALF = DAY_W / 2;
           let rawLeft, rawRight;
           if (sd === ed) {
-            // Single-day reservation: fill the whole column
+            // Same arrival and departure day → single column
             rawLeft  = di * DAY_W;
             rawRight = (di + 1) * DAY_W;
           } else {
-            // Multi-day noon-to-noon: arrival mid start-day, departure mid end-day+1
+            // Multi-day: noon-to-noon (arrive mid sd, depart mid ed)
             rawLeft  = di * DAY_W + HALF;
-            rawRight = (ei + 1) * DAY_W + HALF;
+            rawRight = ei * DAY_W + HALF;
           }
           const clLeft  = Math.max(rawLeft,  0);
           const clRight = Math.min(rawRight, NUM_DAYS * DAY_W);
