@@ -2487,7 +2487,7 @@
     // Compute reservation blocks for a row
     function getBlocks(row) {
       let relevant;
-      if (row.type === 'peche')      relevant = allReservations.filter(r => r.type === 'peche' && r.posteId === row.posteId);
+      if (row.type === 'peche')      relevant = allReservations.filter(r => r.type === 'peche' && r.posteId === row.posteId && !(r.activity && r.activity.startsWith('carnassier')) && r.posteId !== 'zone-carnassier');
       else if (row.type === 'carnassier') relevant = carnassierSlots[row.slot] || [];
       else if (row.type === 'bateau')     relevant = allReservations.filter(r => r.type === 'bateau' && (r.bateau||'').trim() === row.bateau);
       else if (row.type === 'canoe')      relevant = canoeSlots[row.slot] || [];
