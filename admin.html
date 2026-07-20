@@ -1485,6 +1485,10 @@
             </div>
           </div>
           <div id="nrm-tente-duree" class="nrm-duree-tag" style="display:none;"></div>
+          <label class="nrm-checkbox-row">
+            <input type="checkbox" id="nrm-tente-elec" onchange="nrmUpdatePrice()">
+            <span>Électricité (+3 € / nuit)</span>
+          </label>
         </div>
 
         <!-- ── OPTIONS MATÉRIEL (pêche uniquement) ── -->
@@ -2987,8 +2991,13 @@
       const tarif = parseInt(document.getElementById('nrm-tente-tarif').value)||13;
       const diff = nrmDaysBetween('nrm-date-tente-debut', 'nrm-date-tente-fin');
       const nbNuits = Math.max(diff, 0);
-      dureeTxt = nbNuits > 0 ? `${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €` : '';
-      calcPrice = tarif * nbNuits;
+      const elec = document.getElementById('nrm-tente-elec').checked;
+      const elecTarif = 3;
+      let parts = [];
+      if (nbNuits > 0) parts.push(`${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €`);
+      if (elec && nbNuits > 0) parts.push(`Élec. ${nbNuits} × ${elecTarif} €`);
+      dureeTxt = parts.join(' · ');
+      calcPrice = tarif * nbNuits + (elec ? elecTarif * nbNuits : 0);
       const el = document.getElementById('nrm-tente-duree');
       el.textContent = dureeTxt; el.style.display = dureeTxt ? '' : 'none';
     }
@@ -3064,6 +3073,7 @@
       document.getElementById('nrm-tente-duree').style.display = 'none';
       const num = (resourceKey||'').split('-')[1];
       if (num) document.getElementById('nrm-tente-emplacement').value = num;
+      document.getElementById('nrm-tente-elec').checked = false;
     }
 
     nrmUpdatePrice();
@@ -3150,6 +3160,7 @@
       document.getElementById('nrm-date-tente-fin').value = r.dateFin || '';
       document.getElementById('nrm-tente-duree').style.display = 'none';
       document.getElementById('nrm-tente-tarif').value = r.tarifNuit || 13;
+      document.getElementById('nrm-tente-elec').checked = !!r.electricite;
       if (r.emplacement) document.getElementById('nrm-tente-emplacement').value = r.emplacement;
     }
 
@@ -3262,8 +3273,9 @@
         if(!dateDebut||!dateFin){toast('Dates requises','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
         const tarif=parseInt(document.getElementById('nrm-tente-tarif').value)||13;
         const nbNuits=Math.max(1,nrmDaysBetween('nrm-date-tente-debut','nrm-date-tente-fin'));
-        const totalPrice=tarif*nbNuits;
-        Object.assign(data,{type:'tente',emplacement:document.getElementById('nrm-tente-emplacement').value,tarifNuit:tarif,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice});
+        const elec=document.getElementById('nrm-tente-elec').checked;
+        const totalPrice=tarif*nbNuits+(elec?3*nbNuits:0);
+        Object.assign(data,{type:'tente',emplacement:document.getElementById('nrm-tente-emplacement').value,tarifNuit:tarif,electricite:elec||null,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice});
       }
 
       // Price override
