@@ -2937,7 +2937,8 @@
       const isNuit = formule.startsWith('nuit-');
       const nuits = isNuit ? parseInt(formule.split('-')[1]) : 0;
       const unitPrice = isNuit ? (TARIFS_NUITS[nuits] || nuits * 35) : (formule === 'demi' ? 15 : 20);
-      calcPrice = unitPrice;
+      const nb = parseInt(document.getElementById('nrm-nb').value)||1;
+      calcPrice = unitPrice * nb;
       const accomp = parseInt(document.getElementById('nrm-accomp').value)||0;
       const aT = formule === 'demi' ? 5 : 10;
       calcPrice += aT * accomp;
@@ -3214,7 +3215,8 @@
         })();
         const finalDateFin = dateFin || autoDateFin;
         const dates = makeDates(dateDebut, isNuit ? nuits : 1);
-        let totalPrice = unitPrice;
+        const nbP = parseInt(document.getElementById('nrm-nb').value)||1;
+        let totalPrice = unitPrice * nbP;
         const accomp=parseInt(document.getElementById('nrm-accomp').value)||0;
         const aT = formule==='demi' ? 5 : 10;
         totalPrice += aT * accomp;
