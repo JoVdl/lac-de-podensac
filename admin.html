@@ -2407,26 +2407,35 @@
   function renderPlanningView(c) {
     const DAY_W = 40; // px per day column
 
-    // Start at 1st of displayed month
+    // Render a window: 1 month before calDate + current + 2 months after
     const year = calDate.getFullYear(), month = calDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const NUM_DAYS = new Date(year, month + 1, 0).getDate(); // days in month
+    const MONTHS_BEFORE = 1, MONTHS_AFTER = 2;
+    const startDate = new Date(year, month - MONTHS_BEFORE, 1); // anchor for dayIndex
     const todayStr = toDateStr(new Date());
+    const MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
-    // Build date info array
+    // Build date info array spanning multiple months
     const days = [];
-    for (let i = 0; i < NUM_DAYS; i++) {
-      const d = new Date(year, month, i + 1);
-      const dow = d.getDay(); // 0=Sun,6=Sat
-      days.push({
-        str: toDateStr(d),
-        d,
-        isWeekend: dow === 0 || dow === 6,
-        isToday: toDateStr(d) === todayStr,
-        dayName: ['D','L','M','M','J','V','S'][dow],
-        dayNum: i + 1,
-      });
+    for (let mo = -MONTHS_BEFORE; mo <= MONTHS_AFTER; mo++) {
+      const mDate = new Date(year, month + mo, 1);
+      const mY = mDate.getFullYear(), mM = mDate.getMonth();
+      const mDays = new Date(mY, mM + 1, 0).getDate();
+      for (let i = 0; i < mDays; i++) {
+        const d = new Date(mY, mM, i + 1);
+        const dow = d.getDay();
+        days.push({
+          str: toDateStr(d),
+          d,
+          isWeekend: dow === 0 || dow === 6,
+          isToday: toDateStr(d) === todayStr,
+          dayName: ['D','L','M','M','J','V','S'][dow],
+          dayNum: i + 1,
+          isMonthStart: i === 0,
+          monthLabel: i === 0 ? `${MONTH_NAMES[mM]} ${mY}` : null,
+        });
+      }
     }
+    const NUM_DAYS = days.length;
 
     function dayIndex(dateStr) {
       const [y, m, d] = dateStr.split('-').map(Number);
@@ -2576,9 +2585,11 @@
       else if (row.type === 'canoe') resKey = `'canoe'`;
       else if (row.type === 'campingcar') resKey = `'campingcar-${row.empl}'`;
       else if (row.type === 'tente') resKey = `'tente-${row.empl}'`;
-      const dayCols = days.map(({ str: ds, isWeekend, isToday }) => {
+      const dayCols = days.map((day) => {
+        const { str: ds, isWeekend, isToday } = day;
         const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
-        return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;"
+        const borderLeft = day.isMonthStart ? 'border-left:2px solid var(--primary-light);' : '';
+        return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;${borderLeft}"
           onclick="planningCellClick('${ds}',${posteIdArg},${resKey},event)" title="Ajouter une réservation"
           ondragover="planDragOver(event)" ondragleave="planDragLeave(event)" ondrop="planDrop(event,'${ds}')"></div>`;
       }).join('');
@@ -2602,10 +2613,14 @@
     }
 
     // Header
-    const headerDayCols = days.map(({ isWeekend, isToday, dayName, dayNum }) => {
+    const headerDayCols = days.map(({ isWeekend, isToday, dayName, dayNum, isMonthStart, monthLabel }) => {
       const cls = [isWeekend ? 'weekend' : '', isToday ? 'today-col' : ''].filter(Boolean).join(' ');
-      return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;">
-        <div class="cal-planning-day-header-cell">${dayName}<br>${dayNum}</div>
+      const borderLeft = isMonthStart ? 'border-left:2px solid var(--primary-light);' : '';
+      const label = isMonthStart
+        ? `<div style="font-size:0.55rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:0.04em;line-height:1;white-space:nowrap;overflow:visible;">${monthLabel}</div>`
+        : '';
+      return `<div class="cal-planning-day-col ${cls}" style="width:${DAY_W}px;min-width:${DAY_W}px;${borderLeft}">
+        ${label}<div class="cal-planning-day-header-cell">${dayName}<br>${dayNum}</div>
       </div>`;
     }).join('');
     addLabel('Ressource', '');
@@ -2695,27 +2710,32 @@
       handle.addEventListener('touchend', () => handle.classList.remove('dragging'), { passive: true });
     });
 
-    // Sync sticky header scroll with body scroll
+    // Sync sticky header scroll with body scroll + update month label on scroll
     requestAnimationFrame(() => {
       const bodyScroll = document.getElementById('planning-body-scroll');
       const stickyScroll = document.getElementById('planning-sticky-scroll');
       if (bodyScroll && stickyScroll) {
         bodyScroll.addEventListener('scroll', () => {
           stickyScroll.scrollLeft = bodyScroll.scrollLeft;
+          // Update period label based on leftmost visible day
+          const idx = Math.min(Math.floor(bodyScroll.scrollLeft / DAY_W), days.length - 1);
+          if (days[idx]) {
+            const d = days[idx].d;
+            document.getElementById('cal-period-label').textContent =
+              `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+          }
         }, { passive: true });
       }
-    });
 
-    // Auto-scroll so that (today - 7 days) is the first visible day (current month only)
-    const realToday = new Date();
-    if (realToday.getFullYear() === year && realToday.getMonth() === month) {
-      const diffDays = realToday.getDate() - 1 - 7; // days from month start, minus 7
-      const targetScroll = Math.max(0, diffDays * DAY_W);
-      requestAnimationFrame(() => {
-        const scrollCol = document.getElementById('planning-body-scroll');
-        if (scrollCol) scrollCol.scrollLeft = targetScroll;
-      });
-    }
+      // Auto-scroll: show today − 7 days if in visible window, else show start of calDate month
+      const scrollCol = document.getElementById('planning-body-scroll');
+      if (scrollCol) {
+        const todayIdx = days.findIndex(d => d.str === todayStr);
+        const monthStartIdx = days.findIndex(d => d.d.getFullYear() === year && d.d.getMonth() === month);
+        const anchorIdx = todayIdx >= 0 ? todayIdx : monthStartIdx;
+        scrollCol.scrollLeft = Math.max(0, (anchorIdx - 7) * DAY_W);
+      }
+    });
   }
 
   window.switchToDay = function(ds) {
