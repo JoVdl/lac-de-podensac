@@ -353,7 +353,7 @@ p { margin-bottom: 0; }
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
   color: rgba(255,255,255,0.85); font-size: 0.78rem; padding: 5px 12px; border-radius: 50px;
 }
-.service-card__price { color: rgba(255,255,255,0.5); font-size: 0.82rem; margin-bottom: 4px; }
+.service-card__price { color: rgba(255,255,255,0.82); font-size: 0.82rem; margin-bottom: 4px; }
 .service-card__price strong { color: var(--accent); font-size: 1.4rem; font-family: var(--font-head); }
 
 /* ================================================================
@@ -448,7 +448,7 @@ p { margin-bottom: 0; }
 .boat-preview { background: linear-gradient(135deg, #0d1f1d 0%, #3d2005 100%); }
 .boat-preview .section-label { background: rgba(232,149,30,0.15); color: var(--accent); }
 .boat-preview .section-title { color: var(--white); }
-.boat-preview .section-subtitle { color: rgba(255,255,255,0.6); }
+.boat-preview .section-subtitle { color: rgba(255,255,255,0.88); }
 .boat-concept {
   display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
 }
@@ -465,7 +465,7 @@ p { margin-bottom: 0; }
   border: 1px solid rgba(255,255,255,0.1);
 }
 .boat-concept__badge-title { color: var(--white); font-weight: 700; font-size: 1rem; }
-.boat-concept__badge-sub { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+.boat-concept__badge-sub { color: rgba(255,255,255,0.88); font-size: 0.8rem; }
 .boat-concept__content { color: var(--white); }
 .boat-concept__title { color: var(--white); margin-bottom: 16px; }
 .boat-concept__text { color: rgba(255,255,255,0.7); margin-bottom: 28px; line-height: 1.75; }
@@ -476,15 +476,15 @@ p { margin-bottom: 0; }
 }
 .boat-feature__icon { font-size: 1.5rem; margin-bottom: 8px; }
 .boat-feature__title { color: var(--white); font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
-.boat-feature__sub { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
+.boat-feature__sub { color: rgba(255,255,255,0.82); font-size: 0.78rem; }
 .packages-mini { display: flex; gap: 12px; margin-bottom: 28px; }
 .package-mini {
   flex: 1; background: rgba(232,149,30,0.1); border: 1px solid rgba(232,149,30,0.25);
   border-radius: var(--radius); padding: 16px; text-align: center;
 }
-.package-mini__name { color: rgba(255,255,255,0.6); font-size: 0.78rem; margin-bottom: 6px; }
+.package-mini__name { color: rgba(255,255,255,0.88); font-size: 0.78rem; margin-bottom: 6px; }
 .package-mini__price { color: var(--accent); font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; }
-.package-mini__dur { color: rgba(255,255,255,0.4); font-size: 0.72rem; }
+.package-mini__dur { color: rgba(255,255,255,0.75); font-size: 0.72rem; }
 
 /* ================================================================
    TESTIMONIALS
@@ -578,11 +578,11 @@ p { margin-bottom: 0; }
 .footer__contact-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; font-size: 0.87rem; }
 .footer__contact-icon { color: var(--accent); margin-top: 2px; flex-shrink: 0; }
 .footer__bottom {
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.12);
   padding: 20px 0; display: flex; align-items: center; justify-content: space-between;
-  font-size: 0.8rem; color: rgba(255,255,255,0.4);
+  font-size: 0.8rem; color: rgba(255,255,255,0.7);
 }
-.footer__bottom a { color: rgba(255,255,255,0.4); transition: color 0.2s; }
+.footer__bottom a { color: rgba(255,255,255,0.7); transition: color 0.2s; }
 .footer__bottom a:hover { color: var(--accent); }
 
 /* ================================================================
@@ -595,10 +595,10 @@ p { margin-bottom: 0; }
 }
 .page-hero__title { color: var(--white); margin-bottom: 16px; }
 .page-hero__subtitle { color: rgba(255,255,255,0.75); font-size: 1.1rem; max-width: 600px; margin: 0 auto 28px; }
-.page-hero__breadcrumb { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.5); }
-.page-hero__breadcrumb a { color: rgba(255,255,255,0.5); }
+.page-hero__breadcrumb { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.82); }
+.page-hero__breadcrumb a { color: rgba(255,255,255,0.82); }
 .page-hero__breadcrumb a:hover { color: var(--accent); }
-.page-hero__breadcrumb span { color: rgba(255,255,255,0.25); }
+.page-hero__breadcrumb span { color: rgba(255,255,255,0.55); }
 
 /* ================================================================
    MAP PAGE
@@ -788,7 +788,7 @@ p { margin-bottom: 0; }
 }
 .booking-summary__title { font-size: 1.1rem; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 16px; }
 .summary-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.88rem; }
-.summary-line span:first-child { color: rgba(255,255,255,0.65); }
+.summary-line span:first-child { color: rgba(255,255,255,0.88); }
 .summary-line span:last-child { color: var(--white); font-weight: 600; }
 .summary-total {
   border-top: 1px solid rgba(255,255,255,0.15); margin-top: 16px; padding-top: 16px;
@@ -797,7 +797,7 @@ p { margin-bottom: 0; }
 .summary-total span:first-child { color: rgba(255,255,255,0.8); font-weight: 600; }
 .summary-total span:last-child { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--accent); }
 .summary-included { margin-top: 20px; }
-.summary-included__title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+.summary-included__title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.82); margin-bottom: 10px; }
 .summary-included__item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.75); margin-bottom: 8px; }
 .summary-included__item::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; }
 
@@ -875,7 +875,7 @@ p { margin-bottom: 0; }
 .menu-item__name { color: var(--white); font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
 .menu-item__desc { color: rgba(255,255,255,0.8); font-size: 0.8rem; line-height: 1.6; }
 .menu-section .section-title { color: var(--white); }
-.menu-section .section-subtitle { color: rgba(255,255,255,0.6); }
+.menu-section .section-subtitle { color: rgba(255,255,255,0.88); }
 .menu-section .section-label { background: rgba(232,149,30,0.2); color: var(--accent); }
 
 /* ================================================================
