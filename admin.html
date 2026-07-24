@@ -1436,13 +1436,15 @@
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Date arrivée *</label>
-              <input type="date" class="nrm-input" id="nrm-date-cc-debut" onchange="nrmSyncEnd('nrm-date-cc-debut','nrm-date-cc-fin');nrmUpdatePrice()">
+              <input type="date" class="nrm-input" id="nrm-date-cc-debut" onchange="nrmComputeCCFin();nrmUpdatePrice()">
             </div>
             <div class="nrm-field">
-              <label class="nrm-label">Date départ *</label>
-              <input type="date" class="nrm-input" id="nrm-date-cc-fin" onchange="nrmUpdatePrice()">
+              <label class="nrm-label">Nb nuits *</label>
+              <input type="number" class="nrm-input" id="nrm-cc-nuits" value="1" min="1" max="30" onchange="nrmComputeCCFin();nrmUpdatePrice()" oninput="nrmComputeCCFin();nrmUpdatePrice()">
             </div>
           </div>
+          <div id="nrm-cc-depart-display" style="font-size:0.8rem;color:var(--gray);margin-bottom:6px;"></div>
+          <input type="hidden" id="nrm-date-cc-fin">
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Électricité (kWh consommés)</label>
@@ -1477,13 +1479,15 @@
           <div class="nrm-row">
             <div class="nrm-field">
               <label class="nrm-label">Date arrivée *</label>
-              <input type="date" class="nrm-input" id="nrm-date-tente-debut" onchange="nrmSyncEnd('nrm-date-tente-debut','nrm-date-tente-fin');nrmUpdatePrice()">
+              <input type="date" class="nrm-input" id="nrm-date-tente-debut" onchange="nrmComputeTenteFin();nrmUpdatePrice()">
             </div>
             <div class="nrm-field">
-              <label class="nrm-label">Date départ *</label>
-              <input type="date" class="nrm-input" id="nrm-date-tente-fin" onchange="nrmUpdatePrice()">
+              <label class="nrm-label">Nb nuits *</label>
+              <input type="number" class="nrm-input" id="nrm-tente-nuits" value="1" min="1" max="30" onchange="nrmComputeTenteFin();nrmUpdatePrice()" oninput="nrmComputeTenteFin();nrmUpdatePrice()">
             </div>
           </div>
+          <div id="nrm-tente-depart-display" style="font-size:0.8rem;color:var(--gray);margin-bottom:6px;"></div>
+          <input type="hidden" id="nrm-date-tente-fin">
           <div id="nrm-tente-duree" class="nrm-duree-tag" style="display:none;"></div>
           <label class="nrm-checkbox-row">
             <input type="checkbox" id="nrm-tente-elec" onchange="nrmUpdatePrice()">
@@ -2902,6 +2906,28 @@
     }
   };
 
+  window.nrmComputeCCFin = function() {
+    const debut = document.getElementById('nrm-date-cc-debut').value;
+    const nuits = parseInt(document.getElementById('nrm-cc-nuits').value) || 1;
+    if (!debut) return;
+    const d = new Date(debut + 'T00:00:00');
+    d.setDate(d.getDate() + nuits);
+    const fin = toDateStr(d);
+    document.getElementById('nrm-date-cc-fin').value = fin;
+    document.getElementById('nrm-cc-depart-display').textContent = `Départ : ${formatDate(fin)}`;
+  };
+
+  window.nrmComputeTenteFin = function() {
+    const debut = document.getElementById('nrm-date-tente-debut').value;
+    const nuits = parseInt(document.getElementById('nrm-tente-nuits').value) || 1;
+    if (!debut) return;
+    const d = new Date(debut + 'T00:00:00');
+    d.setDate(d.getDate() + nuits);
+    const fin = toDateStr(d);
+    document.getElementById('nrm-date-tente-fin').value = fin;
+    document.getElementById('nrm-tente-depart-display').textContent = `Départ : ${formatDate(fin)}`;
+  };
+
   window.nrmOnActivityChange = function() {
     const act = document.getElementById('nrm-activity').value;
     const isCarn = act.startsWith('carnassier');
@@ -2997,11 +3023,9 @@
       const tarif = parseInt(document.getElementById('nrm-cc-tarif').value)||13;
       const kwh = parseFloat(document.getElementById('nrm-cc-kwh').value)||0;
       const kwhTarif = parseFloat(document.getElementById('nrm-cc-kwh-tarif').value)||3;
-      const diff = nrmDaysBetween('nrm-date-cc-debut', 'nrm-date-cc-fin');
-      const nbNuits = Math.max(diff, 0);
+      const nbNuits = Math.max(parseInt(document.getElementById('nrm-cc-nuits').value)||1, 1);
       const elecPrice = Math.round(kwh * kwhTarif * 100) / 100;
-      let parts = [];
-      if (nbNuits > 0) parts.push(`${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €`);
+      let parts = [`${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €`];
       if (elecPrice > 0) parts.push(`Élec. ${kwh} kWh × ${kwhTarif} € = ${elecPrice} €`);
       dureeTxt = parts.join(' · ');
       calcPrice = tarif * nbNuits + elecPrice;
@@ -3010,13 +3034,11 @@
 
     } else if (nrmType === 'tente') {
       const tarif = parseInt(document.getElementById('nrm-tente-tarif').value)||13;
-      const diff = nrmDaysBetween('nrm-date-tente-debut', 'nrm-date-tente-fin');
-      const nbNuits = Math.max(diff, 0);
+      const nbNuits = Math.max(parseInt(document.getElementById('nrm-tente-nuits').value)||1, 1);
       const elec = document.getElementById('nrm-tente-elec').checked;
       const elecTarif = 3;
-      let parts = [];
-      if (nbNuits > 0) parts.push(`${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €`);
-      if (elec && nbNuits > 0) parts.push(`Élec. ${nbNuits} × ${elecTarif} €`);
+      let parts = [`${nbNuits} nuit${nbNuits>1?'s':''} × ${tarif} €`];
+      if (elec) parts.push(`Élec. ${nbNuits} × ${elecTarif} €`);
       dureeTxt = parts.join(' · ');
       calcPrice = tarif * nbNuits + (elec ? elecTarif * nbNuits : 0);
       const el = document.getElementById('nrm-tente-duree');
@@ -3084,20 +3106,22 @@
       document.getElementById('nrm-nb-canoe').value = 2;
     } else if (type === 'campingcar') {
       document.getElementById('nrm-date-cc-debut').value = dateStr || '';
-      document.getElementById('nrm-date-cc-fin').value = '';
-      document.getElementById('nrm-cc-duree').style.display = 'none';
+      document.getElementById('nrm-cc-nuits').value = 1;
       document.getElementById('nrm-cc-kwh').value = 0;
+      document.getElementById('nrm-cc-duree').style.display = 'none';
+      document.getElementById('nrm-cc-depart-display').textContent = '';
       const num = (resourceKey||'').split('-')[1];
       if (num) document.getElementById('nrm-cc-emplacement').value = num;
-      if (dateStr) nrmSyncEnd('nrm-date-cc-debut', 'nrm-date-cc-fin');
+      if (dateStr) nrmComputeCCFin();
     } else if (type === 'tente') {
       document.getElementById('nrm-date-tente-debut').value = dateStr || '';
-      document.getElementById('nrm-date-tente-fin').value = '';
+      document.getElementById('nrm-tente-nuits').value = 1;
       document.getElementById('nrm-tente-duree').style.display = 'none';
+      document.getElementById('nrm-tente-depart-display').textContent = '';
       const num = (resourceKey||'').split('-')[1];
       if (num) document.getElementById('nrm-tente-emplacement').value = num;
       document.getElementById('nrm-tente-elec').checked = false;
-      if (dateStr) nrmSyncEnd('nrm-date-tente-debut', 'nrm-date-tente-fin');
+      if (dateStr) nrmComputeTenteFin();
     }
 
     nrmUpdatePrice();
@@ -3172,20 +3196,24 @@
 
     } else if (type === 'campingcar') {
       document.getElementById('nrm-date-cc-debut').value = r.dateDebut || '';
-      document.getElementById('nrm-date-cc-fin').value = r.dateFin || '';
+      document.getElementById('nrm-cc-nuits').value = r.duree || 1;
       document.getElementById('nrm-cc-duree').style.display = 'none';
+      document.getElementById('nrm-cc-depart-display').textContent = '';
       document.getElementById('nrm-cc-tarif').value = r.tarifNuit || 13;
       document.getElementById('nrm-cc-kwh').value = r.kwh || 0;
       document.getElementById('nrm-cc-kwh-tarif').value = r.kwhTarif || 3;
       if (r.emplacement) document.getElementById('nrm-cc-emplacement').value = r.emplacement;
+      nrmComputeCCFin();
 
     } else if (type === 'tente') {
       document.getElementById('nrm-date-tente-debut').value = r.dateDebut || '';
-      document.getElementById('nrm-date-tente-fin').value = r.dateFin || '';
+      document.getElementById('nrm-tente-nuits').value = r.duree || 1;
       document.getElementById('nrm-tente-duree').style.display = 'none';
+      document.getElementById('nrm-tente-depart-display').textContent = '';
       document.getElementById('nrm-tente-tarif').value = r.tarifNuit || 13;
       document.getElementById('nrm-tente-elec').checked = !!r.electricite;
       if (r.emplacement) document.getElementById('nrm-tente-emplacement').value = r.emplacement;
+      nrmComputeTenteFin();
     }
 
     // Show calculated price & set override to saved total if it differs from calc
@@ -3282,22 +3310,24 @@
 
       } else if (nrmType === 'campingcar') {
         const dateDebut=document.getElementById('nrm-date-cc-debut').value;
-        const dateFin=document.getElementById('nrm-date-cc-fin').value;
-        if(!dateDebut||!dateFin){toast('Dates requises','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        if(!dateDebut){toast('Date arrivée requise','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        nrmComputeCCFin();
+        const dateFin=document.getElementById('nrm-date-cc-fin').value||dateDebut;
         const tarif=parseInt(document.getElementById('nrm-cc-tarif').value)||13;
         const kwh=parseFloat(document.getElementById('nrm-cc-kwh').value)||0;
         const kwhTarif=parseFloat(document.getElementById('nrm-cc-kwh-tarif').value)||3;
         const elecPrice=Math.round(kwh*kwhTarif*100)/100;
-        const nbNuits=Math.max(1,nrmDaysBetween('nrm-date-cc-debut','nrm-date-cc-fin'));
+        const nbNuits=Math.max(1,parseInt(document.getElementById('nrm-cc-nuits').value)||1);
         const totalPrice=tarif*nbNuits+elecPrice;
         Object.assign(data,{type:'campingcar',emplacement:document.getElementById('nrm-cc-emplacement').value,tarifNuit:tarif,kwh,kwhTarif,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice});
 
       } else if (nrmType === 'tente') {
         const dateDebut=document.getElementById('nrm-date-tente-debut').value;
-        const dateFin=document.getElementById('nrm-date-tente-fin').value;
-        if(!dateDebut||!dateFin){toast('Dates requises','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        if(!dateDebut){toast('Date arrivée requise','error');btn.disabled=false;btn.textContent='Enregistrer';return;}
+        nrmComputeTenteFin();
+        const dateFin=document.getElementById('nrm-date-tente-fin').value||dateDebut;
         const tarif=parseInt(document.getElementById('nrm-tente-tarif').value)||13;
-        const nbNuits=Math.max(1,nrmDaysBetween('nrm-date-tente-debut','nrm-date-tente-fin'));
+        const nbNuits=Math.max(1,parseInt(document.getElementById('nrm-tente-nuits').value)||1);
         const elec=document.getElementById('nrm-tente-elec').checked;
         const totalPrice=tarif*nbNuits+(elec?3*nbNuits:0);
         Object.assign(data,{type:'tente',emplacement:document.getElementById('nrm-tente-emplacement').value,tarifNuit:tarif,electricite:elec||null,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice});
