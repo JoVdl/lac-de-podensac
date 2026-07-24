@@ -485,7 +485,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const e = el(id);
     if (e) e.addEventListener('change', updateSummary);
   });
-  document.querySelectorAll('.boat-opt-cb').forEach(cb => cb.addEventListener('change', updateSummary));
+  document.querySelectorAll('.boat-opt-cb').forEach(cb => cb.addEventListener('change', function() {
+    const card = this.closest('.boat-option-item');
+    if (card) card.classList.toggle('selected', this.checked);
+    updateSummary();
+  }));
   ['f-empl-date','f-empl-date-fin','f-empl-nb'].forEach(id => {
     const e = el(id);
     if (e) e.addEventListener('change', updateSummary);
@@ -892,7 +896,25 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e) e.addEventListener('change', updateBoatSummary);
   });
   document.querySelectorAll('input[name="bformule"]').forEach(r => r.addEventListener('change', updateBoatSummary));
-  document.querySelectorAll('.boat-opt-cb').forEach(cb => cb.addEventListener('change', updateBoatSummary));
+  document.querySelectorAll('.boat-opt-cb').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const card = this.closest('.boat-option-item');
+      if (card) card.classList.toggle('selected', this.checked);
+      updateBoatSummary();
+      updateSummary();
+    });
+    // Init state on load
+    const card = cb.closest('.boat-option-item');
+    if (card) card.classList.toggle('selected', cb.checked);
+  });
+
+  // Also handle .bbq-opt-cb the same way
+  document.querySelectorAll('.bbq-opt-cb').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const card = this.closest('.boat-option-item, [class*="opt-item"]');
+      if (card) card.classList.toggle('selected', this.checked);
+    });
+  });
 
   updateSummary();
 });
