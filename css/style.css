@@ -93,10 +93,10 @@ p { margin-bottom: 0; }
   box-shadow: 0 6px 24px rgba(61,138,128,0.4);
 }
 .btn--outline {
-  background: transparent; color: var(--white);
-  border: 2px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.12); color: var(--white) !important;
+  border: 2px solid rgba(255,255,255,0.85);
 }
-.btn--outline:hover { background: var(--white); color: var(--primary); }
+.btn--outline:hover { background: var(--white); color: var(--primary) !important; }
 .btn--outline-dark {
   background: transparent; color: var(--primary);
   border: 2px solid var(--primary);
@@ -215,8 +215,8 @@ p { margin-bottom: 0; }
 }
 .hero__badge {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(232,149,30,0.2); border: 1px solid rgba(232,149,30,0.4);
-  color: var(--accent); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em;
+  background: rgba(232,149,30,0.88); border: none;
+  color: #1a2b29; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em;
   text-transform: uppercase; padding: 8px 18px; border-radius: 50px;
   margin-bottom: 24px;
 }
@@ -231,7 +231,7 @@ p { margin-bottom: 0; }
 .hero__stat-value {
   font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--white);
 }
-.hero__stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.08em; }
+.hero__stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.88); text-transform: uppercase; letter-spacing: 0.08em; }
 .hero__visual {
   position: relative; z-index: 3;
 }
@@ -287,7 +287,7 @@ p { margin-bottom: 0; }
    STATS BAR
    ================================================================ */
 .stats-bar {
-  background: var(--primary); padding: 28px 0;
+  background: var(--primary-dark); padding: 28px 0;
 }
 .stats-bar__grid {
   display: grid; grid-template-columns: repeat(4,1fr);
@@ -301,9 +301,9 @@ p { margin-bottom: 0; }
   width: 1px; background: rgba(255,255,255,0.15);
 }
 .stats-bar__value {
-  font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; color: var(--accent);
+  font-family: var(--font-head); font-size: 2.2rem; font-weight: 800; color: var(--white);
 }
-.stats-bar__label { font-size: 0.82rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.08em; }
+.stats-bar__label { font-size: 0.82rem; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* ================================================================
    SERVICES SECTION
@@ -988,7 +988,7 @@ p { margin-bottom: 0; }
   text-decoration: none;
   backdrop-filter: blur(6px);
   box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-  opacity: 0.45;
+  opacity: 0.70;
   transition: opacity 0.2s, transform 0.2s, background 0.2s;
   pointer-events: auto;
 }
