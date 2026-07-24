@@ -108,6 +108,26 @@
     .badge.pending { background: #fff3cd; color: #856404; }
     .badge.confirmed { background: #d1e7dd; color: #0f5132; }
 
+    /* CA PAR ACTIVITÉ × MOIS */
+    .ca-matrix-wrap {
+      background: var(--white); border-radius: 14px; box-shadow: var(--shadow);
+      overflow-x: auto; margin-bottom: 24px;
+    }
+    .ca-matrix { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; }
+    .ca-matrix thead th {
+      background: rgba(42,96,89,0.07); padding: 10px 12px;
+      text-align: center; font-weight: 800; color: var(--primary-dark);
+      border-bottom: 2px solid var(--border); position: sticky; top: 0;
+    }
+    .ca-matrix thead th:first-child { text-align: left; }
+    .ca-matrix tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: right; }
+    .ca-matrix tbody tr:last-child td { border-bottom: none; font-weight: 900; background: rgba(42,96,89,0.04); }
+    .ca-matrix tbody td:first-child { text-align: left; font-weight: 700; color: var(--gray); }
+    .ca-matrix .cell-0 { color: #ccc; font-weight: 400; }
+    .ca-matrix .cell-pos { color: var(--primary-dark); font-weight: 700; }
+    .ca-matrix .cell-total { color: var(--accent); font-weight: 800; }
+    .ca-matrix tbody tr:hover td { background: rgba(42,96,89,0.03); }
+
     @media (max-width: 600px) {
       #app { padding: 12px; }
       .kpi-value { font-size: 1.4rem; }
@@ -145,6 +165,8 @@
   <div class="kpi-grid" id="kpi-grid"></div>
   <div class="section-title">CA par mois</div>
   <div class="month-bars" id="month-bars"></div>
+  <div class="section-title">CA par activité et par mois</div>
+  <div class="ca-matrix-wrap"><table class="ca-matrix" id="ca-matrix"></table></div>
   <div class="section-title">Répartition par type</div>
   <div class="stats-table-wrap"><table id="type-table"></table></div>
   <div class="section-title">Par poste de pêche</div>
@@ -288,6 +310,46 @@ function renderStats() {
       <div class="month-euro">${m.ca>0?m.ca+'€':'—'}</div>
     </div>`;
   }).join('');
+
+  // CA par activité × mois
+  const ACT_KEYS = ['peche','bateau','canoe','campingcar','tente'];
+  const ACT_SHORT = {peche:'🎣 Pêche', bateau:'🔥 Bateau', canoe:'🛶 Canoé', campingcar:'🚐 Camp.-car', tente:'⛺ Tente'};
+  const matrix = Array.from({length:12}, () => Object.fromEntries(ACT_KEYS.map(k=>[k,0])));
+  res.forEach(r => {
+    const s = r.dateDebut||r.date||'';
+    if (!s) return;
+    const m = parseInt(s.slice(5,7))-1;
+    const k = ACT_KEYS.includes(r.type) ? r.type : null;
+    if (k != null) matrix[m][k] += calculatePrice(r);
+  });
+  const colTotals = Object.fromEntries(ACT_KEYS.map(k=>[k, matrix.reduce((s,m)=>s+m[k],0)]));
+  const rowTotals = matrix.map(m => ACT_KEYS.reduce((s,k)=>s+m[k],0));
+  const grandTotal = rowTotals.reduce((s,v)=>s+v,0);
+  const activeCols = ACT_KEYS.filter(k=>colTotals[k]>0);
+  document.getElementById('ca-matrix').innerHTML = `
+    <thead><tr>
+      <th>Mois</th>
+      ${activeCols.map(k=>`<th>${ACT_SHORT[k]}</th>`).join('')}
+      <th>Total</th>
+    </tr></thead>
+    <tbody>
+      ${matrix.map((m,i) => {
+        const row = rowTotals[i];
+        return `<tr>
+          <td>${MOIS_COURT[i]}</td>
+          ${activeCols.map(k=>{
+            const v=Math.round(m[k]);
+            return v>0?`<td class="cell-pos">${v} €</td>`:`<td class="cell-0">—</td>`;
+          }).join('')}
+          <td class="cell-total">${row>0?Math.round(row)+' €':'—'}</td>
+        </tr>`;
+      }).join('')}
+      <tr>
+        <td>Total</td>
+        ${activeCols.map(k=>`<td class="cell-total">${Math.round(colTotals[k])} €</td>`).join('')}
+        <td class="cell-total">${Math.round(grandTotal)} €</td>
+      </tr>
+    </tbody>`;
 
   // Par type
   const byType = {};
