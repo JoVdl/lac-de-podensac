@@ -1346,7 +1346,7 @@
           </label>
           <label class="nrm-checkbox-row" id="nrm-barque-row" hidden>
             <input type="checkbox" id="nrm-barque" onchange="nrmUpdatePrice()">
-            <span>Location de barque (30 € / 1j · 40 € / 2j · 15 €/j × 3j+)</span>
+            <span>Location de barque (30 € / 1j · 40 € / 2j · 45 € / 3j+)</span>
           </label>
         </div>
 
@@ -2989,16 +2989,18 @@
       const aT = formule === 'demi' ? 5 : 10;
       calcPrice += aT * accomp;
       if (document.getElementById('nrm-canne4').checked && formule !== 'demi') calcPrice += 10;
-      // Barque checkbox: shown for postes night formulas; hidden for carnassier-barque (auto-included)
+      // Barque checkbox: shown for postes (all formulas); hidden for carnassier-barque (auto-included)
       const barqueRow = document.getElementById('nrm-barque-row');
       const isCarnBarque = activity === 'carnassier-barque';
-      barqueRow.hidden = isCarnBarque || !isNuit;
+      barqueRow.hidden = isCarnBarque;
       if (isCarnBarque) {
         // Barque auto-included: demi=20€, jour=30€, nuit-1=30€, nuit-2=40€, nuit-3+=15€/nuit
         const barqueTarif = formule === 'demi' ? 20 : !isNuit ? 30 : nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
         calcPrice += barqueTarif;
-      } else if (isNuit && document.getElementById('nrm-barque').checked) {
-        calcPrice += nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
+      } else if (document.getElementById('nrm-barque').checked) {
+        // Carpe/postes barque: 30€/1j, 40€/2j, 45€/3j+
+        const sessions = isNuit ? nuits : 1;
+        calcPrice += sessions >= 3 ? 45 : sessions === 2 ? 40 : 30;
       }
       document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb => {
         calcPrice += parseFloat(cb.dataset.prix) || 0;
@@ -3276,12 +3278,14 @@
         const nrmActivity = document.getElementById('nrm-activity').value;
         const isCarnassier = nrmActivity.startsWith('carnassier');
         const isCarnBarque = nrmActivity === 'carnassier-barque';
-        let barque = isCarnBarque || (isNuit && document.getElementById('nrm-barque').checked);
+        let barque = isCarnBarque || document.getElementById('nrm-barque').checked;
         if (isCarnBarque) {
           const barqueTarif = formule === 'demi' ? 20 : !isNuit ? 30 : nuits === 1 ? 30 : nuits === 2 ? 40 : 15 * nuits;
           totalPrice += barqueTarif;
-        } else if (isNuit && document.getElementById('nrm-barque').checked) {
-          totalPrice += nuits===1?30:nuits===2?40:15*nuits;
+        } else if (document.getElementById('nrm-barque').checked) {
+          // Carpe/postes barque: 30€/1j, 40€/2j, 45€/3j+
+          const sessions = isNuit ? nuits : 1;
+          totalPrice += sessions >= 3 ? 45 : sessions === 2 ? 40 : 30;
         }
         const materiel=[];
         document.querySelectorAll('#nrm-materiel-list input[type=checkbox]:checked').forEach(cb=>{
