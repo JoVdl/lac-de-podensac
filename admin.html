@@ -1644,7 +1644,13 @@
   function resteHtml(r) {
     const total = r.totalPrice != null ? r.totalPrice : calculatePrice(r);
     const avance = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
-    const reste = r.resteAPayer != null ? r.resteAPayer : (total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null);
+    // Si un acompte est enregistré manuellement, il prime sur resteAPayer stocké (qui peut être obsolète)
+    let reste;
+    if (r.acompte != null || r.avance != null) {
+      reste = total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null;
+    } else {
+      reste = r.resteAPayer != null ? r.resteAPayer : (total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null);
+    }
     if (reste == null || total == null) return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--gray);">—</span></div>`;
     if (reste > 0) return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:#c05000;font-weight:700;">${reste} €</span></div>`;
     return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--success);">✓ Soldé</span></div>`;
@@ -3271,7 +3277,7 @@
         tel: document.getElementById('nrm-tel').value.trim()||null,
         email: document.getElementById('nrm-email').value.trim()||null,
         message: message||null };
-      if (acompte > 0) data.acompte = acompte;
+      data.acompte = acompte; // toujours sauvegarder (même 0) pour écraser une ancienne valeur
 
       if (nrmType === 'peche') {
         const formule = document.getElementById('nrm-formule').value;
