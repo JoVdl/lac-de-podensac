@@ -528,6 +528,8 @@
     .btn-cancel-res:hover { background: var(--warning); color: #fff; }
     .btn-restore { background: rgba(42,96,89,0.08); color: var(--primary); }
     .btn-restore:hover { background: var(--primary); color: #fff; }
+    .btn-paid { background: rgba(34,140,34,0.10); color: #1a7a1a; }
+    .btn-paid:hover { background: #1a7a1a; color: #fff; }
     .btn-delete {
       background: var(--danger-bg);
       color: var(--danger);
@@ -2823,6 +2825,13 @@
 
     const btns = [];
     btns.push(`<button class="btn-action btn-edit-res" onclick="openEditResModal('${r.id}')">✏ Modifier</button>`);
+    // Bouton "Payé" si reste > 0
+    const _totalForBtn = r.totalPrice != null ? r.totalPrice : calculatePrice(r);
+    const _avanceForBtn = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
+    const _resteForBtn = r.resteAPayer != null ? r.resteAPayer : (_totalForBtn != null ? Math.max(0, _totalForBtn - _avanceForBtn) : null);
+    if (_resteForBtn != null && _resteForBtn > 0 && _totalForBtn > 0) {
+      btns.push(`<button class="btn-action btn-paid" onclick="markAsPaid('${r.id}',${_totalForBtn})">💰 Payé (${_totalForBtn} €)</button>`);
+    }
     if (status === 'pending') {
       btns.push(`<button class="btn-action btn-confirm" onclick="updateStatusFromModal('${r.id}','confirmed')">✓ Confirmer</button>`);
       btns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatusFromModal('${r.id}','cancelled')">✗ Annuler</button>`);
@@ -2876,6 +2885,20 @@
   window.deleteFromModal = function(id) {
     closeResDetail();
     setTimeout(() => confirmDelete(id), 200);
+  };
+
+  window.markAsPaid = async function(id, total) {
+    try {
+      await db.collection('reservations').doc(id).update({
+        acompte: total,
+        resteAPayer: 0,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      closeResDetail();
+      toast('Paiement enregistré — soldé ✓', 'success');
+    } catch(e) {
+      toast('Erreur : ' + e.message, 'error');
+    }
   };
 
   document.getElementById('res-detail-modal').addEventListener('click', e => {
