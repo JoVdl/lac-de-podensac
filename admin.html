@@ -528,6 +528,8 @@
     .btn-cancel-res:hover { background: var(--warning); color: #fff; }
     .btn-restore { background: rgba(42,96,89,0.08); color: var(--primary); }
     .btn-restore:hover { background: var(--primary); color: #fff; }
+    .btn-paid { background: rgba(34,140,34,0.10); color: #1a7a1a; }
+    .btn-paid:hover { background: #1a7a1a; color: #fff; }
     .btn-delete {
       background: var(--danger-bg);
       color: var(--danger);
@@ -1642,7 +1644,13 @@
   function resteHtml(r) {
     const total = r.totalPrice != null ? r.totalPrice : calculatePrice(r);
     const avance = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
-    const reste = r.resteAPayer != null ? r.resteAPayer : (total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null);
+    // Si un acompte est enregistré manuellement, il prime sur resteAPayer stocké (qui peut être obsolète)
+    let reste;
+    if (r.acompte != null || r.avance != null) {
+      reste = total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null;
+    } else {
+      reste = r.resteAPayer != null ? r.resteAPayer : (total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null);
+    }
     if (reste == null || total == null) return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--gray);">—</span></div>`;
     if (reste > 0) return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:#c05000;font-weight:700;">${reste} €</span></div>`;
     return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--success);">✓ Soldé</span></div>`;
@@ -1991,7 +1999,18 @@
           ${r.message ? `<div class="res-message">💬 ${r.message}</div>` : ''}
         </div>
         <div class="res-card__footer" onclick="event.stopPropagation()">
-          <div class="res-total">${price > 0 ? price + '€' : '—'}</div>
+          <div class="res-total">${(() => {
+            const avance = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
+            let reste;
+            if (r.acompte != null || r.avance != null) {
+              reste = price != null && price > 0 ? Math.round(Math.max(0, price - avance) * 100) / 100 : null;
+            } else {
+              reste = r.resteAPayer != null ? r.resteAPayer : (price != null && price > 0 ? Math.round(Math.max(0, price - avance) * 100) / 100 : null);
+            }
+            if (reste === 0) return '<span style="color:var(--success);font-weight:700;">✓ Soldé</span>';
+            if (reste != null && reste > 0) return reste + '€ <span style="color:var(--gray);font-size:0.8em;">restant</span>';
+            return price > 0 ? price + '€' : '—';
+          })()}</div>
           <div class="res-actions">${actionBtns.join('')}</div>
         </div>
       </div>`;
@@ -2823,6 +2842,13 @@
 
     const btns = [];
     btns.push(`<button class="btn-action btn-edit-res" onclick="openEditResModal('${r.id}')">✏ Modifier</button>`);
+    // Bouton "Payé" si reste > 0
+    const _totalForBtn = r.totalPrice != null ? r.totalPrice : calculatePrice(r);
+    const _avanceForBtn = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
+    const _resteForBtn = r.resteAPayer != null ? r.resteAPayer : (_totalForBtn != null ? Math.max(0, _totalForBtn - _avanceForBtn) : null);
+    if (_resteForBtn != null && _resteForBtn > 0 && _totalForBtn > 0) {
+      btns.push(`<button class="btn-action btn-paid" onclick="markAsPaid('${r.id}',${_totalForBtn})">💰 Payé (${_totalForBtn} €)</button>`);
+    }
     if (status === 'pending') {
       btns.push(`<button class="btn-action btn-confirm" onclick="updateStatusFromModal('${r.id}','confirmed')">✓ Confirmer</button>`);
       btns.push(`<button class="btn-action btn-cancel-res" onclick="updateStatusFromModal('${r.id}','cancelled')">✗ Annuler</button>`);
@@ -2876,6 +2902,20 @@
   window.deleteFromModal = function(id) {
     closeResDetail();
     setTimeout(() => confirmDelete(id), 200);
+  };
+
+  window.markAsPaid = async function(id, total) {
+    try {
+      await db.collection('reservations').doc(id).update({
+        acompte: total,
+        resteAPayer: 0,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      closeResDetail();
+      toast('Paiement enregistré — soldé ✓', 'success');
+    } catch(e) {
+      toast('Erreur : ' + e.message, 'error');
+    }
   };
 
   document.getElementById('res-detail-modal').addEventListener('click', e => {
@@ -3248,7 +3288,7 @@
         tel: document.getElementById('nrm-tel').value.trim()||null,
         email: document.getElementById('nrm-email').value.trim()||null,
         message: message||null };
-      if (acompte > 0) data.acompte = acompte;
+      data.acompte = acompte; // toujours sauvegarder (même 0) pour écraser une ancienne valeur
 
       if (nrmType === 'peche') {
         const formule = document.getElementById('nrm-formule').value;
@@ -3540,6 +3580,21 @@
     return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
   }
 
+  // Parse DURATION:PnD (RFC 5545) → number of days
+  function icsDurationToDays(dur) {
+    if (!dur) return 0;
+    const m = dur.match(/P(?:(\d+)W)?(?:(\d+)D)?/i);
+    if (!m) return 0;
+    return (parseInt(m[1] || 0) * 7) + parseInt(m[2] || 0);
+  }
+
+  // Add n days to an ISO date string (YYYY-MM-DD)
+  function addDaysISO(iso, n) {
+    const d = new Date(iso + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
   function unfoldICS(text) {
     // RFC 5545: lignes repliées commencent par espace/tab
     return text.replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'');
@@ -3579,13 +3634,28 @@
   function parseICS(text, sourceLabel) {
     text = unfoldICS(text);
     const events = [];
+    const skipped = [];
     const blocks = text.split(/BEGIN:VEVENT/i);
+    console.log(`[ICS ${sourceLabel}] ${blocks.length - 1} bloc(s) VEVENT trouvé(s)`);
     for (let i = 1; i < blocks.length; i++) {
       const b = blocks[i];
-      const uid     = getField(b, 'UID');
-      const dtstart = getField(b, 'DTSTART');
-      const dtend   = getField(b, 'DTEND');
-      if (!uid || !dtstart || !dtend) continue;
+      const uid      = getField(b, 'UID');
+      const dtstart  = getField(b, 'DTSTART');
+      const dtendRaw = getField(b, 'DTEND');
+      let   dtendISO = dtendRaw ? icsDateToISO(dtendRaw) : '';
+      // Fallback: compute DTEND from DURATION (some Campspace/ical exports omit DTEND)
+      if (!dtendISO && dtstart) {
+        const dur = getField(b, 'DURATION');
+        const days = dur ? icsDurationToDays(dur) : 1;
+        dtendISO = addDaysISO(icsDateToISO(dtstart), Math.max(1, days));
+      }
+      if (!uid || !dtstart || !dtendISO) {
+        const summary = cleanVal(getField(b, 'SUMMARY')) || '(sans titre)';
+        const reason = !uid ? 'UID manquant' : !dtstart ? 'DTSTART manquant' : 'DTEND/DURATION manquant';
+        skipped.push(`${summary} — ${reason}`);
+        console.warn(`[ICS] Bloc #${i} ignoré (${reason}):`, b.slice(0, 200));
+        continue;
+      }
 
       const summary   = cleanVal(getField(b, 'SUMMARY'));
       // Campspace fields
@@ -3619,7 +3689,7 @@
       const status = isPitchup ? mapStatus(puStatus) : 'confirmed';
 
       events.push({
-        uid, dtstart: icsDateToISO(dtstart), dtend: icsDateToISO(dtend),
+        uid, dtstart: icsDateToISO(dtstart), dtend: dtendISO,
         nom, summary, type, status,
         emplacement: puPitch || pitchNums || '',
         pitchtype: puPitchtype,
@@ -3638,8 +3708,11 @@
         source: sourceLabel,
         icsUid: uid,
       });
+      const ev = events[events.length - 1];
+      console.log(`[ICS] ✓ ${ev.nom} | ${ev.dtstart} → ${ev.dtend} | type:${ev.type} | uid:${uid.slice(0,30)}`);
     }
-    return events;
+    if (skipped.length) console.warn(`[ICS] ${skipped.length} événement(s) ignoré(s):`, skipped);
+    return { events, skipped };
   }
 
   function daysBetween(d1, d2) {
@@ -3692,21 +3765,33 @@
     statusEl.textContent = `⏳ Lecture de ${file.name}…`; statusEl.style.color = '#3d8a80';
     const text = await file.text();
     const src = { label, url: null };
-    const r = await syncFromText(text, src);
-    statusEl.innerHTML = r.errors
-      ? `⚠️ ${label}: ❌ ${r.err}`
-      : `✅ ${r.parsed} événement(s) lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour (${label})`;
+    let r;
+    try {
+      r = await syncFromText(text, src);
+    } catch(e) {
+      statusEl.innerHTML = `❌ Erreur lors de l'import: ${e.message}`;
+      statusEl.style.color = 'red';
+      console.error('[ICS import error]', e);
+      input.value = '';
+      return;
+    }
+    const names = (r.importedNames || []).slice(0, 8).join(', ');
+    let msg = r.errors ? `⚠️ ${label}: ❌ ${r.err}`
+      : `✅ ${r.parsed} lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour`;
+    if (!r.errors && names) msg += `<br><small style="color:#555">${names}${r.importedNames.length > 8 ? '…' : ''}</small>`;
+    if (!r.errors && r.skipped) msg += `<br><span style="color:orange">⚠️ ${r.skipped} ignoré(s): ${(r.skippedList||[]).join(', ')}</span>`;
+    statusEl.innerHTML = msg;
     statusEl.style.color = r.errors ? 'orange' : 'green';
     input.value = '';
-    if (!r.errors) { setTimeout(() => { closeIcsModal(); loadReservations(); }, 1200); }
+    if (!r.errors) { setTimeout(() => { closeIcsModal(); loadReservations(); }, 2500); }
   }
 
   async function syncFromText(text, src) {
-    const events = parseICS(text, src.label);
+    const { events, skipped } = parseICS(text, src.label);
 
     // Emplacements occupés : réservations manuelles + ICS des AUTRES sources
     const occupiedCC = new Map(); // campingcar : clés "1"-"8"
-    const occupiedTente = new Map(); // tente : clés "T1"-"T5"
+    const occupiedTente = new Map(); // tente : clés "1"-"5"
     // UIDs de la source courante (pour ne pas se bloquer soi-même)
     const currentUids = new Set(events.map(ev => 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_')));
     try {
@@ -3717,7 +3802,9 @@
         const d = doc.data();
         if (!d.emplacement || !d.dateDebut || !d.dateFin) return;
         const pool = d.type === 'tente' ? occupiedTente : occupiedCC;
-        const key = String(d.emplacement);
+        // Normalize legacy "T1"-"T5" tente keys to "1"-"5"
+        let key = String(d.emplacement);
+        if (d.type === 'tente' && key.startsWith('T')) key = key.slice(1);
         if (!pool.has(key)) pool.set(key, []);
         pool.get(key).push({ dateDebut: d.dateDebut, dateFin: d.dateFin });
       });
@@ -3729,22 +3816,47 @@
       const isTente = ev.type === 'tente';
       const pool = isTente ? occupiedTente : occupiedCC;
       let free;
+
+      // For Campspace events with a numeric PITCHNUMBERS, use the first pitch number directly
+      const campspacePitch = (() => {
+        if (!ev.emplacement) return null;
+        const first = String(ev.emplacement).split(',')[0].trim();
+        return /^\d+$/.test(first) ? first : null;
+      })();
+
       if (isTente) {
-        // Tentes : T1–T5
+        // Tentes : slots "1"–"5" (matches planning rows and NRM form values)
         for (let n = 1; n <= 5; n++) {
-          const key = `T${n}`;
+          const key = `${n}`;
           const bookings = pool.get(key) || [];
           const arrDate = new Date(ev.dtstart), depDate = new Date(ev.dtend);
           const conflict = bookings.some(b => arrDate < new Date(b.dateFin) && depDate > new Date(b.dateDebut));
           if (!conflict) { free = key; break; }
         }
+      } else if (campspacePitch) {
+        // Use actual Campspace pitch number if the slot is free
+        const bookings = pool.get(campspacePitch) || [];
+        const arrDate = new Date(ev.dtstart), depDate = new Date(ev.dtend);
+        const conflict = bookings.some(b => arrDate < new Date(b.dateFin) && depDate > new Date(b.dateDebut));
+        free = conflict ? pickFreeEmplacement(ev.dtstart, ev.dtend, pool) : campspacePitch;
       } else {
         free = pickFreeEmplacement(ev.dtstart, ev.dtend, pool);
       }
+
       if (free) {
         emplacementMap.set(ev.uid, free);
-        if (!pool.has(free)) pool.set(free, []);
-        pool.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        // For multi-pitch Campspace bookings, mark ALL pitches as occupied
+        const allPitches = campspacePitch && !isTente
+          ? String(ev.emplacement).split(',').map(s => s.trim()).filter(s => /^\d+$/.test(s))
+          : [free];
+        allPitches.forEach(p => {
+          if (!pool.has(p)) pool.set(p, []);
+          pool.get(p).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        });
+        if (!allPitches.includes(free)) {
+          if (!pool.has(free)) pool.set(free, []);
+          pool.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        }
       }
     }
     let added = 0, updated = 0;
@@ -3771,7 +3883,8 @@
       }
       await batch.commit();
     }
-    return { added, updated, errors: 0, parsed: events.length, label: src.label };
+    const importedNames = events.map(ev => `${ev.nom} (${ev.dtstart}→${ev.dtend} empl.${emplacementMap.get(ev.uid)||ev.emplacement||'?'})`);
+    return { added, updated, errors: 0, parsed: events.length, skipped: skipped.length, skippedList: skipped, importedNames, label: src.label };
   }
 
   async function runIcsSync(silent = false) {
@@ -3791,7 +3904,9 @@
         errors.push(`${r.label}: ${r.err}`);
         details.push(`${r.label}: ❌ ${r.err}`);
       } else {
-        details.push(`${r.label}: ${r.parsed} événement(s) lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour`);
+        let d = `${r.label}: ${r.parsed} lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour`;
+        if (r.skipped) d += ` — ⚠️ ${r.skipped} ignoré(s): ${(r.skippedList||[]).join(', ')}`;
+        details.push(d);
       }
     }
     const msg = errors.length
