@@ -3594,7 +3594,9 @@
   function parseICS(text, sourceLabel) {
     text = unfoldICS(text);
     const events = [];
+    const skipped = [];
     const blocks = text.split(/BEGIN:VEVENT/i);
+    console.log(`[ICS ${sourceLabel}] ${blocks.length - 1} bloc(s) VEVENT trouvé(s)`);
     for (let i = 1; i < blocks.length; i++) {
       const b = blocks[i];
       const uid      = getField(b, 'UID');
@@ -3607,7 +3609,13 @@
         const days = dur ? icsDurationToDays(dur) : 1;
         dtendISO = addDaysISO(icsDateToISO(dtstart), Math.max(1, days));
       }
-      if (!uid || !dtstart || !dtendISO) continue;
+      if (!uid || !dtstart || !dtendISO) {
+        const summary = cleanVal(getField(b, 'SUMMARY')) || '(sans titre)';
+        const reason = !uid ? 'UID manquant' : !dtstart ? 'DTSTART manquant' : 'DTEND/DURATION manquant';
+        skipped.push(`${summary} — ${reason}`);
+        console.warn(`[ICS] Bloc #${i} ignoré (${reason}):`, b.slice(0, 200));
+        continue;
+      }
 
       const summary   = cleanVal(getField(b, 'SUMMARY'));
       // Campspace fields
@@ -3660,8 +3668,11 @@
         source: sourceLabel,
         icsUid: uid,
       });
+      const ev = events[events.length - 1];
+      console.log(`[ICS] ✓ ${ev.nom} | ${ev.dtstart} → ${ev.dtend} | type:${ev.type} | uid:${uid.slice(0,30)}`);
     }
-    return events;
+    if (skipped.length) console.warn(`[ICS] ${skipped.length} événement(s) ignoré(s):`, skipped);
+    return { events, skipped };
   }
 
   function daysBetween(d1, d2) {
@@ -3715,16 +3726,17 @@
     const text = await file.text();
     const src = { label, url: null };
     const r = await syncFromText(text, src);
-    statusEl.innerHTML = r.errors
-      ? `⚠️ ${label}: ❌ ${r.err}`
-      : `✅ ${r.parsed} événement(s) lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour (${label})`;
+    let msg = r.errors ? `⚠️ ${label}: ❌ ${r.err}`
+      : `✅ ${r.parsed} lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour (${label})`;
+    if (!r.errors && r.skipped) msg += `<br><span style="color:orange">⚠️ ${r.skipped} événement(s) ignoré(s): ${(r.skippedList||[]).join(', ')}</span>`;
+    statusEl.innerHTML = msg;
     statusEl.style.color = r.errors ? 'orange' : 'green';
     input.value = '';
     if (!r.errors) { setTimeout(() => { closeIcsModal(); loadReservations(); }, 1200); }
   }
 
   async function syncFromText(text, src) {
-    const events = parseICS(text, src.label);
+    const { events, skipped } = parseICS(text, src.label);
 
     // Emplacements occupés : réservations manuelles + ICS des AUTRES sources
     const occupiedCC = new Map(); // campingcar : clés "1"-"8"
@@ -3793,7 +3805,7 @@
       }
       await batch.commit();
     }
-    return { added, updated, errors: 0, parsed: events.length, label: src.label };
+    return { added, updated, errors: 0, parsed: events.length, skipped: skipped.length, skippedList: skipped, label: src.label };
   }
 
   async function runIcsSync(silent = false) {
@@ -3813,7 +3825,9 @@
         errors.push(`${r.label}: ${r.err}`);
         details.push(`${r.label}: ❌ ${r.err}`);
       } else {
-        details.push(`${r.label}: ${r.parsed} événement(s) lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour`);
+        let d = `${r.label}: ${r.parsed} lu(s), ${r.added} ajouté(s), ${r.updated} mis à jour`;
+        if (r.skipped) d += ` — ⚠️ ${r.skipped} ignoré(s): ${(r.skippedList||[]).join(', ')}`;
+        details.push(d);
       }
     }
     const msg = errors.length
