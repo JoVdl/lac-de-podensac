@@ -3740,7 +3740,7 @@
 
     // Emplacements occupés : réservations manuelles + ICS des AUTRES sources
     const occupiedCC = new Map(); // campingcar : clés "1"-"8"
-    const occupiedTente = new Map(); // tente : clés "T1"-"T5"
+    const occupiedTente = new Map(); // tente : clés "1"-"5"
     // UIDs de la source courante (pour ne pas se bloquer soi-même)
     const currentUids = new Set(events.map(ev => 'ics_' + ev.uid.replace(/[^a-zA-Z0-9]/g,'_')));
     try {
@@ -3751,7 +3751,9 @@
         const d = doc.data();
         if (!d.emplacement || !d.dateDebut || !d.dateFin) return;
         const pool = d.type === 'tente' ? occupiedTente : occupiedCC;
-        const key = String(d.emplacement);
+        // Normalize legacy "T1"-"T5" tente keys to "1"-"5"
+        let key = String(d.emplacement);
+        if (d.type === 'tente' && key.startsWith('T')) key = key.slice(1);
         if (!pool.has(key)) pool.set(key, []);
         pool.get(key).push({ dateDebut: d.dateDebut, dateFin: d.dateFin });
       });
@@ -3763,22 +3765,47 @@
       const isTente = ev.type === 'tente';
       const pool = isTente ? occupiedTente : occupiedCC;
       let free;
+
+      // For Campspace events with a numeric PITCHNUMBERS, use the first pitch number directly
+      const campspacePitch = (() => {
+        if (!ev.emplacement) return null;
+        const first = String(ev.emplacement).split(',')[0].trim();
+        return /^\d+$/.test(first) ? first : null;
+      })();
+
       if (isTente) {
-        // Tentes : T1–T5
+        // Tentes : slots "1"–"5" (matches planning rows and NRM form values)
         for (let n = 1; n <= 5; n++) {
-          const key = `T${n}`;
+          const key = `${n}`;
           const bookings = pool.get(key) || [];
           const arrDate = new Date(ev.dtstart), depDate = new Date(ev.dtend);
           const conflict = bookings.some(b => arrDate < new Date(b.dateFin) && depDate > new Date(b.dateDebut));
           if (!conflict) { free = key; break; }
         }
+      } else if (campspacePitch) {
+        // Use actual Campspace pitch number if the slot is free
+        const bookings = pool.get(campspacePitch) || [];
+        const arrDate = new Date(ev.dtstart), depDate = new Date(ev.dtend);
+        const conflict = bookings.some(b => arrDate < new Date(b.dateFin) && depDate > new Date(b.dateDebut));
+        free = conflict ? pickFreeEmplacement(ev.dtstart, ev.dtend, pool) : campspacePitch;
       } else {
         free = pickFreeEmplacement(ev.dtstart, ev.dtend, pool);
       }
+
       if (free) {
         emplacementMap.set(ev.uid, free);
-        if (!pool.has(free)) pool.set(free, []);
-        pool.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        // For multi-pitch Campspace bookings, mark ALL pitches as occupied
+        const allPitches = campspacePitch && !isTente
+          ? String(ev.emplacement).split(',').map(s => s.trim()).filter(s => /^\d+$/.test(s))
+          : [free];
+        allPitches.forEach(p => {
+          if (!pool.has(p)) pool.set(p, []);
+          pool.get(p).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        });
+        if (!allPitches.includes(free)) {
+          if (!pool.has(free)) pool.set(free, []);
+          pool.get(free).push({ dateDebut: ev.dtstart, dateFin: ev.dtend });
+        }
       }
     }
     let added = 0, updated = 0;
