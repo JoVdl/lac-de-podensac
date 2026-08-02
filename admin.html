@@ -1999,7 +1999,18 @@
           ${r.message ? `<div class="res-message">💬 ${r.message}</div>` : ''}
         </div>
         <div class="res-card__footer" onclick="event.stopPropagation()">
-          <div class="res-total">${price > 0 ? price + '€' : '—'}</div>
+          <div class="res-total">${(() => {
+            const avance = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
+            let reste;
+            if (r.acompte != null || r.avance != null) {
+              reste = price != null && price > 0 ? Math.round(Math.max(0, price - avance) * 100) / 100 : null;
+            } else {
+              reste = r.resteAPayer != null ? r.resteAPayer : (price != null && price > 0 ? Math.round(Math.max(0, price - avance) * 100) / 100 : null);
+            }
+            if (reste === 0) return '<span style="color:var(--success);font-weight:700;">✓ Soldé</span>';
+            if (reste != null && reste > 0) return reste + '€ <span style="color:var(--gray);font-size:0.8em;">restant</span>';
+            return price > 0 ? price + '€' : '—';
+          })()}</div>
           <div class="res-actions">${actionBtns.join('')}</div>
         </div>
       </div>`;
