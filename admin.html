@@ -3540,6 +3540,21 @@
     return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
   }
 
+  // Parse DURATION:PnD (RFC 5545) → number of days
+  function icsDurationToDays(dur) {
+    if (!dur) return 0;
+    const m = dur.match(/P(?:(\d+)W)?(?:(\d+)D)?/i);
+    if (!m) return 0;
+    return (parseInt(m[1] || 0) * 7) + parseInt(m[2] || 0);
+  }
+
+  // Add n days to an ISO date string (YYYY-MM-DD)
+  function addDaysISO(iso, n) {
+    const d = new Date(iso + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
   function unfoldICS(text) {
     // RFC 5545: lignes repliées commencent par espace/tab
     return text.replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'');
@@ -3582,10 +3597,17 @@
     const blocks = text.split(/BEGIN:VEVENT/i);
     for (let i = 1; i < blocks.length; i++) {
       const b = blocks[i];
-      const uid     = getField(b, 'UID');
-      const dtstart = getField(b, 'DTSTART');
-      const dtend   = getField(b, 'DTEND');
-      if (!uid || !dtstart || !dtend) continue;
+      const uid      = getField(b, 'UID');
+      const dtstart  = getField(b, 'DTSTART');
+      const dtendRaw = getField(b, 'DTEND');
+      let   dtendISO = dtendRaw ? icsDateToISO(dtendRaw) : '';
+      // Fallback: compute DTEND from DURATION (some Campspace/ical exports omit DTEND)
+      if (!dtendISO && dtstart) {
+        const dur = getField(b, 'DURATION');
+        const days = dur ? icsDurationToDays(dur) : 1;
+        dtendISO = addDaysISO(icsDateToISO(dtstart), Math.max(1, days));
+      }
+      if (!uid || !dtstart || !dtendISO) continue;
 
       const summary   = cleanVal(getField(b, 'SUMMARY'));
       // Campspace fields
@@ -3619,7 +3641,7 @@
       const status = isPitchup ? mapStatus(puStatus) : 'confirmed';
 
       events.push({
-        uid, dtstart: icsDateToISO(dtstart), dtend: icsDateToISO(dtend),
+        uid, dtstart: icsDateToISO(dtstart), dtend: dtendISO,
         nom, summary, type, status,
         emplacement: puPitch || pitchNums || '',
         pitchtype: puPitchtype,
