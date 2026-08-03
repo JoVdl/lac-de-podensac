@@ -841,7 +841,7 @@
     .cal-planning-resize-handle:hover::after,
     .cal-planning-resize-handle.dragging::after { opacity: 1; }
     .cal-planning-scroll-col {
-      overflow-x: auto; flex: 1; min-width: 0;
+      overflow-x: auto; overflow-y: clip; flex: 1; min-width: 0;
     }
     .cal-planning-row {
       display: flex; border-bottom: 1px solid var(--border); min-height: 42px;
