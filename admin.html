@@ -1188,9 +1188,11 @@
             </label>
             <span id="old-logiciel-type" style="font-size:0.78rem;color:#666;"></span>
           </div>
-          <div style="margin-bottom:8px;">
+          <div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:8px;">
             <button onclick="deduplicateReservations()" style="padding:7px 14px;border:none;border-radius:8px;background:#c05000;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🧹 Supprimer les doublons en base</button>
+            <button onclick="fixCanoeTypes()" style="padding:7px 14px;border:none;border-radius:8px;background:#1a6080;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🛶→🚐 Corriger types canoé</button>
           </div>
+          <div id="fix-canoe-status" style="font-size:0.82rem;min-height:18px;margin-bottom:8px;"></div>
           <div id="old-logiciel-buttons" style="display:none;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
             <button onclick="doOldImport(false)" style="padding:7px 14px;border:none;border-radius:8px;background:#3d8a80;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">⬆️ Importer (sans doublons)</button>
             <button onclick="doOldImport(false,'carnassier')" style="padding:7px 14px;border:none;border-radius:8px;background:#1a5028;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;">🐟 Carnassier uniquement</button>
@@ -4111,6 +4113,76 @@
       console.log(`[AutoDedup] ✅ ${toDelete.length} doublon(s) supprimé(s)`);
     } catch(e) { console.warn('[AutoDedup] Erreur:', e.message); }
   }
+
+  window.fixCanoeTypes = async function() {
+    const statusEl = document.getElementById('fix-canoe-status');
+    statusEl.textContent = '⏳ Analyse…';
+    statusEl.style.color = '#3d8a80';
+    try {
+      const snap = await db.collection('reservations').where('type', '==', 'canoe').get();
+      if (snap.empty) { statusEl.textContent = '✅ Aucune réservation canoé trouvée.'; return; }
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // Séparer : ICS (source Campspace/Pitchup ou icsUid présent) vs manuelles
+      const icsOnes = docs.filter(d => d.icsUid || (d.source && /campspace|pitchup/i.test(d.source)));
+      const manualOnes = docs.filter(d => !d.icsUid && !(d.source && /campspace|pitchup/i.test(d.source)));
+
+      if (!icsOnes.length && !manualOnes.length) {
+        statusEl.textContent = '✅ Aucune entrée à corriger.';
+        return;
+      }
+
+      let msg = `🔍 ${docs.length} réservation(s) canoé trouvée(s)`;
+      if (icsOnes.length) msg += ` — ${icsOnes.length} issues d'ICS (Campspace/Pitchup)`;
+      if (manualOnes.length) msg += ` — ${manualOnes.length} manuelles`;
+      msg += `.<br>`;
+
+      const names = docs.slice(0,10).map(d => `${d.prenom||''} ${(d.nom||'').toUpperCase()} (${d.dateDebut||'?'})`).join(', ');
+      msg += `<small style="color:#555">${names}${docs.length>10?'…':''}</small><br><br>`;
+      msg += `Convertir en <strong>Camping-car</strong> :&nbsp;`;
+
+      if (icsOnes.length) {
+        msg += `<button onclick="fixCanoeExec('ics')" style="padding:4px 10px;border:none;border-radius:6px;background:#1a6080;color:#fff;font-size:0.8rem;cursor:pointer;margin-right:6px;">🔄 ICS uniquement (${icsOnes.length})</button>`;
+      }
+      msg += `<button onclick="fixCanoeExec('all')" style="padding:4px 10px;border:none;border-radius:6px;background:#c05000;color:#fff;font-size:0.8rem;cursor:pointer;">⚠️ Toutes (${docs.length})</button>`;
+
+      statusEl.innerHTML = msg;
+      statusEl.style.color = '#333';
+
+      // Stocker pour la confirmation
+      window._fixCanoeIcs = icsOnes;
+      window._fixCanoeAll = docs;
+    } catch(e) {
+      statusEl.textContent = '❌ Erreur : ' + e.message;
+      statusEl.style.color = 'red';
+    }
+  };
+
+  window.fixCanoeExec = async function(mode) {
+    const statusEl = document.getElementById('fix-canoe-status');
+    const toFix = mode === 'ics' ? (window._fixCanoeIcs || []) : (window._fixCanoeAll || []);
+    if (!toFix.length) { statusEl.textContent = '⚠️ Rien à corriger.'; return; }
+    statusEl.textContent = `⏳ Correction de ${toFix.length} entrée(s)…`;
+    try {
+      for (let i = 0; i < toFix.length; i += 400) {
+        const batch = db.batch();
+        for (const doc of toFix.slice(i, i + 400)) {
+          batch.update(db.collection('reservations').doc(doc.id), {
+            type: 'campingcar',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+        await batch.commit();
+      }
+      statusEl.textContent = `✅ ${toFix.length} réservation(s) converties en camping-car.`;
+      statusEl.style.color = 'green';
+      window._fixCanoeIcs = null; window._fixCanoeAll = null;
+      setTimeout(() => loadReservations(), 1500);
+    } catch(e) {
+      statusEl.textContent = '❌ Erreur : ' + e.message;
+      statusEl.style.color = 'red';
+    }
+  };
 
   // Assigne un emplacement libre aux campingcar/tente sans emplacement
   async function autoAssignEmplacements() {
