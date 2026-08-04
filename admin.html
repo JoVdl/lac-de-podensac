@@ -1779,6 +1779,7 @@
         allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderList();
         if (typeof currentViewMode !== 'undefined' && currentViewMode === 'calendar') renderCalendarView();
+        if (typeof currentViewMode !== 'undefined' && currentViewMode === 'planning') renderPlanningView();
       }, err => {
         console.error('Firestore:', err);
         document.getElementById('reservations-list').innerHTML = `
