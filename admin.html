@@ -2533,7 +2533,7 @@
     );
     const carnassierSlots = assignToSlots(carnassierAll, 5);
 
-    const canoeAll = allReservations.filter(r => r.type === 'canoe');
+    const canoeAll = allReservations.filter(r => r.type === 'canoe' && (r.formule === 'demi' || r.formule === 'jour'));
     const canoeSlots = assignToSlots(canoeAll, 2);
 
     // Compute reservation blocks for a row
