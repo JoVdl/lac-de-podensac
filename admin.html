@@ -1430,10 +1430,13 @@
                 <option value="1">Place 1</option>
                 <option value="2">Place 2</option>
                 <option value="3">Place 3</option>
-<option value="4">Place 4</option>
+                <option value="4">Place 4</option>
                 <option value="5">Place 5</option>
                 <option value="6">Place 6</option>
                 <option value="7">Place 7</option>
+                <option value="8">Place 8</option>
+                <option value="9">Place 9</option>
+                <option value="10">Place 10</option>
               </select>
             </div>
             <div class="nrm-field">
@@ -2490,7 +2493,7 @@
       { id: 'canoe-1', label: 'Canoé 1', icon: '🛶', type: 'canoe', slot: 0 },
       { id: 'canoe-2', label: 'Canoé 2', icon: '🛶', type: 'canoe', slot: 1 },
     ];
-    const campingcarRows = Array.from({length:8},(_,i)=>({
+    const campingcarRows = Array.from({length:10},(_,i)=>({
       id:`campingcar-${i+1}`, label:`Place ${i+1}`, icon:'🚐', type:'campingcar', empl:`${i+1}`
     }));
     const tenteRows = Array.from({length:5},(_,i)=>({
@@ -3734,11 +3737,11 @@
     });
   }
 
-  // Retourne l'emplacement libre (1–8) pour les dates données, en excluant les emplacements déjà pris
-  function pickFreeEmplacement(dtstart, dtend, occupied) {
+  // Retourne l'emplacement libre pour les dates données, en excluant les emplacements déjà pris
+  function pickFreeEmplacement(dtstart, dtend, occupied, maxSlot = 10) {
     // occupied = Map<emplacement, [{dateDebut, dateFin}]>
     const arrDate = new Date(dtstart), depDate = new Date(dtend);
-    for (let num = 1; num <= 8; num++) {
+    for (let num = 1; num <= maxSlot; num++) {
       const bookings = occupied.get(String(num)) || [];
       const conflict = bookings.some(b => {
         const bArr = new Date(b.dateDebut), bDep = new Date(b.dateFin);
@@ -4231,7 +4234,7 @@
         const dtstart = d.dateDebut || (d.dates&&d.dates[0]) || d.date;
         const dtend = d.dateFin || (d.dates&&d.dates[d.dates.length-1]) || dtstart;
         if (!dtstart) continue;
-        const slot = pickFreeEmplacement(dtstart, dtend, occupiedTente);
+        const slot = pickFreeEmplacement(dtstart, dtend, occupiedTente, 5);
         if (!slot) continue;
         batch.update(db.collection('reservations').doc(d.id), { emplacement: slot });
         if (!occupiedTente.has(slot)) occupiedTente.set(slot, []);
