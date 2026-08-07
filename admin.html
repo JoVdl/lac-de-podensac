@@ -3752,7 +3752,7 @@
   async function syncOneSource(src) {
     if (!src.url) return { added:0, updated:0, errors:0, parsed:0, label: src.label };
     // webcal:// → https://
-    const url = src.url.replace(/^webcals?:\/\//i, 'https://');
+    const url = src.url.replace(/^webcals?:\/\//i, 'https://').replace('://m-www.pitchup.com', '://www.pitchup.com');
     let text, lastErr = '';
     for (const proxy of ICS_PROXIES) {
       try {
