@@ -1940,6 +1940,7 @@
         ${r.extras ? `<div class="res-detail-row"><span class="label">Extras</span><span class="value">${r.extras}</span></div>` : ''}
         ${r.demandesSpeciales ? `<div class="res-detail-row"><span class="label">Demandes</span><span class="value" style="font-style:italic;">${r.demandesSpeciales}</span></div>` : ''}
         ${(r.kwh > 0) ? `<div class="res-detail-row"><span class="label">Électricité</span><span class="value">${r.kwh} kWh × ${r.kwhTarif || 3}€</span></div>` : ''}
+        ${r.noteInterne ? `<div class="res-detail-row" style="background:rgba(232,149,30,0.07);border-radius:6px;padding:4px 8px;margin-top:4px;"><span class="label" style="color:#b06000;">📝 Note interne</span><span class="value" style="font-style:italic;color:#7a4000;">${r.noteInterne}</span></div>` : ''}
       `;
     } else if (r.type === 'canoe') {
       const nbJours = r.duree || 1;
@@ -1963,6 +1964,7 @@
         ${resteHtml(r)}
         ${r.extras ? `<div class="res-detail-row"><span class="label">Extras</span><span class="value">${r.extras}</span></div>` : ''}
         ${r.demandesSpeciales ? `<div class="res-detail-row"><span class="label">Demandes</span><span class="value" style="font-style:italic;">${r.demandesSpeciales}</span></div>` : ''}
+        ${r.noteInterne ? `<div class="res-detail-row" style="background:rgba(232,149,30,0.07);border-radius:6px;padding:4px 8px;margin-top:4px;"><span class="label" style="color:#b06000;">📝 Note interne</span><span class="value" style="font-style:italic;color:#7a4000;">${r.noteInterne}</span></div>` : ''}
       `;
     }
 
@@ -2845,7 +2847,8 @@
         ${resteHtml(r)}
         ${r.extras?`<div class="res-detail-row"><span class="label">Extras</span><span class="value">${r.extras}</span></div>`:''}
         ${r.demandesSpeciales?`<div class="res-detail-row"><span class="label">Demandes</span><span class="value" style="font-style:italic;">${r.demandesSpeciales}</span></div>`:''}
-        ${(r.kwh>0)?`<div class="res-detail-row"><span class="label">Électricité</span><span class="value">${r.kwh} kWh × ${r.kwhTarif||3}€</span></div>`:''}`;
+        ${(r.kwh>0)?`<div class="res-detail-row"><span class="label">Électricité</span><span class="value">${r.kwh} kWh × ${r.kwhTarif||3}€</span></div>`:''}
+        ${r.noteInterne?`<div class="res-detail-row" style="background:rgba(232,149,30,0.07);border-radius:6px;padding:4px 8px;margin-top:4px;"><span class="label" style="color:#b06000;">📝 Note interne</span><span class="value" style="font-style:italic;color:#7a4000;">${r.noteInterne}</span></div>`:''}`;
     }
 
     const icons = { peche:'🎣', bateau:'🔥', canoe:'🛶', campingcar:'🚐', tente:'⛺' };
