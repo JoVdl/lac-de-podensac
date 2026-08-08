@@ -2613,10 +2613,11 @@
 
     function buildRow(row) {
       const blocks = getBlocks(row);
-      const posteIdArg = row.type === 'peche' ? row.posteId : 'null';
+      const posteIdArg = row.type === 'peche' ? row.posteId : (row.type === 'carnassier' ? "'zone-carnassier'" : 'null');
       let resKey = "''";
       if (row.type === 'bateau') resKey = `'${row.bateau}'`;
       else if (row.type === 'canoe') resKey = `'canoe'`;
+      else if (row.type === 'carnassier') resKey = `'carnassier'`;
       else if (row.type === 'campingcar') resKey = `'campingcar-${row.empl}'`;
       else if (row.type === 'tente') resKey = `'tente-${row.empl}'`;
       const dayCols = days.map((day) => {
@@ -3119,9 +3120,10 @@
     let type = 'peche';
     if (resourceKey) {
       if (resourceKey === 'canoe') type = 'canoe';
+      else if (resourceKey === 'carnassier') type = 'peche';
       else if (resourceKey.startsWith('campingcar')) type = 'campingcar';
       else if (resourceKey.startsWith('tente-')) type = 'tente';
-      else if (resourceKey && resourceKey !== '') type = 'bateau';
+      else if (resourceKey !== '') type = 'bateau';
     }
     nrmType = type;
     nrmSetType(type, false);
