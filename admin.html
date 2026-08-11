@@ -3350,7 +3350,7 @@
           materiel.push(cb.dataset.id);
         });
         const posteIdVal = isCarnassier ? 'zone-carnassier' : parseInt(document.getElementById('nrm-poste').value);
-        Object.assign(data,{type:'peche',posteId:posteIdVal,activity:isCarnassier?nrmActivity:null,formule,dateDebut,dateFin:finalDateFin,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
+        Object.assign(data,{type:'peche',posteId:posteIdVal,activity:isCarnassier?nrmActivity:(nrmEditId?firebase.firestore.FieldValue.delete():null),formule,dateDebut,dateFin:finalDateFin,dates,nb:parseInt(document.getElementById('nrm-nb').value)||1,nbAccompagnants:accomp,canne4,barque,materiel,totalPrice});
 
       } else if (nrmType === 'bateau') {
         const date=document.getElementById('nrm-date-bateau').value;
