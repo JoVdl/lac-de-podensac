@@ -1695,6 +1695,7 @@
       return tarifs[r.formule] || 0;
     }
     if (r.totalPrice) return r.totalPrice;
+    if (r.source && r.source.toLowerCase().includes('campspace')) return (r.duree || 1) * 13;
     if (r.tarifNuit && r.duree) return r.tarifNuit * r.duree + (r.kwh || 0) * (r.kwhTarif || 3);
     return 0;
   }
