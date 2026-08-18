@@ -2604,7 +2604,6 @@
           let bg, color;
           const si = sourceInfo(r);
           if (isCancelled)                   { bg = '#e8e8e8'; color = '#999'; }
-          else if (isUnpaid(r))              { bg = '#d4720a'; color = '#fff'; }
           else if (si)                       { bg = si.bg; color = si.color; }
           else if (r.type === 'peche' || row.type === 'carnassier') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
           else if (r.type === 'bateau')      { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
@@ -2612,7 +2611,9 @@
           else if (r.type === 'campingcar')  { bg = isConf ? '#6040a0' : '#7050b0'; color = '#fff'; }
           else if (r.type === 'tente')       { bg = isConf ? '#a05820' : '#b06828'; color = '#fff'; }
           else { bg = '#888'; color = '#fff'; }
-          return [{ r, name, price, left, width, bg, color, isCancelled }];
+          const unpaid = !isCancelled && isUnpaid(r);
+          const paid = !isCancelled && !unpaid && calculatePrice(r) > 0;
+          return [{ r, name, price, left, width, bg, color, isCancelled, unpaid, paid }];
         });
       });
     }
@@ -2646,14 +2647,17 @@
           ondragover="planDragOver(event)" ondragleave="planDragLeave(event)" ondrop="planDrop(event,'${ds}')"></div>`;
       }).join('');
       const blocksHtml = blocks.map(b => {
+        const dot = b.unpaid ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff8c00;margin-right:4px;flex-shrink:0;vertical-align:middle;"></span>'
+                  : b.paid   ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3ecf6a;margin-right:4px;flex-shrink:0;vertical-align:middle;"></span>'
+                  : '';
         const lbl = b.isCancelled ? `✗ ${b.name}` : `${b.name}${b.price > 0 ? ' · ' + b.price + '€' : ''}`;
         const dateDebutArg = b.r.dateDebut || b.r.date || '';
         return `<button class="cal-planning-block" draggable="true"
           ondragstart="planDragStart(event,'${b.r.id}','${dateDebutArg}')"
           ondragend="planDragEnd(event)"
           onclick="event.stopPropagation();openResDetail('${b.r.id}')"
-          style="left:${b.left}px;width:${b.width}px;background:${b.bg};color:${b.color};"
-          title="${lbl}">${lbl}</button>`;
+          style="left:${b.left}px;width:${b.width}px;background:${b.bg};color:${b.color};display:flex;align-items:center;"
+          title="${lbl}">${dot}${lbl}</button>`;
       }).join('');
       addLabel(`${row.icon} ${row.label}`);
       addTimeline(`<div class="cal-planning-timeline" style="width:${NUM_DAYS * DAY_W}px;">${dayCols}${blocksHtml}</div>`);
