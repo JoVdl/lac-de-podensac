@@ -1650,6 +1650,19 @@
     } catch { return '—'; }
   }
 
+  function isUnpaid(r) {
+    const total = r.totalPrice != null ? r.totalPrice : calculatePrice(r);
+    if (!total) return false;
+    const avance = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
+    let reste;
+    if (r.acompte != null || r.avance != null) {
+      reste = Math.max(0, total - avance);
+    } else {
+      reste = r.resteAPayer != null ? r.resteAPayer : Math.max(0, total - avance);
+    }
+    return reste > 0;
+  }
+
   function resteHtml(r) {
     const total = r.totalPrice != null ? r.totalPrice : calculatePrice(r);
     const avance = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
@@ -2591,6 +2604,7 @@
           let bg, color;
           const si = sourceInfo(r);
           if (isCancelled)                   { bg = '#e8e8e8'; color = '#999'; }
+          else if (isUnpaid(r))              { bg = '#d4720a'; color = '#fff'; }
           else if (si)                       { bg = si.bg; color = si.color; }
           else if (r.type === 'peche' || row.type === 'carnassier') { bg = isConf ? '#2a6059' : '#9a7000'; color = '#fff'; }
           else if (r.type === 'bateau')      { bg = isConf ? '#c27010' : '#b07800'; color = '#fff'; }
