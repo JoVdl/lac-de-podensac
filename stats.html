@@ -209,8 +209,16 @@ document.getElementById('login-form').addEventListener('submit', e => {
 if (isUnlocked()) showApp();
 
 // ── DATA ──
+function isCarnassier(r) {
+  return r.type === 'peche' && (
+    r.posteId === 'zone-carnassier' ||
+    (r.activity && r.activity.startsWith('carnassier'))
+  );
+}
+
 function calculatePrice(r) {
   if (r.totalPrice) return r.totalPrice;
+  if (r.source && r.source.toLowerCase().includes('campspace')) return (r.duree||1)*13;
   if (r.type === 'peche') {
     const duree = r.duree || 1;
     let base = 0;
@@ -312,14 +320,16 @@ function renderStats() {
   }).join('');
 
   // CA par activité × mois
-  const ACT_KEYS = ['peche','bateau','canoe','campingcar','tente'];
-  const ACT_SHORT = {peche:'🎣 Pêche', bateau:'🔥 Bateau', canoe:'🛶 Canoé', campingcar:'🚐 Camp.-car', tente:'⛺ Tente'};
+  const ACT_KEYS = ['peche-postes','peche-carnassier','bateau','canoe','campingcar','tente'];
+  const ACT_SHORT = {'peche-postes':'🎣 Pêche postes','peche-carnassier':'🐟 Carnassier', bateau:'🔥 Bateau', canoe:'🛶 Canoé', campingcar:'🚐 Camp.-car', tente:'⛺ Tente'};
   const matrix = Array.from({length:12}, () => Object.fromEntries(ACT_KEYS.map(k=>[k,0])));
   res.forEach(r => {
     const s = r.dateDebut||r.date||'';
     if (!s) return;
     const m = parseInt(s.slice(5,7))-1;
-    const k = ACT_KEYS.includes(r.type) ? r.type : null;
+    let k = null;
+    if (r.type === 'peche') k = isCarnassier(r) ? 'peche-carnassier' : 'peche-postes';
+    else if (['bateau','canoe','campingcar','tente'].includes(r.type)) k = r.type;
     if (k != null) matrix[m][k] += calculatePrice(r);
   });
   const colTotals = Object.fromEntries(ACT_KEYS.map(k=>[k, matrix.reduce((s,m)=>s+m[k],0)]));
@@ -351,22 +361,33 @@ function renderStats() {
       </tr>
     </tbody>`;
 
-  // Par type
+  // Par catégorie (pêche décomposée en postes + carnassier)
+  const CAT_LABELS = {
+    'peche-postes':'🎣 Pêche aux postes',
+    'peche-carnassier':'🐟 Pêche carnassier',
+    bateau:'🔥 Bateau BBQ',
+    canoe:'🛶 Canoé',
+    campingcar:'🚐 Camping-car',
+    tente:'⛺ Tente',
+  };
   const byType = {};
   all.forEach(r => {
-    if (!byType[r.type]) byType[r.type]={nb:0,nbConf:0,ca:0,acomptes:0};
-    byType[r.type].nb++;
-    if (r.status==='confirmed') byType[r.type].nbConf++;
-    if (r.status!=='cancelled') { byType[r.type].ca+=calculatePrice(r); byType[r.type].acomptes+=(r.acompte||0); }
+    const cat = r.type === 'peche'
+      ? (isCarnassier(r) ? 'peche-carnassier' : 'peche-postes')
+      : r.type;
+    if (!byType[cat]) byType[cat]={nb:0,nbConf:0,ca:0,acomptes:0};
+    byType[cat].nb++;
+    if (r.status==='confirmed') byType[cat].nbConf++;
+    if (r.status!=='cancelled') { byType[cat].ca+=calculatePrice(r); byType[cat].acomptes+=(r.acompte||0); }
   });
   document.getElementById('type-table').innerHTML = `
-    <thead><tr><th>Type</th><th class="td-num">Réservations</th><th class="td-num">Confirmées</th><th class="td-euro">CA</th><th class="td-euro">Acomptes</th></tr></thead>
-    <tbody>${Object.entries(byType).sort((a,b)=>b[1].ca-a[1].ca).map(([type,d])=>`
+    <thead><tr><th>Catégorie</th><th class="td-num">Réservations</th><th class="td-num">Confirmées</th><th class="td-euro">CA</th><th class="td-euro">Acomptes</th></tr></thead>
+    <tbody>${Object.entries(byType).sort((a,b)=>b[1].ca-a[1].ca).map(([cat,d])=>`
       <tr>
-        <td>${TYPE_LABELS[type]||type}</td>
+        <td>${CAT_LABELS[cat]||cat}</td>
         <td class="td-num">${d.nb}</td>
         <td class="td-num">${d.nbConf}</td>
-        <td class="td-euro">${d.ca}€</td>
+        <td class="td-euro">${Math.round(d.ca)}€</td>
         <td class="td-euro">${d.acomptes}€</td>
       </tr>`).join('')}
     </tbody>`;
