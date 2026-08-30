@@ -128,9 +128,50 @@
     .ca-matrix .cell-total { color: var(--accent); font-weight: 800; }
     .ca-matrix tbody tr:hover td { background: rgba(42,96,89,0.03); }
 
+    /* DRILL-DOWN MODAL */
+    .drill-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center;
+    }
+    .drill-overlay.open { display: flex; }
+    .drill-panel {
+      background: var(--white); border-radius: 18px 18px 0 0; width: 100%; max-width: 700px;
+      max-height: 80vh; display: flex; flex-direction: column;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.2);
+    }
+    .drill-head {
+      padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .drill-title { font-size: 1rem; font-weight: 800; color: var(--primary-dark); }
+    .drill-close {
+      background: none; border: none; font-size: 1.2rem; cursor: pointer;
+      color: var(--gray); padding: 4px 8px; border-radius: 6px;
+    }
+    .drill-close:hover { background: var(--bg); }
+    .drill-body { overflow-y: auto; flex: 1; }
+    .drill-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .drill-table thead th {
+      position: sticky; top: 0; background: rgba(42,96,89,0.07);
+      padding: 9px 14px; text-align: left; font-weight: 800; color: var(--primary-dark);
+      border-bottom: 2px solid var(--border);
+    }
+    .drill-table tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+    .drill-table tbody tr:last-child td { border-bottom: none; }
+    .drill-table tbody tr:hover td { background: rgba(42,96,89,0.04); }
+    .drill-edit-btn {
+      display: inline-block; padding: 3px 10px; border-radius: 8px;
+      background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 700;
+      text-decoration: none; white-space: nowrap;
+    }
+    .drill-edit-btn:hover { background: var(--primary-dark); }
+    /* clickable rows in type table */
+    #type-table tbody tr { cursor: pointer; }
+
     @media (max-width: 600px) {
       #app { padding: 12px; }
       .kpi-value { font-size: 1.4rem; }
+      .drill-panel { border-radius: 14px 14px 0 0; }
     }
   </style>
 </head>
@@ -153,6 +194,24 @@
       <button type="submit" class="login-btn">Accéder</button>
       <div class="login-err" id="login-err"></div>
     </form>
+  </div>
+</div>
+
+<!-- DRILL-DOWN MODAL -->
+<div class="drill-overlay" id="drill-overlay" onclick="if(event.target===this)closeDrill()">
+  <div class="drill-panel">
+    <div class="drill-head">
+      <div class="drill-title" id="drill-title"></div>
+      <button class="drill-close" onclick="closeDrill()">✕</button>
+    </div>
+    <div class="drill-body">
+      <table class="drill-table">
+        <thead><tr>
+          <th>Client</th><th>Date</th><th>Durée</th><th>Statut</th><th style="text-align:right">CA</th><th></th>
+        </tr></thead>
+        <tbody id="drill-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -380,15 +439,27 @@ function renderStats() {
     if (r.status==='confirmed') byType[cat].nbConf++;
     if (r.status!=='cancelled') { byType[cat].ca+=calculatePrice(r); byType[cat].acomptes+=(r.acompte||0); }
   });
+  // Stocker les réservations par catégorie pour le drill-down
+  window._resByCat = {};
+  all.forEach(r => {
+    const cat = r.type === 'peche'
+      ? (isCarnassier(r) ? 'peche-carnassier' : 'peche-postes')
+      : r.type;
+    if (!window._resByCat[cat]) window._resByCat[cat] = [];
+    window._resByCat[cat].push(r);
+  });
+  window._catLabels = CAT_LABELS;
+
   document.getElementById('type-table').innerHTML = `
-    <thead><tr><th>Catégorie</th><th class="td-num">Réservations</th><th class="td-num">Confirmées</th><th class="td-euro">CA</th><th class="td-euro">Acomptes</th></tr></thead>
+    <thead><tr><th>Catégorie</th><th class="td-num">Réservations</th><th class="td-num">Confirmées</th><th class="td-euro">CA</th><th class="td-euro">Acomptes</th><th></th></tr></thead>
     <tbody>${Object.entries(byType).sort((a,b)=>b[1].ca-a[1].ca).map(([cat,d])=>`
-      <tr>
+      <tr onclick="openDrill('${cat}')" title="Voir les réservations">
         <td>${CAT_LABELS[cat]||cat}</td>
         <td class="td-num">${d.nb}</td>
         <td class="td-num">${d.nbConf}</td>
         <td class="td-euro">${Math.round(d.ca)}€</td>
         <td class="td-euro">${d.acomptes}€</td>
+        <td style="text-align:right;color:var(--gray);font-size:0.8rem;">▶</td>
       </tr>`).join('')}
     </tbody>`;
 
@@ -438,6 +509,47 @@ function renderStats() {
     </tr>`).join('')}
     </tbody>`;
 }
+
+// ── DRILL-DOWN ──
+const STATUS_BADGE = {
+  pending:   '<span class="badge pending">⏳ En attente</span>',
+  confirmed: '<span class="badge confirmed">✓ Confirmé</span>',
+  cancelled: '<span style="font-size:0.7rem;color:#999">✗ Annulé</span>',
+};
+const MOIS_COURT_D = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+
+function fmtDate(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  return `${d} ${MOIS_COURT_D[parseInt(m)-1]} ${y}`;
+}
+
+window.openDrill = function(cat) {
+  const label = (window._catLabels||{})[cat] || cat;
+  const res = (window._resByCat||{})[cat] || [];
+  const sorted = [...res].sort((a,b)=>(a.dateDebut||a.date||'').localeCompare(b.dateDebut||b.date||''));
+  document.getElementById('drill-title').textContent = label + ` — ${res.length} réservation${res.length!==1?'s':''}`;
+  document.getElementById('drill-body').innerHTML = sorted.map(r => {
+    const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim() || '—';
+    const date = fmtDate(r.dateDebut||r.date||'');
+    const duree = r.duree ? `${r.duree} nuit${r.duree>1?'s':''}` : '—';
+    const ca = calculatePrice(r);
+    const status = r.status || 'pending';
+    return `<tr>
+      <td><strong>${name}</strong></td>
+      <td>${date}</td>
+      <td>${duree}</td>
+      <td>${STATUS_BADGE[status]||''}</td>
+      <td style="text-align:right;font-weight:700;color:var(--primary-dark)">${ca>0?ca+'€':'—'}</td>
+      <td><a class="drill-edit-btn" href="admin.html?edit=${r.id}" target="_blank">✏️ Modifier</a></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--gray)">Aucune réservation</td></tr>';
+  document.getElementById('drill-overlay').classList.add('open');
+};
+
+window.closeDrill = function() {
+  document.getElementById('drill-overlay').classList.remove('open');
+};
 </script>
 </body>
 </html>
