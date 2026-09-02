@@ -245,16 +245,21 @@ document.addEventListener('DOMContentLoaded', function () {
       const date    = el('f-empl-date')?.value;
       const dateFin = el('f-empl-date-fin')?.value;
       const duree   = (date && dateFin) ? Math.max(1, Math.round((new Date(dateFin) - new Date(date)) / 86400000)) : 1;
+      const unites  = parseInt(el('f-empl-unites')?.value || 1);
       const materielPrice = calcMaterielPrice();
-      const emplTotal = duree * 13 + materielPrice;
+      const emplBase  = duree * unites * 13;
+      const emplTotal = emplBase + materielPrice;
 
       if (el('sum-date'))  el('sum-date').textContent  = date ? formatDateFR(date) : '—';
       if (el('sum-duree')) el('sum-duree').textContent = dateFin ? `${duree} nuit${duree > 1 ? 's' : ''} (départ ${formatDateFR(dateFin)})` : '—';
       if (el('sum-total')) el('sum-total').textContent = dateFin ? `${emplTotal} €` : '—';
 
+      const unitesLine = el('sum-empl-unites-line');
+      if (unitesLine) unitesLine.style.display = dateFin ? '' : 'none';
+      if (el('sum-empl-unites')) el('sum-empl-unites').textContent = `${unites} unité${unites > 1 ? 's' : ''}`;
       const emplLine = el('sum-empl-line');
       if (emplLine) emplLine.style.display = dateFin ? '' : 'none';
-      if (el('sum-empl')) el('sum-empl').textContent = dateFin ? `${duree} × 13 € = ${duree * 13} €` : '—';
+      if (el('sum-empl')) el('sum-empl').textContent = dateFin ? `${duree} nuits × ${unites} unité${unites>1?'s':''} × 13 € = ${emplBase} €` : '—';
       const matLine = el('sum-materiel-line');
       if (matLine) matLine.style.display = materielPrice > 0 ? '' : 'none';
       if (el('sum-materiel')) el('sum-materiel').textContent = materielPrice > 0 ? `+${materielPrice} €` : '—';
@@ -715,16 +720,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const materielPrice = calcMaterielPrice();
         const tarifNuit = 13;
-        total = tarifNuit * duree + materielPrice;
+        const unites = parseInt(el('f-empl-unites')?.value || 1);
+        total = tarifNuit * duree * unites + materielPrice;
 
         Object.assign(booking, {
           type:'emplacement', dateDebut: date, dateFin, duree, nb,
-          tarifNuit,
+          nbUnites: unites, tarifNuit,
           materiel: Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id),
           materielPrice,
           totalPrice: total,
         });
-        toastMsg = `⛺ Réservation enregistrée ! ${ACTIVITY_LABELS[activity]} — ${duree} nuit${duree>1?'s':''}, ${nb} pers. — ${total} €. Confirmation à ${email}.`;
+        toastMsg = `⛺ Réservation enregistrée ! ${ACTIVITY_LABELS[activity]} — ${duree} nuit${duree>1?'s':''}, ${unites} unité${unites>1?'s':''}, ${nb} pers. — ${total} €. Confirmation à ${email}.`;
 
       } else {
         // Pêche + location nautique
