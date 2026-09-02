@@ -246,11 +246,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const dateFin = el('f-empl-date-fin')?.value;
       const duree   = (date && dateFin) ? Math.max(1, Math.round((new Date(dateFin) - new Date(date)) / 86400000)) : 1;
       const materielPrice = calcMaterielPrice();
+      const emplTotal = duree * 13 + materielPrice;
 
       if (el('sum-date'))  el('sum-date').textContent  = date ? formatDateFR(date) : '—';
       if (el('sum-duree')) el('sum-duree').textContent = dateFin ? `${duree} nuit${duree > 1 ? 's' : ''} (départ ${formatDateFR(dateFin)})` : '—';
-      if (el('sum-total')) el('sum-total').textContent = materielPrice > 0 ? `${materielPrice} €` : 'Sur devis';
+      if (el('sum-total')) el('sum-total').textContent = dateFin ? `${emplTotal} €` : '—';
 
+      const emplLine = el('sum-empl-line');
+      if (emplLine) emplLine.style.display = dateFin ? '' : 'none';
+      if (el('sum-empl')) el('sum-empl').textContent = dateFin ? `${duree} × 13 € = ${duree * 13} €` : '—';
       const matLine = el('sum-materiel-line');
       if (matLine) matLine.style.display = materielPrice > 0 ? '' : 'none';
       if (el('sum-materiel')) el('sum-materiel').textContent = materielPrice > 0 ? `+${materielPrice} €` : '—';
@@ -710,15 +714,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const materielPrice = calcMaterielPrice();
-        total = materielPrice;
+        const tarifNuit = 13;
+        total = tarifNuit * duree + materielPrice;
 
         Object.assign(booking, {
           type:'emplacement', dateDebut: date, dateFin, duree, nb,
+          tarifNuit,
           materiel: Array.from(document.querySelectorAll('.materiel-cb:checked')).map(cb => cb.dataset.id),
           materielPrice,
           totalPrice: total,
         });
-        toastMsg = `⛺ Réservation enregistrée ! ${ACTIVITY_LABELS[activity]} — ${duree} nuit${duree>1?'s':''}, ${nb} pers. Confirmation à ${email}.`;
+        toastMsg = `⛺ Réservation enregistrée ! ${ACTIVITY_LABELS[activity]} — ${duree} nuit${duree>1?'s':''}, ${nb} pers. — ${total} €. Confirmation à ${email}.`;
 
       } else {
         // Pêche + location nautique
