@@ -900,18 +900,30 @@
               <div class="form-group" id="f-empl-duree-tag" style="display:none;">
                 <span style="font-size:0.85rem;color:var(--primary);font-weight:600;" id="f-empl-duree-txt"></span>
               </div>
-              <div class="form-group">
-                <label>Nombre de personnes</label>
-                <select class="form-control" id="f-empl-nb">
-                  <option value="1">1 personne</option>
-                  <option value="2">2 personnes</option>
-                  <option value="3">3 personnes</option>
-                  <option value="4">4 personnes</option>
-                  <option value="5">5 personnes</option>
-                  <option value="6">6 personnes</option>
-                  <option value="7">7 personnes</option>
-                  <option value="8">8 personnes</option>
-                </select>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label>Nombre d'unités *</label>
+                  <select class="form-control" id="f-empl-unites" oninput="updateSummary()">
+                    <option value="1">1 unité (1 tente / 1 van)</option>
+                    <option value="2">2 unités</option>
+                    <option value="3">3 unités</option>
+                    <option value="4">4 unités</option>
+                    <option value="5">5 unités</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Nombre de personnes</label>
+                  <select class="form-control" id="f-empl-nb">
+                    <option value="1">1 personne</option>
+                    <option value="2">2 personnes</option>
+                    <option value="3">3 personnes</option>
+                    <option value="4">4 personnes</option>
+                    <option value="5">5 personnes</option>
+                    <option value="6">6 personnes</option>
+                    <option value="7">7 personnes</option>
+                    <option value="8">8 personnes</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -1078,6 +1090,7 @@
             <div class="summary-line" id="sum-accompagnant-line" style="display:none;"><span>Accomp.</span><span id="sum-accompagnant">—</span></div>
             <div class="summary-line" id="sum-4canne-line" style="display:none;"><span>4ème canne</span><span id="sum-4canne">—</span></div>
             <div class="summary-line" id="sum-opts-boat-line" style="display:none;"><span>Options BBQ</span><span id="sum-opts-boat">—</span></div>
+            <div class="summary-line" id="sum-empl-unites-line" style="display:none;"><span>Unités</span><span id="sum-empl-unites">—</span></div>
             <div class="summary-line" id="sum-empl-line" style="display:none;"><span>Emplacement</span><span id="sum-empl">—</span></div>
             <div class="summary-line" id="sum-materiel-line" style="display:none;"><span>Matériel</span><span id="sum-materiel">—</span></div>
             <div class="summary-line" id="sum-par-pers-line" style="display:none;"><span>Par pêcheur</span><span id="sum-par-pers" style="color:var(--primary);font-weight:700;">—</span></div>
