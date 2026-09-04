@@ -1794,10 +1794,27 @@
   // ── Real-time listener ────────────────────────────────────────
   function startWatching() {
     if (unsubscribeReservations) unsubscribeReservations();
+    let initialLoad = true;
     unsubscribeReservations = db.collection('reservations')
       .orderBy('createdAt', 'desc')
       .onSnapshot(snap => {
-        allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (initialLoad) {
+          // Premier chargement : tout reconstruire
+          allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          initialLoad = false;
+        } else {
+          // Mises à jour suivantes : patch incrémental
+          snap.docChanges().forEach(change => {
+            const data = { id: change.doc.id, ...change.doc.data() };
+            if (change.type === 'added' || change.type === 'modified') {
+              const idx = allReservations.findIndex(r => r.id === data.id);
+              if (idx >= 0) allReservations[idx] = data;
+              else allReservations.unshift(data);
+            } else if (change.type === 'removed') {
+              allReservations = allReservations.filter(r => r.id !== change.doc.id);
+            }
+          });
+        }
         renderList();
         if (typeof currentViewMode !== 'undefined' && currentViewMode === 'calendar') renderCalendarView();
         if (typeof currentViewMode !== 'undefined' && currentViewMode === 'planning') renderPlanningView();

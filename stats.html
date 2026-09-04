@@ -179,6 +179,7 @@
 <nav>
   <div class="nav-title">Statistiques <span>Lac de Podensac</span></div>
   <div class="nav-links">
+    <button id="btn-refresh" onclick="refreshStats()" class="nav-link" style="border:none;cursor:pointer;background:rgba(255,255,255,0.1);transition:background .3s,box-shadow .3s;">🔄 Rafraîchir</button>
     <a href="admin.html" class="nav-link">⚙ Admin</a>
     <a href="index.html" class="nav-link">← Site</a>
   </div>
@@ -301,11 +302,53 @@ function calculatePrice(r) {
   return 0;
 }
 
-function startWatching() {
-  db.collection('reservations').orderBy('createdAt','desc').onSnapshot(snap => {
+let _statsStale = false;
+
+function markStale() {
+  if (_statsStale) return;
+  _statsStale = true;
+  const btn = document.getElementById('btn-refresh');
+  if (btn) {
+    btn.style.background = '#e8951e';
+    btn.style.color = '#fff';
+    btn.style.boxShadow = '0 0 0 3px rgba(232,149,30,0.4)';
+    btn.textContent = '🔄 Mise à jour disponible';
+  }
+}
+
+function clearStale() {
+  _statsStale = false;
+  const btn = document.getElementById('btn-refresh');
+  if (btn) {
+    btn.style.background = 'rgba(255,255,255,0.1)';
+    btn.style.color = '';
+    btn.style.boxShadow = '';
+    btn.textContent = '🔄 Rafraîchir';
+  }
+}
+
+window.refreshStats = function() {
+  db.collection('reservations').orderBy('createdAt','desc').get().then(snap => {
     allReservations = snap.docs.map(d => ({id:d.id,...d.data()}));
     buildYearTabs();
     renderStats();
+    clearStale();
+  });
+};
+
+function startWatching() {
+  // Chargement initial one-shot
+  db.collection('reservations').orderBy('createdAt','desc').get().then(snap => {
+    allReservations = snap.docs.map(d => ({id:d.id,...d.data()}));
+    buildYearTabs();
+    renderStats();
+  });
+
+  // Listener léger : détecte les changements et allume le bouton Rafraîchir
+  let initialLoad = true;
+  db.collection('reservations').onSnapshot(snap => {
+    if (initialLoad) { initialLoad = false; return; }
+    if (snap.docChanges().some(c => c.type !== 'metadata')) markStale();
   });
 }
 
