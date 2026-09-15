@@ -267,7 +267,7 @@
 </div>
 
 <!-- APP -->
-<div id="app">
+<div id="app" style="display:none">
   <div class="year-bar">
     <span class="year-label">Année :</span>
     <div id="year-tabs"></div>
@@ -430,14 +430,19 @@ function startWatching() {
     allReservations = snap.docs.map(d => ({id:d.id,...d.data()}));
     buildYearTabs();
     renderStats();
+  }).catch(err => {
+    console.error('Firestore get error:', err);
+    document.getElementById('kpi-grid').innerHTML =
+      `<div style="grid-column:1/-1;padding:20px;color:#c0392b;font-weight:700;">⚠️ Erreur de chargement : ${err.message}</div>`;
   });
 
   // Listener léger : détecte les changements et allume le bouton Rafraîchir
-  let initialLoad = true;
-  db.collection('reservations').onSnapshot(snap => {
-    if (initialLoad) { initialLoad = false; return; }
-    if (snap.docChanges().some(c => c.type !== 'metadata')) markStale();
-  });
+  // initialLoad évite de marquer stale sur le snapshot initial (qui arrive après .get())
+  let _initialDone = false;
+  db.collection('reservations').onSnapshot({includeMetadataChanges: false}, snap => {
+    if (!_initialDone) { _initialDone = true; return; }
+    if (snap.docChanges().length > 0) markStale();
+  }, err => console.warn('Firestore listener:', err));
 }
 
 function getYear(r) {
