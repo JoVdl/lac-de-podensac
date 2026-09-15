@@ -419,12 +419,16 @@ window.refreshStats = function() {
   const btn = document.getElementById('btn-refresh');
   if (btn) { btn.textContent = '⏳ Chargement…'; btn.disabled = true; }
   fetchFromFirestore().then(data => {
+    hideCacheBanner();
     applyStatsData(data);
     clearStale();
     if (btn) btn.disabled = false;
   }).catch(err => {
+    console.error('Firestore:', err);
     if (btn) { btn.disabled = false; btn.textContent = '🔄 Rafraîchir'; }
-    alert('Erreur : ' + err.message);
+    const stale = loadStatsCache(true);
+    if (stale) { applyStatsData(stale.data); showCacheBanner(stale.ageMin); }
+    else alert('Firestore indisponible : ' + err.message);
   });
 };
 
@@ -435,13 +439,14 @@ function saveStatsCache(data) {
   try { localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(_) {}
 }
 
-function loadStatsCache() {
+function loadStatsCache(allowStale = false) {
   try {
     const raw = localStorage.getItem(STATS_CACHE_KEY);
     if (!raw) return null;
     const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > STATS_CACHE_TTL) return null;
-    return { data, ageMin: Math.round((Date.now() - ts) / 60000) };
+    const age = Date.now() - ts;
+    if (!allowStale && age > STATS_CACHE_TTL) return null;
+    return { data, ageMin: Math.round(age / 60000), stale: age > STATS_CACHE_TTL };
   } catch(_) { return null; }
 }
 
@@ -459,19 +464,43 @@ function fetchFromFirestore() {
   });
 }
 
+function showCacheBanner(ageMin) {
+  const d = new Date(Date.now() - ageMin * 60000);
+  const fmt = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} à ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
+  let banner = document.getElementById('cache-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'cache-banner';
+    banner.style.cssText = 'background:#fff3cd;color:#856404;padding:10px 18px;border-radius:10px;font-size:0.82rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px;';
+    document.getElementById('app').insertBefore(banner, document.getElementById('kpi-grid'));
+  }
+  banner.innerHTML = `⚠️ Données hors-ligne du ${fmt} (Firestore indisponible) — <button onclick="refreshStats()" style="background:none;border:none;text-decoration:underline;cursor:pointer;font-weight:700;color:#856404;">Réessayer</button>`;
+}
+
+function hideCacheBanner() {
+  const b = document.getElementById('cache-banner');
+  if (b) b.remove();
+}
+
 function startWatching() {
   const cached = loadStatsCache();
   if (cached) {
-    // Données en cache valides : affichage immédiat, zéro lecture Firestore
+    // Cache valide : affichage immédiat, zéro lecture Firestore
     applyStatsData(cached.data);
     const btn = document.getElementById('btn-refresh');
     if (btn) btn.title = `Cache de ${cached.ageMin} min — cliquez pour rafraîchir`;
   } else {
-    // Cache expiré ou absent : lecture Firestore
-    fetchFromFirestore().then(applyStatsData).catch(err => {
+    // Cache expiré ou absent : lecture Firestore, fallback sur cache périmé si erreur
+    fetchFromFirestore().then(data => { hideCacheBanner(); applyStatsData(data); }).catch(err => {
       console.error('Firestore:', err);
-      document.getElementById('kpi-grid').innerHTML =
-        `<div style="grid-column:1/-1;padding:20px;color:#c0392b;font-weight:700;">⚠️ Erreur de chargement : ${err.message}</div>`;
+      const stale = loadStatsCache(true);
+      if (stale) {
+        applyStatsData(stale.data);
+        showCacheBanner(stale.ageMin);
+      } else {
+        document.getElementById('kpi-grid').innerHTML =
+          `<div style="grid-column:1/-1;padding:20px;color:#c0392b;font-weight:700;">⚠️ Firestore indisponible et aucun cache local.<br><small>${err.message}</small></div>`;
+      }
     });
   }
   // Pas de listener onSnapshot — zéro abonnement permanent

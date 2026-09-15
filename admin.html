@@ -1800,13 +1800,26 @@
   function saveAdminCache() {
     try { localStorage.setItem(ADMIN_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: allReservations })); } catch(_) {}
   }
-  function loadAdminCache() {
+  function loadAdminCache(allowStale = false) {
     try {
       const raw = localStorage.getItem(ADMIN_CACHE_KEY);
       if (!raw) return null;
       const { ts, data } = JSON.parse(raw);
-      return Date.now() - ts <= ADMIN_CACHE_TTL ? data : null;
+      const age = Date.now() - ts;
+      if (!allowStale && age > ADMIN_CACHE_TTL) return null;
+      return { data, ageMin: Math.round(age / 60000), stale: age > ADMIN_CACHE_TTL };
     } catch(_) { return null; }
+  }
+
+  function showAdminCacheBanner(ageMin) {
+    if (document.getElementById('admin-cache-banner')) return;
+    const d = new Date(Date.now() - ageMin * 60000);
+    const fmt = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} à ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}`;
+    const banner = document.createElement('div');
+    banner.id = 'admin-cache-banner';
+    banner.style.cssText = 'background:#fff3cd;color:#856404;padding:10px 20px;font-size:0.82rem;font-weight:600;text-align:center;';
+    banner.innerHTML = `⚠️ Mode hors-ligne — données du ${fmt} (Firestore indisponible)`;
+    document.body.insertBefore(banner, document.body.firstChild);
   }
 
   function renderAll() {
@@ -1821,7 +1834,7 @@
 
     // Affichage immédiat depuis le cache si valide
     const cached = loadAdminCache();
-    if (cached) { allReservations = cached; renderAll(); }
+    if (cached) { allReservations = cached.data; renderAll(); }
 
     let initialLoad = true;
     unsubscribeReservations = db.collection('reservations')
@@ -1858,12 +1871,20 @@
         }
       }, err => {
         console.error('Firestore:', err);
-        document.getElementById('reservations-list').innerHTML = `
-          <div class="empty-state" style="grid-column:1/-1;">
-            <div class="empty-state__icon">⚠️</div>
-            <div class="empty-state__text">Erreur de chargement</div>
-            <div class="empty-state__sub">${err.message}</div>
-          </div>`;
+        // Fallback : utiliser le cache même périmé
+        const stale = loadAdminCache(true);
+        if (stale) {
+          allReservations = stale.data;
+          renderAll();
+          showAdminCacheBanner(stale.ageMin);
+        } else {
+          document.getElementById('reservations-list').innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+              <div class="empty-state__icon">⚠️</div>
+              <div class="empty-state__text">Firestore indisponible</div>
+              <div class="empty-state__sub">${err.message}</div>
+            </div>`;
+        }
       });
   }
 
