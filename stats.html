@@ -303,6 +303,16 @@
         <option value="cancelled">Annulé</option>
       </select>
     </div>
+    <div class="filter-group">
+      <div class="filter-label">Moyen de paiement</div>
+      <select class="filter-input" id="f-moyen">
+        <option value="">Tous</option>
+        <option value="especes">💵 Espèces</option>
+        <option value="tpe">💳 TPE</option>
+        <option value="lien">🔗 Lien</option>
+        <option value="_none">Non renseigné</option>
+      </select>
+    </div>
     <div class="filter-group" style="flex:1;min-width:200px">
       <div class="filter-label">Type</div>
       <div class="type-chips" id="f-types"></div>
@@ -711,9 +721,10 @@ function resCategory(r) {
 }
 
 window.applyAnalysis = function() {
-  const from  = document.getElementById('f-date-from').value;
-  const to    = document.getElementById('f-date-to').value;
+  const from   = document.getElementById('f-date-from').value;
+  const to     = document.getElementById('f-date-to').value;
   const status = document.getElementById('f-status').value;
+  const moyen  = document.getElementById('f-moyen').value;
 
   analysisResults = allReservations.filter(r => {
     const d = r.dateDebut || r.date || '';
@@ -721,6 +732,8 @@ window.applyAnalysis = function() {
     if (to   && d > to)   return false;
     if (status && (r.status || 'pending') !== status) return false;
     if (!activeTypes.has(resCategory(r))) return false;
+    if (moyen === '_none' && r.moyenPaiement) return false;
+    if (moyen && moyen !== '_none' && r.moyenPaiement !== moyen) return false;
     return true;
   });
 
@@ -733,6 +746,7 @@ window.resetAnalysis = function() {
   document.getElementById('f-date-from').value = '';
   document.getElementById('f-date-to').value = '';
   document.getElementById('f-status').value = '';
+  document.getElementById('f-moyen').value = '';
   activeTypes = new Set(ALL_TYPES.map(t => t.key));
   document.querySelectorAll('.type-chip').forEach(c => c.classList.add('active'));
   document.getElementById('analysis-summary').style.display = 'none';
@@ -796,6 +810,7 @@ function renderAnalysis() {
       <th class="sort-th td-euro" onclick="setSort('ca')">CA ${arrow('ca')}</th>
       <th class="td-euro">Acompte</th>
       <th class="td-euro">Reste</th>
+      <th>Paiement</th>
       <th></th>
     </tr></thead>
     <tbody>${slice.map(r => {
@@ -808,6 +823,8 @@ function renderAnalysis() {
       const stBadge = st === 'confirmed' ? '<span class="badge confirmed">✓ Confirmé</span>'
                     : st === 'cancelled' ? '<span class="badge" style="background:#f8d7da;color:#721c24">✗ Annulé</span>'
                     : '<span class="badge pending">⏳ En attente</span>';
+      const moyenIcons = { especes: '💵', tpe: '💳', lien: '🔗' };
+      const moyenTag = r.moyenPaiement ? `<span title="${r.moyenPaiement}">${moyenIcons[r.moyenPaiement]||r.moyenPaiement}</span>` : '<span style="color:#ccc">—</span>';
       return `<tr>
         <td><strong>${name}</strong></td>
         <td>${fmtDate(d)}</td>
@@ -816,16 +833,17 @@ function renderAnalysis() {
         <td class="td-euro">${ca > 0 ? ca + ' €' : '—'}</td>
         <td class="td-euro">${acompte > 0 ? acompte + ' €' : '—'}</td>
         <td class="td-euro" style="${reste > 0 ? 'color:var(--accent);font-weight:800' : 'color:#999'}">${reste > 0 ? reste + ' €' : '✓'}</td>
+        <td style="text-align:center">${moyenTag}</td>
         <td><a class="drill-edit-btn" href="admin.html?edit=${r.id}" target="_blank">✏️</a></td>
       </tr>`;
-    }).join('') || '<tr><td colspan="8" style="padding:16px;text-align:center;color:var(--gray)">Aucune réservation pour ces critères</td></tr>'}
+    }).join('') || '<tr><td colspan="9" style="padding:16px;text-align:center;color:var(--gray)">Aucune réservation pour ces critères</td></tr>'}
     </tbody>
     <tfoot><tr style="background:rgba(42,96,89,0.05);font-weight:800">
       <td colspan="4">Total (${total} réservation${total!==1?'s':''})</td>
       <td class="td-euro">${Math.round(ca)} €</td>
       <td class="td-euro">${Math.round(encaisse)} €</td>
       <td class="td-euro" style="color:var(--accent)">${Math.round(ca-encaisse)} €</td>
-      <td></td>
+      <td></td><td></td>
     </tr></tfoot>`;
 
   document.getElementById('analysis-list-wrap').style.display = 'block';
