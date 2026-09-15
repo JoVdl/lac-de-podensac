@@ -3444,7 +3444,9 @@
       if (priceOverride !== '') data.totalPrice = parseFloat(priceOverride) || data.totalPrice;
       // Note interne
       const noteInterne = document.getElementById('nrm-note-interne').value.trim();
-      if (noteInterne) data.noteInterne = noteInterne;
+      if (noteInterne) data.noteInterne = noteInterne; else data.noteInterne = firebase.firestore.FieldValue.delete();
+      // Marquer l'emplacement comme saisi manuellement pour le protéger des imports ICS
+      if (nrmEditId && (data.emplacement || data.emplacement === 0)) data.manualEmplacement = true;
 
       Object.keys(data).forEach(k=>{if(data[k]===null)delete data[k];});
 
@@ -3940,8 +3942,22 @@
         };
         delete data.dtstart; delete data.dtend;
         Object.keys(data).forEach(k => data[k] === null && delete data[k]);
-        if (snap.exists) { batch.update(ref, data); updated++; }
-        else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); batch.set(ref, data); added++; }
+
+        if (snap.exists) {
+          const existing = snap.data();
+          // Préserver les champs saisis manuellement — ne jamais les écraser à l'import
+          const PROTECTED = ['acompte', 'avance', 'resteAPayer', 'noteInterne', 'totalPrice', 'tarifNuit'];
+          PROTECTED.forEach(f => { if (existing[f] != null) delete data[f]; });
+          // Emplacement : préserver si assigné manuellement (champ manualEmplacement ou déjà présent)
+          if (existing.manualEmplacement || existing.emplacement) data.emplacement = existing.emplacement;
+          // Statut : préserver si confirmé manuellement ; écraser seulement si l'ICS annule
+          if (ev.status === 'cancelled') data.status = 'cancelled';
+          else if (existing.status) delete data.status;
+          batch.update(ref, data); updated++;
+        } else {
+          data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          batch.set(ref, data); added++;
+        }
       }
       await batch.commit();
     }
