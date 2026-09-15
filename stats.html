@@ -168,6 +168,56 @@
     /* clickable rows in type table */
     #type-table tbody tr { cursor: pointer; }
 
+    /* ANALYSE PERSONNALISÉE */
+    .filter-bar {
+      background: var(--white); border-radius: 14px; box-shadow: var(--shadow);
+      padding: 18px 20px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-label { font-size: 0.72rem; font-weight: 800; color: var(--gray); text-transform: uppercase; letter-spacing: .04em; }
+    .filter-input {
+      padding: 7px 11px; border: 2px solid var(--border); border-radius: 9px;
+      font-size: 0.85rem; color: #1a2b29; outline: none; background: var(--bg);
+    }
+    .filter-input:focus { border-color: var(--primary); background: #fff; }
+    .type-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .type-chip {
+      padding: 5px 12px; border-radius: 20px; border: 2px solid var(--border);
+      background: var(--white); font-size: 0.78rem; font-weight: 700; color: var(--gray);
+      cursor: pointer; transition: all .15s; user-select: none;
+    }
+    .type-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .filter-btn {
+      padding: 8px 18px; border-radius: 9px; border: none;
+      background: var(--primary); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    }
+    .filter-btn:hover { background: var(--primary-dark); }
+    .filter-reset {
+      padding: 8px 14px; border-radius: 9px; border: 2px solid var(--border);
+      background: var(--white); color: var(--gray); font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    }
+    .analysis-summary {
+      display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .analysis-kpi {
+      background: var(--white); border-radius: 12px; padding: 14px 18px;
+      box-shadow: var(--shadow); border-left: 4px solid var(--primary); min-width: 130px;
+    }
+    .analysis-kpi .kpi-value { font-size: 1.4rem; }
+    .analysis-list-wrap {
+      background: var(--white); border-radius: 14px; box-shadow: var(--shadow);
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .analysis-list-wrap table { font-size: 0.82rem; }
+    .sort-th { cursor: pointer; user-select: none; white-space: nowrap; }
+    .sort-th:hover { background: rgba(42,96,89,0.1); }
+    .sort-arrow { margin-left: 4px; opacity: 0.5; font-size: 0.7rem; }
+    .sort-arrow.on { opacity: 1; }
+    .pagination { display: flex; align-items: center; gap: 8px; padding: 12px 16px; justify-content: flex-end; border-top: 1px solid var(--border); }
+    .page-btn { padding: 4px 12px; border-radius: 8px; border: 2px solid var(--border); background: var(--white); cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+    .page-btn:disabled { opacity: 0.35; cursor: default; }
+    .page-info { font-size: 0.78rem; color: var(--gray); }
+
     @media (max-width: 600px) {
       #app { padding: 12px; }
       .kpi-value { font-size: 1.4rem; }
@@ -233,6 +283,40 @@
   <div class="stats-table-wrap"><table id="poste-table"></table></div>
   <div class="section-title">Acomptes en attente de solde</div>
   <div class="stats-table-wrap"><table id="acompte-table"></table></div>
+
+  <div class="section-title">Analyse personnalisée</div>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <div class="filter-label">Du</div>
+      <input type="date" class="filter-input" id="f-date-from">
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Au</div>
+      <input type="date" class="filter-input" id="f-date-to">
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Statut</div>
+      <select class="filter-input" id="f-status">
+        <option value="">Tous</option>
+        <option value="confirmed">Confirmé</option>
+        <option value="pending">En attente</option>
+        <option value="cancelled">Annulé</option>
+      </select>
+    </div>
+    <div class="filter-group" style="flex:1;min-width:200px">
+      <div class="filter-label">Type</div>
+      <div class="type-chips" id="f-types"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <button class="filter-btn" onclick="applyAnalysis()">Analyser</button>
+      <button class="filter-reset" onclick="resetAnalysis()">Réinitialiser</button>
+    </div>
+  </div>
+  <div class="analysis-summary" id="analysis-summary" style="display:none"></div>
+  <div class="analysis-list-wrap" id="analysis-list-wrap" style="display:none">
+    <table id="analysis-table"></table>
+    <div class="pagination" id="analysis-pagination"></div>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -247,12 +331,6 @@ let selectedYear = new Date().getFullYear();
 
 // ── PIN AUTH ──
 function isUnlocked() { return sessionStorage.getItem(PIN_KEY) === '1'; }
-function showApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  startWatching();
-}
-
 document.getElementById('login-form').addEventListener('submit', e => {
   e.preventDefault();
   const val = document.getElementById('s-pin').value;
@@ -593,6 +671,179 @@ window.openDrill = function(cat) {
 window.closeDrill = function() {
   document.getElementById('drill-overlay').classList.remove('open');
 };
+
+// ── ANALYSE PERSONNALISÉE ──
+const ALL_TYPES = [
+  { key: 'peche-postes',    label: '🎣 Pêche postes' },
+  { key: 'peche-carnassier',label: '🐟 Carnassier' },
+  { key: 'bateau',          label: '🔥 Bateau BBQ' },
+  { key: 'canoe',           label: '🛶 Canoé' },
+  { key: 'campingcar',      label: '🚐 Camping-car' },
+  { key: 'tente',           label: '⛺ Tente' },
+];
+let activeTypes = new Set(ALL_TYPES.map(t => t.key));
+let analysisResults = [];
+let analysisPage = 0;
+const PAGE_SIZE = 25;
+let sortCol = 'date';
+let sortAsc = true;
+
+function initTypeChips() {
+  document.getElementById('f-types').innerHTML = ALL_TYPES.map(t =>
+    `<span class="type-chip active" data-key="${t.key}" onclick="toggleChip(this,'${t.key}')">${t.label}</span>`
+  ).join('');
+}
+
+window.toggleChip = function(el, key) {
+  if (activeTypes.has(key)) {
+    if (activeTypes.size === 1) return; // toujours au moins 1
+    activeTypes.delete(key);
+    el.classList.remove('active');
+  } else {
+    activeTypes.add(key);
+    el.classList.add('active');
+  }
+};
+
+function resCategory(r) {
+  if (r.type === 'peche') return isCarnassier(r) ? 'peche-carnassier' : 'peche-postes';
+  return r.type || '?';
+}
+
+window.applyAnalysis = function() {
+  const from  = document.getElementById('f-date-from').value;
+  const to    = document.getElementById('f-date-to').value;
+  const status = document.getElementById('f-status').value;
+
+  analysisResults = allReservations.filter(r => {
+    const d = r.dateDebut || r.date || '';
+    if (from && d < from) return false;
+    if (to   && d > to)   return false;
+    if (status && (r.status || 'pending') !== status) return false;
+    if (!activeTypes.has(resCategory(r))) return false;
+    return true;
+  });
+
+  analysisPage = 0;
+  sortCol = 'date'; sortAsc = true;
+  renderAnalysis();
+};
+
+window.resetAnalysis = function() {
+  document.getElementById('f-date-from').value = '';
+  document.getElementById('f-date-to').value = '';
+  document.getElementById('f-status').value = '';
+  activeTypes = new Set(ALL_TYPES.map(t => t.key));
+  document.querySelectorAll('.type-chip').forEach(c => c.classList.add('active'));
+  document.getElementById('analysis-summary').style.display = 'none';
+  document.getElementById('analysis-list-wrap').style.display = 'none';
+};
+
+window.setSort = function(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = true; }
+  renderAnalysis();
+};
+
+function sortedResults() {
+  return [...analysisResults].sort((a, b) => {
+    let va, vb;
+    if (sortCol === 'date')   { va = a.dateDebut||a.date||''; vb = b.dateDebut||b.date||''; }
+    else if (sortCol === 'nom')   { va = ((a.nom||'')+(a.prenom||'')).toLowerCase(); vb = ((b.nom||'')+(b.prenom||'')).toLowerCase(); }
+    else if (sortCol === 'type')  { va = resCategory(a); vb = resCategory(b); }
+    else if (sortCol === 'ca')    { va = calculatePrice(a); vb = calculatePrice(b); }
+    else if (sortCol === 'status'){ va = a.status||'pending'; vb = b.status||'pending'; }
+    else { va = ''; vb = ''; }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+}
+
+function arrow(col) {
+  if (sortCol !== col) return '<span class="sort-arrow">↕</span>';
+  return `<span class="sort-arrow on">${sortAsc ? '↑' : '↓'}</span>`;
+}
+
+function renderAnalysis() {
+  const res = sortedResults();
+  const total = res.length;
+  const ca = res.filter(r => r.status !== 'cancelled').reduce((s,r) => s + calculatePrice(r), 0);
+  const encaisse = res.filter(r => r.status !== 'cancelled').reduce((s,r) => s + (r.acompte||0), 0);
+  const nonPayes = res.filter(r => r.status !== 'cancelled' && calculatePrice(r) > (r.acompte||0)).length;
+
+  document.getElementById('analysis-summary').style.display = 'flex';
+  document.getElementById('analysis-summary').innerHTML = `
+    <div class="analysis-kpi"><div class="kpi-value">${total}</div><div class="kpi-label">Réservations</div></div>
+    <div class="analysis-kpi" style="border-color:var(--accent)"><div class="kpi-value">${Math.round(ca)} €</div><div class="kpi-label">CA total</div></div>
+    <div class="analysis-kpi" style="border-color:var(--success)"><div class="kpi-value">${Math.round(encaisse)} €</div><div class="kpi-label">Encaissé</div></div>
+    <div class="analysis-kpi" style="border-color:var(--warning)"><div class="kpi-value">${Math.round(ca - encaisse)} €</div><div class="kpi-label">Reste à encaisser</div></div>
+    <div class="analysis-kpi" style="border-color:var(--danger)"><div class="kpi-value">${nonPayes}</div><div class="kpi-label">Non soldés</div></div>
+  `;
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (analysisPage >= totalPages) analysisPage = totalPages - 1;
+  const slice = res.slice(analysisPage * PAGE_SIZE, (analysisPage + 1) * PAGE_SIZE);
+
+  const catLabel = k => (ALL_TYPES.find(t => t.key === k)||{label:k}).label;
+
+  document.getElementById('analysis-table').innerHTML = `
+    <thead><tr>
+      <th class="sort-th" onclick="setSort('nom')">Client ${arrow('nom')}</th>
+      <th class="sort-th" onclick="setSort('date')">Date ${arrow('date')}</th>
+      <th class="sort-th" onclick="setSort('type')">Type ${arrow('type')}</th>
+      <th class="sort-th" onclick="setSort('status')">Statut ${arrow('status')}</th>
+      <th class="sort-th td-euro" onclick="setSort('ca')">CA ${arrow('ca')}</th>
+      <th class="td-euro">Acompte</th>
+      <th class="td-euro">Reste</th>
+      <th></th>
+    </tr></thead>
+    <tbody>${slice.map(r => {
+      const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim() || '—';
+      const d = r.dateDebut||r.date||'';
+      const ca = calculatePrice(r);
+      const acompte = r.acompte||0;
+      const reste = r.status !== 'cancelled' ? Math.max(0, Math.round((ca - acompte)*100)/100) : 0;
+      const st = r.status||'pending';
+      const stBadge = st === 'confirmed' ? '<span class="badge confirmed">✓ Confirmé</span>'
+                    : st === 'cancelled' ? '<span class="badge" style="background:#f8d7da;color:#721c24">✗ Annulé</span>'
+                    : '<span class="badge pending">⏳ En attente</span>';
+      return `<tr>
+        <td><strong>${name}</strong></td>
+        <td>${fmtDate(d)}</td>
+        <td>${catLabel(resCategory(r))}</td>
+        <td>${stBadge}</td>
+        <td class="td-euro">${ca > 0 ? ca + ' €' : '—'}</td>
+        <td class="td-euro">${acompte > 0 ? acompte + ' €' : '—'}</td>
+        <td class="td-euro" style="${reste > 0 ? 'color:var(--accent);font-weight:800' : 'color:#999'}">${reste > 0 ? reste + ' €' : '✓'}</td>
+        <td><a class="drill-edit-btn" href="admin.html?edit=${r.id}" target="_blank">✏️</a></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="padding:16px;text-align:center;color:var(--gray)">Aucune réservation pour ces critères</td></tr>'}
+    </tbody>
+    <tfoot><tr style="background:rgba(42,96,89,0.05);font-weight:800">
+      <td colspan="4">Total (${total} réservation${total!==1?'s':''})</td>
+      <td class="td-euro">${Math.round(ca)} €</td>
+      <td class="td-euro">${Math.round(encaisse)} €</td>
+      <td class="td-euro" style="color:var(--accent)">${Math.round(ca-encaisse)} €</td>
+      <td></td>
+    </tr></tfoot>`;
+
+  document.getElementById('analysis-list-wrap').style.display = 'block';
+  document.getElementById('analysis-pagination').innerHTML = totalPages <= 1 ? '' : `
+    <button class="page-btn" onclick="gotoPage(${analysisPage-1})" ${analysisPage===0?'disabled':''}>‹ Préc.</button>
+    <span class="page-info">Page ${analysisPage+1} / ${totalPages}</span>
+    <button class="page-btn" onclick="gotoPage(${analysisPage+1})" ${analysisPage>=totalPages-1?'disabled':''}>Suiv. ›</button>
+  `;
+}
+
+window.gotoPage = function(p) { analysisPage = p; renderAnalysis(); };
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initTypeChips();
+  startWatching();
+}
 </script>
 </body>
 </html>
