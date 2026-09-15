@@ -416,33 +416,65 @@ function clearStale() {
 }
 
 window.refreshStats = function() {
-  db.collection('reservations').orderBy('createdAt','desc').get().then(snap => {
-    allReservations = snap.docs.map(d => ({id:d.id,...d.data()}));
-    buildYearTabs();
-    renderStats();
+  const btn = document.getElementById('btn-refresh');
+  if (btn) { btn.textContent = '⏳ Chargement…'; btn.disabled = true; }
+  fetchFromFirestore().then(data => {
+    applyStatsData(data);
     clearStale();
+    if (btn) btn.disabled = false;
+  }).catch(err => {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Rafraîchir'; }
+    alert('Erreur : ' + err.message);
   });
 };
 
-function startWatching() {
-  // Chargement initial one-shot
-  db.collection('reservations').orderBy('createdAt','desc').get().then(snap => {
-    allReservations = snap.docs.map(d => ({id:d.id,...d.data()}));
-    buildYearTabs();
-    renderStats();
-  }).catch(err => {
-    console.error('Firestore get error:', err);
-    document.getElementById('kpi-grid').innerHTML =
-      `<div style="grid-column:1/-1;padding:20px;color:#c0392b;font-weight:700;">⚠️ Erreur de chargement : ${err.message}</div>`;
-  });
+const STATS_CACHE_KEY = 'stats_reservations_cache';
+const STATS_CACHE_TTL = 60 * 60 * 1000; // 1 heure
 
-  // Listener léger : détecte les changements et allume le bouton Rafraîchir
-  // initialLoad évite de marquer stale sur le snapshot initial (qui arrive après .get())
-  let _initialDone = false;
-  db.collection('reservations').onSnapshot({includeMetadataChanges: false}, snap => {
-    if (!_initialDone) { _initialDone = true; return; }
-    if (snap.docChanges().length > 0) markStale();
-  }, err => console.warn('Firestore listener:', err));
+function saveStatsCache(data) {
+  try { localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(_) {}
+}
+
+function loadStatsCache() {
+  try {
+    const raw = localStorage.getItem(STATS_CACHE_KEY);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts > STATS_CACHE_TTL) return null;
+    return { data, ageMin: Math.round((Date.now() - ts) / 60000) };
+  } catch(_) { return null; }
+}
+
+function applyStatsData(data) {
+  allReservations = data;
+  buildYearTabs();
+  renderStats();
+}
+
+function fetchFromFirestore() {
+  return db.collection('reservations').orderBy('createdAt','desc').get().then(snap => {
+    const data = snap.docs.map(d => ({id:d.id,...d.data()}));
+    saveStatsCache(data);
+    return data;
+  });
+}
+
+function startWatching() {
+  const cached = loadStatsCache();
+  if (cached) {
+    // Données en cache valides : affichage immédiat, zéro lecture Firestore
+    applyStatsData(cached.data);
+    const btn = document.getElementById('btn-refresh');
+    if (btn) btn.title = `Cache de ${cached.ageMin} min — cliquez pour rafraîchir`;
+  } else {
+    // Cache expiré ou absent : lecture Firestore
+    fetchFromFirestore().then(applyStatsData).catch(err => {
+      console.error('Firestore:', err);
+      document.getElementById('kpi-grid').innerHTML =
+        `<div style="grid-column:1/-1;padding:20px;color:#c0392b;font-weight:700;">⚠️ Erreur de chargement : ${err.message}</div>`;
+    });
+  }
+  // Pas de listener onSnapshot — zéro abonnement permanent
 }
 
 function getYear(r) {

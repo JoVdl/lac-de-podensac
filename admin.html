@@ -1793,17 +1793,45 @@
     startWatching();
   }
 
+  // ── Cache localStorage (5 min) ────────────────────────────────
+  const ADMIN_CACHE_KEY = 'admin_reservations_cache';
+  const ADMIN_CACHE_TTL = 5 * 60 * 1000;
+
+  function saveAdminCache() {
+    try { localStorage.setItem(ADMIN_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: allReservations })); } catch(_) {}
+  }
+  function loadAdminCache() {
+    try {
+      const raw = localStorage.getItem(ADMIN_CACHE_KEY);
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      return Date.now() - ts <= ADMIN_CACHE_TTL ? data : null;
+    } catch(_) { return null; }
+  }
+
+  function renderAll() {
+    renderList();
+    if (typeof currentViewMode !== 'undefined' && currentViewMode === 'calendar') renderCalendarView();
+    if (typeof currentViewMode !== 'undefined' && currentViewMode === 'planning') renderPlanningView();
+  }
+
   // ── Real-time listener ────────────────────────────────────────
   function startWatching() {
     if (unsubscribeReservations) unsubscribeReservations();
+
+    // Affichage immédiat depuis le cache si valide
+    const cached = loadAdminCache();
+    if (cached) { allReservations = cached; renderAll(); }
+
     let initialLoad = true;
     unsubscribeReservations = db.collection('reservations')
       .orderBy('createdAt', 'desc')
       .onSnapshot(snap => {
         if (initialLoad) {
-          // Premier chargement : tout reconstruire
+          // Premier snapshot Firestore : remplace le cache
           allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           initialLoad = false;
+          saveAdminCache();
         } else {
           // Mises à jour suivantes : patch incrémental
           snap.docChanges().forEach(change => {
@@ -1816,10 +1844,9 @@
               allReservations = allReservations.filter(r => r.id !== change.doc.id);
             }
           });
+          saveAdminCache();
         }
-        renderList();
-        if (typeof currentViewMode !== 'undefined' && currentViewMode === 'calendar') renderCalendarView();
-        if (typeof currentViewMode !== 'undefined' && currentViewMode === 'planning') renderPlanningView();
+        renderAll();
         // Auto-ouvre le formulaire si ?edit=<id> dans l'URL (une seule fois)
         if (!window._editParamHandled) {
           const editId = new URLSearchParams(window.location.search).get('edit');
