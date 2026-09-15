@@ -1673,9 +1673,11 @@
     } else {
       reste = r.resteAPayer != null ? r.resteAPayer : (total != null ? Math.round(Math.max(0, total - avance) * 100) / 100 : null);
     }
+    const moyenLabels = { especes: '💵 Espèces', tpe: '💳 TPE', lien: '🔗 Lien' };
+    const moyenTag = r.moyenPaiement ? ` <span style="font-size:0.75em;color:var(--gray);font-weight:400;">${moyenLabels[r.moyenPaiement]||r.moyenPaiement}</span>` : '';
     if (reste == null || total == null) return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--gray);">—</span></div>`;
     if (reste > 0) return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:#c05000;font-weight:700;">${reste} €</span></div>`;
-    return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--success);">✓ Soldé</span></div>`;
+    return `<div class="res-detail-row"><span class="label">Reste à payer</span><span class="value" style="color:var(--success);">✓ Soldé${moyenTag}</span></div>`;
   }
 
   function calculatePrice(r) {
@@ -2908,7 +2910,9 @@
     const _avanceForBtn = r.acompte != null ? r.acompte : (r.avance != null ? r.avance : 0);
     const _resteForBtn = r.resteAPayer != null ? r.resteAPayer : (_totalForBtn != null ? Math.max(0, _totalForBtn - _avanceForBtn) : null);
     if (_resteForBtn != null && _resteForBtn > 0 && _totalForBtn > 0) {
-      btns.push(`<button class="btn-action btn-paid" onclick="markAsPaid('${r.id}',${_totalForBtn})">💰 Payé (${_totalForBtn} €)</button>`);
+      btns.push(`<button class="btn-action btn-paid" onclick="markAsPaid('${r.id}',${_totalForBtn},'especes')" title="Paiement en espèces">💵 Espèces</button>`);
+      btns.push(`<button class="btn-action btn-paid" onclick="markAsPaid('${r.id}',${_totalForBtn},'tpe')" title="Paiement par carte TPE">💳 TPE</button>`);
+      btns.push(`<button class="btn-action btn-paid" onclick="markAsPaid('${r.id}',${_totalForBtn},'lien')" title="Paiement par lien">🔗 Lien</button>`);
     }
     if (status === 'pending') {
       btns.push(`<button class="btn-action btn-confirm" onclick="updateStatusFromModal('${r.id}','confirmed')">✓ Confirmer</button>`);
@@ -2965,15 +2969,17 @@
     setTimeout(() => confirmDelete(id), 200);
   };
 
-  window.markAsPaid = async function(id, total) {
+  const PAYMENT_LABELS = { especes: 'Espèces 💵', tpe: 'Carte TPE 💳', lien: 'Lien de paiement 🔗' };
+  window.markAsPaid = async function(id, total, moyen) {
     try {
       await db.collection('reservations').doc(id).update({
         acompte: total,
         resteAPayer: 0,
+        moyenPaiement: moyen || 'especes',
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
       closeResDetail();
-      toast('Paiement enregistré — soldé ✓', 'success');
+      toast(`Paiement enregistré — ${PAYMENT_LABELS[moyen]||moyen} ✓`, 'success');
     } catch(e) {
       toast('Erreur : ' + e.message, 'error');
     }
