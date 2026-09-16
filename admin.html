@@ -3498,7 +3498,8 @@
       if (priceOverride !== '') data.totalPrice = parseFloat(priceOverride) || data.totalPrice;
       // Note interne
       const noteInterne = document.getElementById('nrm-note-interne').value.trim();
-      if (noteInterne) data.noteInterne = noteInterne; else data.noteInterne = firebase.firestore.FieldValue.delete();
+      if (noteInterne) data.noteInterne = noteInterne;
+      else if (nrmEditId) data.noteInterne = firebase.firestore.FieldValue.delete();
       // Marquer l'emplacement comme saisi manuellement pour le protéger des imports ICS
       if (nrmEditId && (data.emplacement || data.emplacement === 0)) data.manualEmplacement = true;
 
