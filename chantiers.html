@@ -3,205 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chantiers — Gestion budgétaire</title>
+  <title>Chantiers — Suivi budgétaire</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --primary: #1a4e8a;
-      --primary-light: #2a6db5;
-      --primary-dark: #0f2f55;
-      --accent: #e8951e;
-      --success: #1e8a4a;
-      --success-bg: #e8f7ee;
-      --danger: #c0392b;
-      --danger-bg: #fdf0ee;
-      --warning: #b07800;
-      --warning-bg: #fff8e6;
-      --gray: #5a6a72;
-      --bg: #f0f4f8;
-      --card: #fff;
-      --border: #dde3ea;
-      --text: #1a2530;
+      --primary: #1a4e8a; --primary-light: #2a6db5; --primary-dark: #0f2f55;
+      --accent: #e8951e; --success: #1e8a4a; --success-bg: #e8f7ee;
+      --danger: #c0392b; --danger-bg: #fdf0ee; --warning: #b07800; --warning-bg: #fff8e6;
+      --gray: #5a6a72; --bg: #f0f4f8; --card: #fff; --border: #dde3ea; --text: #1a2530;
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* PIN screen */
-    #pin-screen {
-      position: fixed; inset: 0; background: var(--primary-dark);
-      display: flex; align-items: center; justify-content: center; z-index: 9999;
-    }
-    .pin-box {
-      background: white; border-radius: 16px; padding: 40px 36px; text-align: center;
-      width: 320px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    }
-    .pin-box h2 { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; margin-bottom: 8px; color: var(--primary-dark); }
-    .pin-box p { font-size: 0.85rem; color: var(--gray); margin-bottom: 24px; }
-    .pin-input-wrap { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-    .pin-input-wrap input {
-      width: 52px; height: 60px; border: 2px solid var(--border); border-radius: 10px;
-      font-size: 1.6rem; text-align: center; font-family: 'Montserrat', sans-serif;
-      transition: border-color .2s;
-    }
-    .pin-input-wrap input:focus { outline: none; border-color: var(--primary); }
-    .pin-error { color: var(--danger); font-size: 0.85rem; min-height: 20px; }
+    /* PIN */
+    #pin-screen { position:fixed;inset:0;background:var(--primary-dark);display:flex;align-items:center;justify-content:center;z-index:9999; }
+    .pin-box { background:white;border-radius:16px;padding:40px 36px;text-align:center;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.4); }
+    .pin-box h2 { font-family:'Montserrat',sans-serif;font-size:1.3rem;margin-bottom:8px;color:var(--primary-dark); }
+    .pin-box p { font-size:.85rem;color:var(--gray);margin-bottom:24px; }
+    .pin-input-wrap { display:flex;gap:10px;justify-content:center;margin-bottom:20px; }
+    .pin-input-wrap input { width:52px;height:60px;border:2px solid var(--border);border-radius:10px;font-size:1.6rem;text-align:center;font-family:'Montserrat',sans-serif;transition:border-color .2s; }
+    .pin-input-wrap input:focus { outline:none;border-color:var(--primary); }
+    .pin-error { color:var(--danger);font-size:.85rem;min-height:20px; }
 
     /* App */
-    #app { display: none; }
-    header {
-      background: var(--primary-dark); color: white; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between; height: 60px;
-    }
-    header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; }
-    .header-actions { display: flex; gap: 10px; }
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all .15s; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-light); }
-    .btn-secondary { background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.3); }
-    .btn-secondary:hover { background: rgba(255,255,255,.25); }
-    .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-outline { background: white; color: var(--primary); border: 1.5px solid var(--primary); }
-    .btn-outline:hover { background: var(--primary); color: white; }
+    #app { display:none; }
+    header { background:var(--primary-dark);color:white;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px; }
+    header h1 { font-family:'Montserrat',sans-serif;font-size:1.1rem; }
+    .header-actions { display:flex;gap:10px; }
 
-    .main-content { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+    .btn { display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .15s; }
+    .btn-primary { background:var(--primary);color:white; } .btn-primary:hover { background:var(--primary-light); }
+    .btn-secondary { background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3); } .btn-secondary:hover { background:rgba(255,255,255,.25); }
+    .btn-sm { padding:5px 12px;font-size:.8rem; }
+    .btn-outline { background:white;color:var(--primary);border:1.5px solid var(--primary); } .btn-outline:hover { background:var(--primary);color:white; }
+    .btn-danger { background:var(--danger);color:white; }
+
+    .main { max-width:1400px;margin:0 auto;padding:24px 20px; }
 
     /* Tabs */
-    .tabs { display: flex; gap: 4px; background: white; padding: 6px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border); width: fit-content; }
-    .tab { padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 600; color: var(--gray); background: none; transition: all .15s; }
-    .tab.active { background: var(--primary); color: white; }
+    .tabs { display:flex;gap:4px;background:white;padding:6px;border-radius:12px;margin-bottom:24px;border:1px solid var(--border);width:fit-content; }
+    .tab { padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:.875rem;font-weight:600;color:var(--gray);background:none;transition:all .15s; }
+    .tab.active { background:var(--primary);color:white; }
 
-    /* Stats cards */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
-    .stat-card .label { font-size: 0.78rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .stat-card .value { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); }
-    .stat-card .sub { font-size: 0.78rem; color: var(--gray); margin-top: 4px; }
-    .stat-card.accent .value { color: var(--accent); }
-    .stat-card.success .value { color: var(--success); }
-    .stat-card.danger .value { color: var(--danger); }
+    /* Stat cards */
+    .stats-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:24px; }
+    .stat-card { background:white;border-radius:12px;padding:18px;border:1px solid var(--border); }
+    .stat-card .label { font-size:.75rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px; }
+    .stat-card .value { font-family:'Montserrat',sans-serif;font-size:1.35rem;font-weight:800;color:var(--primary-dark); }
+    .stat-card .sub { font-size:.75rem;color:var(--gray);margin-top:3px; }
 
     /* Filters */
-    .filters-bar { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-    .filter-group { display: flex; flex-direction: column; gap: 5px; }
-    .filter-group label { font-size: 0.78rem; font-weight: 600; color: var(--gray); }
-    .filter-group input, .filter-group select {
-      padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.85rem; min-width: 140px;
-    }
-    .filter-group input:focus, .filter-group select:focus { outline: none; border-color: var(--primary); }
+    .filters-bar { background:white;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end; }
+    .fg { display:flex;flex-direction:column;gap:4px; }
+    .fg label { font-size:.75rem;font-weight:700;color:var(--gray); }
+    .fg input,.fg select { padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;min-width:140px; }
+    .fg input:focus,.fg select:focus { outline:none;border-color:var(--primary); }
 
-    /* Budget lines table */
-    .card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-    .card-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-    .card-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1rem; }
+    /* Table */
+    .card { background:white;border-radius:12px;border:1px solid var(--border);overflow:hidden; }
+    .card-hdr { padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border); }
+    .card-hdr h2 { font-family:'Montserrat',sans-serif;font-size:.95rem; }
+    table { width:100%;border-collapse:collapse;font-size:.83rem; }
+    th { background:#f5f7fa;padding:9px 12px;text-align:left;font-size:.75rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap; }
+    th:hover { background:#eef0f4; }
+    td { padding:9px 12px;border-bottom:1px solid #f0f2f5;vertical-align:middle; }
+    tr:hover td { background:#fafbfd; }
+    tr:last-child td { border-bottom:none; }
+    .amt { text-align:right;font-weight:600;white-space:nowrap; }
+    .amt-pos { color:var(--primary-dark); } .amt-neg { color:var(--danger); }
+    .op-row td { background:#f0f5ff;font-weight:700;font-size:.82rem;color:var(--primary-dark); }
+    .op-row:hover td { background:#e8f0ff; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    th { background: #f5f7fa; padding: 10px 14px; text-align: left; font-size: 0.78rem; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
-    th:hover { background: #eef0f4; }
-    td { padding: 10px 14px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
-    tr:hover td { background: #fafbfc; }
-    tr:last-child td { border-bottom: none; }
+    /* Progress */
+    .prog-wrap { display:flex;align-items:center;gap:8px;min-width:140px; }
+    .prog-bar { flex:1;height:7px;background:#e8ecf0;border-radius:4px;overflow:hidden; }
+    .prog-fill { height:100%;border-radius:4px;transition:width .3s; }
+    .prog-pct { font-size:.75rem;font-weight:700;min-width:34px;text-align:right; }
 
-    /* Progress bar */
-    .progress-wrap { display: flex; align-items: center; gap: 10px; min-width: 160px; }
-    .progress-bar { flex: 1; height: 8px; background: #e8ecf0; border-radius: 4px; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 4px; transition: width .3s; }
-    .progress-pct { font-size: 0.78rem; font-weight: 700; min-width: 36px; text-align: right; }
+    .code-tag { font-family:monospace;font-size:.79rem;color:var(--primary);background:#eef3fb;padding:2px 7px;border-radius:4px;white-space:nowrap; }
+    .badge { display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700; }
+    .badge-ok { background:var(--success-bg);color:var(--success); }
+    .badge-warn { background:var(--warning-bg);color:var(--warning); }
+    .badge-over { background:var(--danger-bg);color:var(--danger); }
+    .badge-zero { background:#f0f2f5;color:var(--gray); }
 
-    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .badge-ok { background: var(--success-bg); color: var(--success); }
-    .badge-warn { background: var(--warning-bg); color: var(--warning); }
-    .badge-over { background: var(--danger-bg); color: var(--danger); }
-    .badge-zero { background: #f0f2f5; color: var(--gray); }
-
-    .code-cell { font-family: monospace; font-size: 0.82rem; color: var(--primary); background: #eef3fb; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
-    .amount-cell { font-weight: 600; text-align: right; white-space: nowrap; }
-    .amount-pos { color: var(--primary-dark); }
-    .amount-neg { color: var(--danger); }
-
-    .action-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px; color: var(--gray); font-size: 1rem; transition: all .15s; }
-    .action-btn:hover { background: #eef0f4; color: var(--primary); }
-
-    /* Comment cell */
-    .comment-cell { font-size: 0.8rem; color: var(--gray); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
-    .comment-cell:hover { color: var(--primary); }
-    .comment-cell.empty { color: #c0c8d0; font-style: italic; }
+    .comment-cell { font-size:.79rem;color:var(--gray);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer; }
+    .comment-cell:hover { color:var(--primary); }
+    .comment-cell.empty { color:#b0bac4;font-style:italic; }
+    .action-btn { background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:5px;color:var(--gray);font-size:.95rem; }
+    .action-btn:hover { background:#eef0f4;color:var(--primary); }
 
     /* Modal */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-    .modal { background: white; border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; padding: 28px 28px 24px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
-    .modal h3 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; margin-bottom: 20px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .form-row.full { grid-template-columns: 1fr; }
-    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--gray); }
-    .form-group input, .form-group select, .form-group textarea {
-      padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.875rem; font-family: inherit;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
-    .form-group textarea { resize: vertical; min-height: 80px; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .modal-backdrop { position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center; }
+    .modal { background:white;border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:26px 26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3); }
+    .modal h3 { font-family:'Montserrat',sans-serif;font-size:1.05rem;margin-bottom:18px; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px; }
+    .form-row.full { grid-template-columns:1fr; }
+    .form-group { display:flex;flex-direction:column;gap:5px; }
+    .form-group label { font-size:.78rem;font-weight:700;color:var(--gray); }
+    .form-group input,.form-group textarea { padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;font-family:inherit; }
+    .form-group input:focus,.form-group textarea:focus { outline:none;border-color:var(--primary); }
+    .form-group textarea { resize:vertical;min-height:72px; }
+    .modal-info { background:#f5f8ff;border:1px solid #d0ddf5;border-radius:8px;padding:12px;margin-bottom:16px;font-size:.8rem;color:var(--gray); }
+    .modal-info strong { color:var(--primary-dark); }
+    .modal-footer { display:flex;justify-content:flex-end;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border); }
 
-    /* Import area */
-    .import-area {
-      border: 2px dashed var(--border); border-radius: 12px; padding: 32px; text-align: center; cursor: pointer;
-      transition: all .2s; background: #fafbfc;
-    }
-    .import-area:hover, .import-area.drag-over { border-color: var(--primary); background: #eef3fb; }
-    .import-area .icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .import-area p { color: var(--gray); font-size: 0.9rem; }
-    .import-area .hint { font-size: 0.78rem; color: #a0aab4; margin-top: 6px; }
+    /* Import modal */
+    .import-area { border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:#fafbfc; }
+    .import-area:hover,.import-area.drag-over { border-color:var(--primary);background:#eef3fb; }
+    .import-area .icon { font-size:2rem;margin-bottom:8px; }
 
-    /* Chantiers list */
-    .chantier-card {
-      background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px;
-      cursor: pointer; transition: all .15s; margin-bottom: 12px;
-    }
-    .chantier-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(26,78,138,.1); }
-    .chantier-card.selected { border-color: var(--primary); background: #f0f6ff; }
-    .chantier-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .chantier-name { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; }
-    .chantier-meta { font-size: 0.8rem; color: var(--gray); }
-    .chantier-progress { margin-top: 8px; }
+    /* Notif */
+    .notif { position:fixed;top:20px;right:20px;background:var(--primary-dark);color:white;padding:11px 18px;border-radius:10px;font-size:.875rem;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slideIn .2s ease; }
+    .notif.success { background:var(--success); } .notif.error { background:var(--danger); }
+    @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
 
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty-state h3 { margin-bottom: 8px; font-family: 'Montserrat', sans-serif; }
-    .empty-state p { font-size: 0.875rem; }
+    /* Op detail */
+    .op-detail { margin-bottom:20px;border:1.5px solid var(--primary);border-radius:12px;overflow:hidden; }
+    .op-detail-hdr { background:var(--primary);color:white;padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer; }
+    .op-detail-hdr h3 { font-family:'Montserrat',sans-serif;font-size:.95rem;flex:1; }
+    .op-detail-body { padding:16px 18px; }
 
-    .loading { text-align: center; padding: 40px; color: var(--gray); }
-
-    /* Notification */
-    .notif {
-      position: fixed; top: 20px; right: 20px; background: var(--primary-dark); color: white;
-      padding: 12px 20px; border-radius: 10px; font-size: 0.875rem; z-index: 9000;
-      box-shadow: 0 8px 24px rgba(0,0,0,.2); animation: slideIn .2s ease;
-    }
-    .notif.success { background: var(--success); }
-    .notif.error { background: var(--danger); }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .section-title { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary); display: inline-block; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-      .form-row.three { grid-template-columns: 1fr; }
-      table { font-size: 0.8rem; }
-    }
+    .empty-state { text-align:center;padding:50px 20px;color:var(--gray); }
+    .empty-state .icon { font-size:2.5rem;margin-bottom:10px; }
+    @media(max-width:768px) { .stats-grid{grid-template-columns:1fr 1fr} .form-row{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
 
-<!-- PIN Screen -->
 <div id="pin-screen">
   <div class="pin-box">
     <h2>🔒 Accès restreint</h2>
-    <p>Entrez votre code PIN pour accéder à la gestion des chantiers</p>
+    <p>Code PIN pour accéder au suivi des chantiers</p>
     <div class="pin-input-wrap">
       <input type="password" maxlength="1" class="pin-digit" data-idx="0" inputmode="numeric">
       <input type="password" maxlength="1" class="pin-digit" data-idx="1" inputmode="numeric">
@@ -212,115 +146,100 @@
   </div>
 </div>
 
-<!-- App -->
 <div id="app">
   <header>
-    <h1>🏗️ Gestion Chantiers</h1>
+    <h1>🏗️ Suivi Chantiers — Investissements 2026</h1>
     <div class="header-actions">
-      <button class="btn btn-secondary btn-sm" onclick="showImportModal()">📥 Importer</button>
-      <button class="btn btn-secondary btn-sm" onclick="openChantierModal()">+ Chantier</button>
+      <button class="btn btn-secondary btn-sm" onclick="showImportModal()">📥 Importer XLS</button>
     </div>
   </header>
 
-  <div class="main-content">
-    <!-- Tabs -->
+  <div class="main">
     <div class="tabs">
-      <button class="tab active" data-tab="budget" onclick="switchTab('budget')">📊 Lignes budgétaires</button>
-      <button class="tab" data-tab="chantiers" onclick="switchTab('chantiers')">🏗️ Chantiers</button>
+      <button class="tab active" data-tab="lignes" onclick="switchTab('lignes')">📋 Lignes budgétaires</button>
+      <button class="tab" data-tab="operations" onclick="switchTab('operations')">🏗️ Par opération</button>
       <button class="tab" data-tab="stats" onclick="switchTab('stats')">📈 Statistiques</button>
     </div>
 
-    <!-- TAB: Budget -->
-    <div id="tab-budget">
-      <!-- Global stats -->
-      <div class="stats-grid" id="budget-stats"></div>
-
-      <!-- Filters -->
+    <!-- TAB LIGNES -->
+    <div id="tab-lignes">
+      <div class="stats-grid" id="global-stats"></div>
       <div class="filters-bar">
-        <div class="filter-group">
-          <label>Chantier</label>
-          <select id="filter-chantier" onchange="applyFilters()">
-            <option value="">Tous les chantiers</option>
-          </select>
+        <div class="fg">
+          <label>Opération (chantier)</label>
+          <select id="filter-op" onchange="applyFilters()"><option value="">Toutes</option></select>
         </div>
-        <div class="filter-group">
+        <div class="fg">
           <label>Recherche</label>
-          <input type="text" id="filter-search" placeholder="Libellé, code…" oninput="applyFilters()">
+          <input type="text" id="filter-search" placeholder="Libellé, nature, antenne…" oninput="applyFilters()">
         </div>
-        <div class="filter-group">
+        <div class="fg">
           <label>Statut</label>
           <select id="filter-status" onchange="applyFilters()">
             <option value="">Tous</option>
-            <option value="ok">✅ Dans les limites</option>
-            <option value="warn">⚠️ > 75%</option>
+            <option value="ok">✅ OK (≤75%)</option>
+            <option value="warn">⚠️ Attention (75-100%)</option>
             <option value="over">🔴 Dépassé</option>
             <option value="zero">⬜ Non commencé</option>
+            <option value="active">💡 Actif (budget > 0)</option>
           </select>
         </div>
-        <div class="filter-group" style="margin-left:auto">
-          <label>&nbsp;</label>
-          <button class="btn btn-primary btn-sm" onclick="openLineModal()">+ Ligne</button>
+        <div class="fg">
+          <label>Masquer les zéros</label>
+          <select id="filter-zeros" onchange="applyFilters()">
+            <option value="">Afficher tout</option>
+            <option value="hide" selected>Masquer budget=0</option>
+          </select>
         </div>
       </div>
-
-      <!-- Table -->
       <div class="card">
-        <div class="card-header">
-          <h2>Lignes budgétaires</h2>
+        <div class="card-hdr">
+          <h2>Détail des comptes</h2>
           <span id="lines-count" style="font-size:.8rem;color:var(--gray)"></span>
         </div>
         <div style="overflow-x:auto">
-          <table id="lines-table">
-            <thead>
-              <tr>
-                <th onclick="sortBy('code')">Code ⇅</th>
-                <th onclick="sortBy('libelle')">Libellé ⇅</th>
-                <th onclick="sortBy('chantierName')">Chantier ⇅</th>
-                <th onclick="sortBy('budget')" style="text-align:right">Budget ⇅</th>
-                <th onclick="sortBy('engage')" style="text-align:right">Engagé ⇅</th>
-                <th onclick="sortBy('paye')" style="text-align:right">Payé ⇅</th>
-                <th onclick="sortBy('subvention')" style="text-align:right">Subv. ⇅</th>
-                <th onclick="sortBy('reste')" style="text-align:right">Reste ⇅</th>
-                <th>Avancement</th>
-                <th>Commentaire</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="lines-body">
-              <tr><td colspan="11" class="loading">Chargement…</td></tr>
-            </tbody>
+          <table>
+            <thead><tr>
+              <th onclick="sortBy('operation')">Opération ⇅</th>
+              <th onclick="sortBy('nature')">Nature ⇅</th>
+              <th onclick="sortBy('libelleAntenne')">Site / Antenne ⇅</th>
+              <th onclick="sortBy('budget')" style="text-align:right">Budgété ⇅</th>
+              <th onclick="sortBy('ens')" style="text-align:right">ENS ⇅</th>
+              <th onclick="sortBy('mandate')" style="text-align:right">Mandaté ⇅</th>
+              <th onclick="sortBy('disponible')" style="text-align:right">Disponible ⇅</th>
+              <th>Avancement</th>
+              <th>Subvention</th>
+              <th>Commentaire</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="lines-body"><tr><td colspan="11" style="text-align:center;padding:30px;color:var(--gray)">Chargement…</td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- TAB: Chantiers -->
-    <div id="tab-chantiers" style="display:none">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="btn btn-primary" onclick="openChantierModal()">+ Nouveau chantier</button>
-      </div>
-      <div id="chantiers-list"><div class="loading">Chargement…</div></div>
+    <!-- TAB OPERATIONS -->
+    <div id="tab-operations" style="display:none">
+      <div id="ops-list"><div style="text-align:center;padding:40px;color:var(--gray)">Chargement…</div></div>
     </div>
 
-    <!-- TAB: Stats -->
+    <!-- TAB STATS -->
     <div id="tab-stats" style="display:none">
       <div class="stats-grid" id="stats-global" style="margin-bottom:24px"></div>
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-header"><h2>Répartition par chantier</h2></div>
+      <div class="card">
+        <div class="card-hdr"><h2>Récapitulatif par opération</h2></div>
         <div style="overflow-x:auto">
           <table>
-            <thead>
-              <tr>
-                <th>Chantier</th>
-                <th style="text-align:right">Budget total</th>
-                <th style="text-align:right">Engagé</th>
-                <th style="text-align:right">Payé</th>
-                <th style="text-align:right">Subventions</th>
-                <th style="text-align:right">Reste à payer</th>
-                <th>Avancement</th>
-              </tr>
-            </thead>
-            <tbody id="stats-by-chantier"></tbody>
+            <thead><tr>
+              <th>Code</th><th>Opération</th>
+              <th style="text-align:right">Budgété</th>
+              <th style="text-align:right">ENS</th>
+              <th style="text-align:right">Mandaté</th>
+              <th style="text-align:right">Réalisé</th>
+              <th style="text-align:right">Disponible</th>
+              <th>Avancement</th>
+            </tr></thead>
+            <tbody id="stats-ops-body"></tbody>
           </table>
         </div>
       </div>
@@ -328,107 +247,37 @@
   </div>
 </div>
 
-<!-- Modal: Line detail / edit -->
+<!-- Modal: Line detail -->
 <div id="line-modal" style="display:none">
   <div class="modal-backdrop" onclick="closeLineModal()">
     <div class="modal" onclick="event.stopPropagation()">
-      <h3 id="line-modal-title">Ligne budgétaire</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Code comptable</label>
-          <input type="text" id="line-code" placeholder="ex: 2315">
-        </div>
-        <div class="form-group">
-          <label>Chantier</label>
-          <select id="line-chantier-select"></select>
-        </div>
-      </div>
-      <div class="form-row full">
-        <div class="form-group">
-          <label>Libellé</label>
-          <input type="text" id="line-libelle" placeholder="Libellé de la ligne">
-        </div>
-      </div>
-      <div class="form-row three">
-        <div class="form-group">
-          <label>Budget (€)</label>
-          <input type="number" id="line-budget" placeholder="0" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>Engagé (€)</label>
-          <input type="number" id="line-engage" placeholder="0" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>Payé (€)</label>
-          <input type="number" id="line-paye" placeholder="0" step="0.01">
-        </div>
-      </div>
+      <h3>📋 Ligne budgétaire</h3>
+      <div class="modal-info" id="line-modal-info"></div>
       <div class="form-row">
         <div class="form-group">
           <label>Subvention (€)</label>
           <input type="number" id="line-subvention" placeholder="0" step="0.01">
         </div>
         <div class="form-group">
-          <label>Année</label>
-          <input type="number" id="line-annee" placeholder="2025">
+          <label>Financeur subvention</label>
+          <input type="text" id="line-financeur" placeholder="ex: DETR, Région…">
         </div>
       </div>
       <div class="form-row full">
         <div class="form-group">
-          <label>Commentaire</label>
-          <textarea id="line-comment" placeholder="Notes, remarques…"></textarea>
+          <label>Commentaire / Notes</label>
+          <textarea id="line-comment" placeholder="Situation, points de vigilance, contacts…"></textarea>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Prochaine échéance</label>
+          <input type="text" id="line-echeance" placeholder="ex: Réception travaux 15/03/2026">
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeLineModal()">Annuler</button>
-        <button class="btn btn-danger btn-sm" id="line-delete-btn" style="display:none;margin-right:auto" onclick="deleteLine()">Supprimer</button>
         <button class="btn btn-primary" onclick="saveLine()">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Chantier -->
-<div id="chantier-modal" style="display:none">
-  <div class="modal-backdrop" onclick="closeChantierModal()">
-    <div class="modal" onclick="event.stopPropagation()">
-      <h3 id="chantier-modal-title">Nouveau chantier</h3>
-      <div class="form-row full">
-        <div class="form-group">
-          <label>Nom du chantier</label>
-          <input type="text" id="chantier-name" placeholder="ex: Rénovation salle des fêtes">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Référence</label>
-          <input type="text" id="chantier-ref" placeholder="ex: 2025-001">
-        </div>
-        <div class="form-group">
-          <label>Maître d'ouvrage</label>
-          <input type="text" id="chantier-moa" placeholder="ex: Commune de…">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Date début</label>
-          <input type="date" id="chantier-debut">
-        </div>
-        <div class="form-group">
-          <label>Date fin prévue</label>
-          <input type="date" id="chantier-fin">
-        </div>
-      </div>
-      <div class="form-row full">
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="chantier-description" placeholder="Description du chantier…" style="min-height:60px"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeChantierModal()">Annuler</button>
-        <button class="btn btn-danger btn-sm" id="chantier-delete-btn" style="display:none;margin-right:auto" onclick="deleteChantier()">Supprimer</button>
-        <button class="btn btn-primary" onclick="saveChantier()">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -437,43 +286,21 @@
 <!-- Modal: Import -->
 <div id="import-modal" style="display:none">
   <div class="modal-backdrop" onclick="closeImportModal()">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width:560px">
-      <h3>📥 Importer des lignes budgétaires</h3>
-      <p style="font-size:.875rem;color:var(--gray);margin-bottom:20px">
-        Importez un fichier CSV ou copiez-collez les données depuis Excel.<br>
-        Les colonnes attendues : <strong>Code, Libellé, Budget, Engagé, Payé, Subvention</strong>
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
+      <h3>📥 Importer un fichier XLS mis à jour</h3>
+      <p style="font-size:.85rem;color:var(--gray);margin-bottom:16px">
+        Le fichier XML SpreadsheetML exporté depuis votre logiciel de comptabilité.<br>
+        Les commentaires et subventions saisis seront conservés.
       </p>
-
       <div class="import-area" id="import-area" onclick="document.getElementById('import-file').click()">
         <div class="icon">📂</div>
-        <p>Cliquer pour sélectionner un fichier CSV</p>
-        <p class="hint">ou glisser-déposer ici</p>
-        <input type="file" id="import-file" accept=".csv,.txt" style="display:none" onchange="handleImportFile(event)">
+        <p style="color:var(--gray);font-size:.9rem">Cliquer pour sélectionner le fichier .xls</p>
+        <input type="file" id="import-file" accept=".xls,.xml" style="display:none" onchange="handleImportFile(event)">
       </div>
-
-      <div style="margin: 16px 0; text-align:center; color:var(--gray); font-size:.85rem">— ou coller depuis Excel —</div>
-
-      <div class="form-group" style="margin-bottom:16px">
-        <label>Sélectionner un chantier pour l'import</label>
-        <select id="import-chantier"></select>
-      </div>
-
-      <div class="form-group">
-        <label>Données (format tabulé ou CSV)</label>
-        <textarea id="import-paste" style="min-height:120px;font-family:monospace;font-size:.8rem" placeholder="Code&#9;Libellé&#9;Budget&#9;Engagé&#9;Payé&#9;Subvention&#10;2315&#9;Voirie&#9;50000&#9;30000&#9;25000&#9;10000"></textarea>
-      </div>
-
-      <div id="import-preview" style="margin-top:12px;display:none">
-        <div style="font-size:.8rem;font-weight:700;color:var(--gray);margin-bottom:8px" id="import-preview-info"></div>
-        <div style="overflow-x:auto;max-height:200px">
-          <table id="import-preview-table" style="font-size:.8rem"></table>
-        </div>
-      </div>
-
+      <div id="import-status" style="margin-top:12px;font-size:.85rem;color:var(--gray)"></div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeImportModal()">Annuler</button>
-        <button class="btn btn-secondary btn-sm" onclick="previewImport()">Aperçu</button>
-        <button class="btn btn-primary" onclick="confirmImport()" id="import-confirm-btn" disabled>Importer</button>
+        <button class="btn btn-outline" onclick="closeImportModal()">Fermer</button>
+        <button class="btn btn-primary" id="import-confirm-btn" style="display:none" onclick="confirmImport()">Importer les données</button>
       </div>
     </div>
   </div>
@@ -483,8 +310,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script>
-// ─── PIN ────────────────────────────────────────────────────────────────
-const CORRECT_PIN = '1234'; // Change me
+// ─── PIN ──────────────────────────────────────────────────────────────────
+const CORRECT_PIN = '1234';
 const PIN_KEY = 'chantiers_pin_ok';
 
 function initPin() {
@@ -502,395 +329,367 @@ function initPin() {
   });
   digits[0].focus();
 }
-
 function checkPin() {
   const digits = document.querySelectorAll('.pin-digit');
   const entered = [...digits].map(d => d.value).join('');
-  if (entered === CORRECT_PIN) {
-    sessionStorage.setItem(PIN_KEY, '1');
-    unlock();
-  } else {
-    document.getElementById('pin-error').textContent = 'Code incorrect, réessayez.';
+  if (entered === CORRECT_PIN) { sessionStorage.setItem(PIN_KEY, '1'); unlock(); }
+  else {
+    document.getElementById('pin-error').textContent = 'Code incorrect.';
     digits.forEach(d => { d.value = ''; d.style.borderColor = 'var(--danger)'; });
     setTimeout(() => { digits.forEach(d => d.style.borderColor = ''); digits[0].focus(); }, 1000);
   }
 }
-
 function unlock() {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   loadData();
 }
 
-// ─── DATA ────────────────────────────────────────────────────────────────
-const chantiersCol = db.collection('chantiers_proj');
-const linesCol = db.collection('chantiers_lignes');
+// ─── DATA ─────────────────────────────────────────────────────────────────
+// Budget lines from XLS (updated at import time)
+const BASE_LINES = [{"id":"2024103_2031_SIEG_GAR","operation":"2024103","libelleOperation":"APCP-ETUDES DIVERSES","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_GAR","libelleAntenne":"BATIMENT ANNEXE SIEGE GARE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"2024103_2031_SIEG_PODEN","operation":"2024103","libelleOperation":"APCP-ETUDES DIVERSES","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_PODEN","libelleAntenne":"SIEGE PODENSAC","budget":5000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":5000.0,"exercice":"2026"},{"id":"202551_2031_BXM1","operation":"202551","libelleOperation":"AP-CP BATIMENTS DU SIEGE CDC","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"BXM1","libelleAntenne":"BATIMENT 13 COURS XAVIER MOREAU PODENSAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202551_2031_BXM2","operation":"202551","libelleOperation":"AP-CP BATIMENTS DU SIEGE CDC","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"BXM2","libelleAntenne":"BATIMENT 17 COURS XAVIER MOREAU PODENSAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202551_2031_SIEG_PODEN","operation":"202551","libelleOperation":"AP-CP BATIMENTS DU SIEGE CDC","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_PODEN","libelleAntenne":"SIEGE PODENSAC","budget":102188.66,"realise":35424.0,"mandate":0.0,"ens":35424.0,"disponible":66764.66,"exercice":"2026"},{"id":"202450_21351_SIEG_GAR","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_GAR","libelleAntenne":"BATIMENT ANNEXE SIEGE GARE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_SIEG_PODEN","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_PODEN","libelleAntenne":"SIEGE PODENSAC","budget":4973.34,"realise":4972.94,"mandate":764.94,"ens":4208.0,"disponible":0.4,"exercice":"2026"},{"id":"202551_21351_SIEG_PODEN","operation":"202551","libelleOperation":"AP-CP BATIMENTS DU SIEGE CDC","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_PODEN","libelleAntenne":"SIEGE PODENSAC","budget":0.0,"realise":55444.66,"mandate":53256.0,"ens":2188.66,"disponible":-55444.66,"exercice":"2026"},{"id":"202450_2181_SIEG_TRESO","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_TRESO","libelleAntenne":"ANNEXE SIEGE EX TRESORERIE DE PODENSAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202551_2181_SIEG_PODEN","operation":"202551","libelleOperation":"AP-CP BATIMENTS DU SIEGE CDC","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_PODEN","libelleAntenne":"SIEGE PODENSAC","budget":50000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":50000.0,"exercice":"2026"},{"id":"56_2181_SIEG_TRESO","operation":"56","libelleOperation":"ANNEXE SIEGE TRESORERIE PODENSAC","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_TRESO","libelleAntenne":"ANNEXE SIEGE EX TRESORERIE DE PODENSAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202482_21828_TECH-VEH","operation":"202482","libelleOperation":"APCP-PARC VEHICULES CDC","nature":"21828","libelleNature":"AUTRES MATERIELS DE TRANSPORT","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"TEC2","antenne":"TECH-VEH","libelleAntenne":"VÉHICULES GÉRÉS PAR LE SERVICE TECHNIQUE","budget":13900.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":13900.0,"exercice":"2026"},{"id":"202424_2188_SIEG_GAR","operation":"202424","libelleOperation":"APCP-INVESTISSEMENTS MOBILIERS CDC","nature":"2188","libelleNature":"AUTRES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"SIEG","antenne":"SIEG_GAR","libelleAntenne":"BATIMENT ANNEXE SIEGE GARE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_2188_AGEN","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"2188","libelleNature":"AUTRES","fonction":"020","libelleFonction":"Administration générale de la collectivité","service":"AGEN","antenne":"AGEN","libelleAntenne":"ADMINISTRATION GENERALE","budget":148617.26,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":148617.26,"exercice":"2026"},{"id":"202450_21351_MED_PODEN","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"313","libelleFonction":"Bibliothèques, médiathèques","service":"RLP","antenne":"MED_PODEN","libelleAntenne":"MEDIATHEQUE DE PODENSAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202475_2031_GYM_CADI","operation":"202475","libelleOperation":"APCP-GYMNASE SALLE POLYVALENTE CADILLAC","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"321","libelleFonction":"Salles de sport, gymnases","service":"SPOR","antenne":"GYM_CADI","libelleAntenne":"GYMNASE CADILLAC","budget":108274.69,"realise":104285.31,"mandate":30693.86,"ens":73591.45,"disponible":3989.38,"exercice":"2026"},{"id":"202475_21351_GYM_CADI","operation":"202475","libelleOperation":"APCP-GYMNASE SALLE POLYVALENTE CADILLAC","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"321","libelleFonction":"Salles de sport, gymnases","service":"SPOR","antenne":"GYM_CADI","libelleAntenne":"GYMNASE CADILLAC","budget":1570000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":1570000.0,"exercice":"2026"},{"id":"202475_2313_GYM_CADI","operation":"202475","libelleOperation":"APCP-GYMNASE SALLE POLYVALENTE CADILLAC","nature":"2313","libelleNature":"CONSTRUCTIONS","fonction":"321","libelleFonction":"Salles de sport, gymnases","service":"SPOR","antenne":"GYM_CADI","libelleAntenne":"GYMNASE CADILLAC","budget":0.0,"realise":1520773.19,"mandate":333786.55,"ens":1186986.64,"disponible":-1520773.19,"exercice":"2026"},{"id":"202475_238_GYM_CADI","operation":"202475","libelleOperation":"APCP-GYMNASE SALLE POLYVALENTE CADILLAC","nature":"238","libelleNature":"AVANCES VERSEES SUR COMMANDES D'IMMO. CORP.","fonction":"321","libelleFonction":"Salles de sport, gymnases","service":"SPOR","antenne":"GYM_CADI","libelleAntenne":"GYMNASE CADILLAC","budget":0.0,"realise":46356.29,"mandate":46356.29,"ens":0.0,"disponible":-46356.29,"exercice":"2026"},{"id":"78_2181_STAD_STCR","operation":"78","libelleOperation":"VESTIAIRES STADE FOOT STE CROIX DU MONT","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"322","libelleFonction":"Stades","service":"SPOR","antenne":"STAD_STCR","libelleAntenne":"STADE STE CROIX DU MONT","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"76_21351_PISCINE","operation":"76","libelleOperation":"PISCINE DE CADILLAC","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"323","libelleFonction":"Piscines","service":"","antenne":"PISCINE","libelleAntenne":"PISCINE CADILLAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_CAP33","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"326","libelleFonction":"Manifestations sportives","service":"SPOR","antenne":"CAP33","libelleAntenne":"ANIMATIONS ESTIVALES CAP33","budget":1500.0,"realise":1007.7,"mandate":411.31,"ens":596.39,"disponible":492.3,"exercice":"2026"},{"id":"202482_21828_SPO_SUB","operation":"202482","libelleOperation":"APCP-PARC VEHICULES CDC","nature":"21828","libelleNature":"AUTRES MATERIELS DE TRANSPORT","fonction":"326","libelleFonction":"Manifestations sportives","service":"SPOR","antenne":"SPO_SUB","libelleAntenne":"PARTENARIATS SPORTIFS ASSOCIATIONS","budget":26100.0,"realise":25590.0,"mandate":25590.0,"ens":0.0,"disponible":510.0,"exercice":"2026"},{"id":"202450_2181_AL_CADI","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"331","libelleFonction":"Centres de loisirs","service":"ALPE","antenne":"AL_CADI","libelleAntenne":"ACCUEIL DE LOISIRS CADILLAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21318_VILLA_ROSA","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21318","libelleNature":"AUTRES BATIMENTS PUBLICS","fonction":"338","libelleFonction":"Autres activités pour les jeunes","service":"PLAJ","antenne":"VILLA_ROSA","libelleAntenne":"IMMEUBLE VILLA ROSA","budget":1200.0,"realise":1191.73,"mandate":0.0,"ens":1191.73,"disponible":8.27,"exercice":"2026"},{"id":"95_21351_VILLA_ROSA","operation":"95","libelleOperation":"IMMEUBLE VILLA ROSA","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"338","libelleFonction":"Autres activités pour les jeunes","service":"PLAJ","antenne":"VILLA_ROSA","libelleAntenne":"IMMEUBLE VILLA ROSA","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202482_21828_PLAJ","operation":"202482","libelleOperation":"APCP-PARC VEHICULES CDC","nature":"21828","libelleNature":"AUTRES MATERIELS DE TRANSPORT","fonction":"338","libelleFonction":"Autres activités pour les jeunes","service":"PLAJ","antenne":"PLAJ","libelleAntenne":"DIVERS PLAJ","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_SOC_PSC","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"420","libelleFonction":"Services communs","service":"DVSL","antenne":"SOC_PSC","libelleAntenne":"POLE SOCIAL CADILLAC","budget":20940.0,"realise":17418.0,"mandate":17040.0,"ens":378.0,"disponible":3522.0,"exercice":"2026"},{"id":"2024103_2031_CR_CADI","operation":"2024103","libelleOperation":"APCP-ETUDES DIVERSES","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_CADI","libelleAntenne":"CRECHE OCABELOU CADILLAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202446_2031_CR_LUN","operation":"202446","libelleOperation":"APCP-CRECHE CROQUE LUNE","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_LUN","libelleAntenne":"CRECHE CROQUE LUNE","budget":0.0,"realise":9162.96,"mandate":8877.02,"ens":285.94,"disponible":-9162.96,"exercice":"2026"},{"id":"46_2031_CR_LUN","operation":"46","libelleOperation":"CRECHE CROQUE LUNE","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_LUN","libelleAntenne":"CRECHE CROQUE LUNE","budget":1885.2,"realise":1885.2,"mandate":1885.2,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202446_21318_CR_LUN","operation":"202446","libelleOperation":"APCP-CRECHE CROQUE LUNE","nature":"21318","libelleNature":"AUTRES BATIMENTS PUBLICS","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_LUN","libelleAntenne":"CRECHE CROQUE LUNE","budget":111059.68,"realise":89837.48,"mandate":64399.96,"ens":25437.52,"disponible":21222.2,"exercice":"2026"},{"id":"202450_21318_CR_ILLATS","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21318","libelleNature":"AUTRES BATIMENTS PUBLICS","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_ILLATS","libelleAntenne":"CRECHE ILLATS LES PTITS GRIBOUILLES","budget":960.0,"realise":960.0,"mandate":960.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_CR_CADI","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_CADI","libelleAntenne":"CRECHE OCABELOU CADILLAC","budget":14510.0,"realise":13025.94,"mandate":13025.94,"ens":0.0,"disponible":1484.06,"exercice":"2026"},{"id":"202450_21351_CR_LUN","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_LUN","libelleAntenne":"CRECHE CROQUE LUNE","budget":6356.08,"realise":6351.92,"mandate":3537.28,"ens":2814.64,"disponible":4.16,"exercice":"2026"},{"id":"202450_21351_CR_PORTET","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_PORTET","libelleAntenne":"CRECHE BIDIBULES PORTETS","budget":4749.92,"realise":4749.92,"mandate":4749.92,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_CR_PREI","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4221","libelleFonction":"Crèches et garderies","service":"CREC","antenne":"CR_PREI","libelleAntenne":"CRECHE PREIGNAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"2024103_2031_RPE_CADI","operation":"2024103","libelleOperation":"APCP-ETUDES DIVERSES","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"4228","libelleFonction":"Autres actions en faveur de la petite enfance","service":"RPE","antenne":"RPE_CADI","libelleAntenne":"RELAIS PETITE ENFANCE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21318_RPE_ILLATS","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21318","libelleNature":"AUTRES BATIMENTS PUBLICS","fonction":"4228","libelleFonction":"Autres actions en faveur de la petite enfance","service":"RPE","antenne":"RPE_ILLATS","libelleAntenne":"RELAIS PETITE ENFANCE","budget":400.0,"realise":400.0,"mandate":400.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202504_21318_RPE_CADI","operation":"202504","libelleOperation":"APCP RENOVATION ENERGETIQUE","nature":"21318","libelleNature":"AUTRES BATIMENTS PUBLICS","fonction":"4228","libelleFonction":"Autres actions en faveur de la petite enfance","service":"RPE","antenne":"RPE_CADI","libelleAntenne":"RELAIS PETITE ENFANCE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_RPE_CADI","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4228","libelleFonction":"Autres actions en faveur de la petite enfance","service":"RPE","antenne":"RPE_CADI","libelleAntenne":"RELAIS PETITE ENFANCE","budget":5475.6,"realise":5475.6,"mandate":0.0,"ens":5475.6,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_RPE_PORTET","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4228","libelleFonction":"Autres actions en faveur de la petite enfance","service":"RPE","antenne":"RPE_PORTET","libelleAntenne":"RELAIS PETITE ENFANCE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202504_21351_RPE_CADI","operation":"202504","libelleOperation":"APCP RENOVATION ENERGETIQUE","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"4228","libelleFonction":"Autres actions en faveur de la petite enfance","service":"RPE","antenne":"RPE_CADI","libelleAntenne":"RELAIS PETITE ENFANCE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202504_2031_TECH_CS","operation":"202504","libelleOperation":"APCP RENOVATION ENERGETIQUE","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"510","libelleFonction":"Services communs","service":"TEC1","antenne":"TECH_CS","libelleAntenne":"CHARGES DE STRUCTURE ST","budget":25000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":25000.0,"exercice":"2026"},{"id":"202504_21351_TECH_CS","operation":"202504","libelleOperation":"APCP RENOVATION ENERGETIQUE","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"510","libelleFonction":"Services communs","service":"TEC1","antenne":"TECH_CS","libelleAntenne":"CHARGES DE STRUCTURE ST","budget":25000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":25000.0,"exercice":"2026"},{"id":"202494_2151_ZAE","operation":"202494","libelleOperation":"APCP-SOUTIEN ECONOMIQUE ZAE","nature":"2151","libelleNature":"RESEAUX DE VOIRIE","fonction":"510","libelleFonction":"Services communs","service":"ZA","antenne":"ZAE","libelleAntenne":"ZONE D'ACTIVITÉS ÉCONOMIQUES","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_2181_ATEL_TECH","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"510","libelleFonction":"Services communs","service":"TEC4","antenne":"ATEL_TECH","libelleAntenne":"ATELIER TECHNIQUE PODENSAC","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202496_2031_SOC_GDVL","operation":"202496","libelleOperation":"APCP-TERRAIN FAMILIAL LOCATIF","nature":"2031","libelleNature":"FRAIS D'ETUDES","fonction":"554","libelleFonction":"Aire d'accueil des gens du voyage","service":"DVSL","antenne":"SOC_GDVL","libelleAntenne":"TERRAIN LOCATIF GDV LANDIRAS","budget":100000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":100000.0,"exercice":"2026"},{"id":"202496_2128_SOC_GDVL","operation":"202496","libelleOperation":"APCP-TERRAIN FAMILIAL LOCATIF","nature":"2128","libelleNature":"AUTRES AGENCEMENTS ET AMENAGEMENTS","fonction":"554","libelleFonction":"Aire d'accueil des gens du voyage","service":"DVSL","antenne":"SOC_GDVL","libelleAntenne":"TERRAIN LOCATIF GDV LANDIRAS","budget":400000.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":400000.0,"exercice":"2026"},{"id":"202450_21318_SOC_URL","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21318","libelleNature":"AUTRES BATIMENTS PUBLICS","fonction":"555","libelleFonction":"Logement social","service":"DVSL","antenne":"SOC_URL","libelleAntenne":"LOGEMENTS SOCIAUX EMMAUS LESTIAC","budget":3245.0,"realise":3244.51,"mandate":0.0,"ens":3244.51,"disponible":0.49,"exercice":"2026"},{"id":"202494_2128_CS_ECO","operation":"202494","libelleOperation":"APCP-SOUTIEN ECONOMIQUE ZAE","nature":"2128","libelleNature":"AUTRES AGENCEMENTS ET AMENAGEMENTS","fonction":"60","libelleFonction":"Services communs","service":"ECO","antenne":"CS_ECO","libelleAntenne":"CHARGES STRUCTURE ECO","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"107_21538_","operation":"107","libelleOperation":"ZA PAYS DE PODENSAC CERONS ILLATS","nature":"21538","libelleNature":"AUTRES RESEAUX","fonction":"60","libelleFonction":"Services communs","service":"","antenne":"","libelleAntenne":"PAS D' ANTENNE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"107_2181_","operation":"107","libelleOperation":"ZA PAYS DE PODENSAC CERONS ILLATS","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"60","libelleFonction":"Services communs","service":"","antenne":"","libelleAntenne":"PAS D' ANTENNE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_2188_CAFE_LIB-H","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"2188","libelleNature":"AUTRES","fonction":"60","libelleFonction":"Services communs","service":"CDLI","antenne":"CAFE_LIB-H","libelleAntenne":"IMMEUBLE CAFE LIBERTE","budget":2770.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":2770.0,"exercice":"2026"},{"id":"202487_2181_LARO_REST","operation":"202487","libelleOperation":"APCP-TOURISME","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"633","libelleFonction":"Développement touristique","service":"TOUR","antenne":"LARO_REST","libelleAntenne":"LAC LAROMET RESTAURANT","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_21351_ENS_LARO","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"21351","libelleNature":"BATIMENTS PUBLICS","fonction":"70","libelleFonction":"Services communs","service":"ENV","antenne":"ENS_LARO","libelleAntenne":"ENS LAROMET","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202450_2181_ENS_LARO","operation":"202450","libelleOperation":"APCP-INVESTISSEMENTS RECURRENTS","nature":"2181","libelleNature":"INSTALL. GENERALES, AGENCEMENTS ET AMENAG. DIVERS","fonction":"70","libelleFonction":"Services communs","service":"ENV","antenne":"ENS_LARO","libelleAntenne":"ENS LAROMET","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"202482_21828_ILE_RAY","operation":"202482","libelleOperation":"APCP-PARC VEHICULES CDC","nature":"21828","libelleNature":"AUTRES MATERIELS DE TRANSPORT","fonction":"70","libelleFonction":"Services communs","service":"ENV","antenne":"ILE_RAY","libelleAntenne":"ILE DE RAYMOND","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"101_20422_","operation":"101","libelleOperation":"AIRE DE COVOITURAGE","nature":"20422","libelleNature":"BATIMENTS ET INSTALLATIONS","fonction":"845","libelleFonction":"Voirie communale","service":"","antenne":"","libelleAntenne":"PAS D' ANTENNE","budget":0.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":0.0,"exercice":"2026"},{"id":"2024220_21751_","operation":"2024220","libelleOperation":"programme de voirie 2024-2027","nature":"21751","libelleNature":"RESEAUX DE VOIRIE","fonction":"845","libelleFonction":"Voirie communale","service":"","antenne":"","libelleAntenne":"PAS D' ANTENNE","budget":304098.4,"realise":255872.16,"mandate":255872.16,"ens":0.0,"disponible":48226.24,"exercice":"2026"},{"id":"220_2317_","operation":"220","libelleOperation":"PROG VOIRIE 2020","nature":"2317","libelleNature":"IMMO. RECUES AU TITRE D'UNE MISE A DISPO.","fonction":"845","libelleFonction":"Voirie communale","service":"","antenne":"","libelleAntenne":"PAS D' ANTENNE","budget":360.0,"realise":0.0,"mandate":0.0,"ens":0.0,"disponible":360.0,"exercice":"2026"}];
 
-let allChantiers = [];
-let allLines = [];
-let filteredLines = [];
-let sortKey = 'code';
-let sortAsc = true;
-let editLineId = null;
-let editChantierId = null;
-let importParsed = [];
+const col = db.collection('chantiers_annots'); // annotations per line
+let annotations = {}; // id -> {comment, subvention, financeur, echeance}
+let allLines = []; // merged base + annotations
+let filtered = [];
+let sortKey = 'operation', sortAsc = true;
+let editId = null;
+let importedLines = null;
+
+const ANNOTS_KEY = 'chantiers_annotations';
+
+function saveAnnotsLocal() {
+  try { localStorage.setItem(ANNOTS_KEY, JSON.stringify(annotations)); } catch(_) {}
+}
+function loadAnnotsLocal() {
+  try { const r = localStorage.getItem(ANNOTS_KEY); return r ? JSON.parse(r) : {}; } catch(_) { return {}; }
+}
 
 async function loadData() {
-  try {
-    const [csSnap, lsSnap] = await Promise.all([
-      chantiersCol.orderBy('createdAt', 'desc').get(),
-      linesCol.orderBy('code').get()
-    ]);
-    allChantiers = csSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    allLines = lsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    populateChantierSelects();
-    applyFilters();
-    renderChantiersList();
-    renderStats();
-  } catch(e) {
-    console.error(e);
-    showNotif('Erreur chargement: ' + e.message, 'error');
-  }
+  annotations = loadAnnotsLocal();
+  mergeData(BASE_LINES);
 }
 
-function populateChantierSelects() {
-  const opts = allChantiers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  const all = `<option value="">Tous les chantiers</option>` + opts;
-  document.getElementById('filter-chantier').innerHTML = all;
-  document.getElementById('line-chantier-select').innerHTML = opts || '<option value="">— Aucun chantier —</option>';
-  document.getElementById('import-chantier').innerHTML = opts || '<option value="">— Aucun chantier —</option>';
+function mergeData(baselines) {
+  allLines = baselines.map(b => ({
+    ...b,
+    comment: annotations[b.id]?.comment || '',
+    subvention: annotations[b.id]?.subvention || 0,
+    financeur: annotations[b.id]?.financeur || '',
+    echeance: annotations[b.id]?.echeance || '',
+  }));
+  populateOpFilter();
+  applyFilters();
+  renderStatsTab();
 }
 
-// ─── FILTERS & TABLE ─────────────────────────────────────────────────────
+// ─── FILTERS ──────────────────────────────────────────────────────────────
+function populateOpFilter() {
+  const ops = [...new Set(allLines.map(l => l.operation))].sort();
+  const sel = document.getElementById('filter-op');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Toutes les opérations</option>' +
+    ops.map(op => {
+      const name = allLines.find(l => l.operation === op)?.libelleOperation || '';
+      return `<option value="${op}">${op} — ${name}</option>`;
+    }).join('');
+  if (cur) sel.value = cur;
+}
+
 function applyFilters() {
-  const chantier = document.getElementById('filter-chantier').value;
+  const op = document.getElementById('filter-op').value;
   const search = (document.getElementById('filter-search').value || '').toLowerCase();
   const status = document.getElementById('filter-status').value;
+  const hideZeros = document.getElementById('filter-zeros').value === 'hide';
 
-  filteredLines = allLines.filter(l => {
-    if (chantier && l.chantierId !== chantier) return false;
-    if (search && !`${l.code} ${l.libelle}`.toLowerCase().includes(search)) return false;
+  filtered = allLines.filter(l => {
+    if (op && l.operation !== op) return false;
+    if (hideZeros && l.budget === 0 && l.realise === 0) return false;
+    if (search && !`${l.libelleOperation} ${l.libelleNature} ${l.libelleAntenne} ${l.nature}`.toLowerCase().includes(search)) return false;
     if (status) {
-      const pct = l.budget > 0 ? (l.engage || 0) / l.budget : 0;
+      const pct = l.budget > 0 ? l.realise / l.budget : (l.realise > 0 ? 999 : 0);
       if (status === 'ok' && !(pct > 0 && pct <= 0.75)) return false;
       if (status === 'warn' && !(pct > 0.75 && pct <= 1)) return false;
       if (status === 'over' && pct <= 1) return false;
       if (status === 'zero' && pct > 0) return false;
+      if (status === 'active' && l.budget === 0) return false;
     }
     return true;
   });
 
-  filteredLines.sort((a, b) => {
+  filtered.sort((a, b) => {
     let va = a[sortKey] ?? '', vb = b[sortKey] ?? '';
     if (typeof va === 'string') va = va.toLowerCase();
     if (typeof vb === 'string') vb = vb.toLowerCase();
     return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
   });
 
-  renderLinesTable();
-  renderBudgetStats();
+  renderTable();
+  renderGlobalStats();
 }
 
-function sortBy(key) {
-  if (sortKey === key) sortAsc = !sortAsc;
-  else { sortKey = key; sortAsc = true; }
+function sortBy(k) {
+  if (sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; }
   applyFilters();
 }
 
+// ─── FORMAT HELPERS ───────────────────────────────────────────────────────
 function fmt(n) {
   if (n == null || n === '') return '—';
-  return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+  return Number(n).toLocaleString('fr-FR', {minimumFractionDigits:0, maximumFractionDigits:0}) + ' €';
 }
-
-function progressColor(pct) {
+function pColor(pct) {
   if (pct <= 0) return '#c8d0da';
   if (pct <= 0.75) return '#1e8a4a';
   if (pct <= 1) return '#e8951e';
   return '#c0392b';
 }
-
-function statusBadge(l) {
-  if (!l.budget) return '<span class="badge badge-zero">Non budgété</span>';
-  const pct = (l.engage || 0) / l.budget;
+function badge(l) {
+  if (l.budget === 0 && l.realise === 0) return '<span class="badge badge-zero">Inactif</span>';
+  if (l.budget === 0 && l.realise > 0) return '<span class="badge badge-over">Sans budget</span>';
+  const pct = l.realise / l.budget;
   if (pct <= 0) return '<span class="badge badge-zero">Non commencé</span>';
   if (pct <= 0.75) return '<span class="badge badge-ok">OK</span>';
   if (pct <= 1) return '<span class="badge badge-warn">Attention</span>';
   return '<span class="badge badge-over">Dépassé</span>';
 }
 
-function renderLinesTable() {
+// ─── TABLE ────────────────────────────────────────────────────────────────
+function renderTable() {
   const tbody = document.getElementById('lines-body');
-  document.getElementById('lines-count').textContent = `${filteredLines.length} ligne(s)`;
+  document.getElementById('lines-count').textContent = `${filtered.length} ligne(s)`;
 
-  if (!filteredLines.length) {
-    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="icon">📋</div><h3>Aucune ligne</h3><p>Ajoutez des lignes ou modifiez les filtres</p></div></td></tr>`;
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="icon">📋</div><h3>Aucune ligne</h3></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filteredLines.map(l => {
-    const budget = l.budget || 0;
-    const engage = l.engage || 0;
-    const paye = l.paye || 0;
-    const subv = l.subvention || 0;
-    const reste = budget - engage;
-    const pct = budget > 0 ? Math.min(engage / budget, 1.5) : 0;
-    const pctDisplay = budget > 0 ? Math.round(engage / budget * 100) : 0;
-    const color = progressColor(budget > 0 ? engage / budget : 0);
-    const chantier = allChantiers.find(c => c.id === l.chantierId);
-    const comment = l.comment || '';
-
-    return `<tr ondblclick="openLineModal('${l.id}')">
-      <td><span class="code-cell">${l.code || '—'}</span></td>
-      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.libelle || ''}">${l.libelle || '—'}</td>
-      <td style="font-size:.8rem;color:var(--gray)">${chantier ? chantier.name : '—'}</td>
-      <td class="amount-cell amount-pos">${fmt(budget)}</td>
-      <td class="amount-cell ${engage > budget ? 'amount-neg' : 'amount-pos'}">${fmt(engage)}</td>
-      <td class="amount-cell amount-pos">${fmt(paye)}</td>
-      <td class="amount-cell" style="color:var(--success)">${subv ? fmt(subv) : '—'}</td>
-      <td class="amount-cell ${reste < 0 ? 'amount-neg' : 'amount-pos'}">${fmt(reste)}</td>
+  let lastOp = null;
+  tbody.innerHTML = filtered.map(l => {
+    const pct = l.budget > 0 ? Math.min(l.realise / l.budget, 1.5) : (l.realise > 0 ? 1.5 : 0);
+    const pctDisp = l.budget > 0 ? Math.round(l.realise / l.budget * 100) : (l.realise > 0 ? '∞' : 0);
+    const color = pColor(l.budget > 0 ? l.realise / l.budget : (l.realise > 0 ? 999 : 0));
+    const com = l.comment || '';
+    const subv = l.subvention ? `<span style="color:var(--success);font-weight:700">${fmt(l.subvention)}</span>` : '—';
+    let opRow = '';
+    if (l.operation !== lastOp) {
+      lastOp = l.operation;
+      const opLines = filtered.filter(x => x.operation === l.operation);
+      const opBudget = opLines.reduce((s,x) => s + x.budget, 0);
+      const opRealise = opLines.reduce((s,x) => s + x.realise, 0);
+      const opPct = opBudget > 0 ? Math.round(opRealise/opBudget*100) : '';
+      opRow = `<tr class="op-row">
+        <td colspan="3" style="padding:8px 12px"><span class="code-tag">${l.operation}</span> <strong style="margin-left:8px">${l.libelleOperation}</strong> <span style="margin-left:8px;font-size:.75rem;color:var(--gray)">${l.libelleFonction}</span></td>
+        <td class="amt">${fmt(opBudget)}</td>
+        <td></td><td></td>
+        <td class="amt ${opBudget - opRealise < 0 ? 'amt-neg' : 'amt-pos'}">${fmt(opBudget - opRealise)}</td>
+        <td colspan="4"><span style="color:${pColor(opBudget>0?opRealise/opBudget:0)};font-weight:700">${opPct ? opPct+'%' : ''}</span></td>
+      </tr>`;
+    }
+    return opRow + `<tr ondblclick="openLineModal('${l.id}')">
+      <td style="padding-left:24px"><span class="code-tag">${l.nature}</span></td>
+      <td style="font-size:.8rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.libelleNature}">${l.libelleNature}</td>
+      <td style="font-size:.79rem;color:var(--gray)">${l.libelleAntenne || '—'}</td>
+      <td class="amt amt-pos">${fmt(l.budget)}</td>
+      <td class="amt" style="color:#7a4f00">${l.ens ? fmt(l.ens) : '—'}</td>
+      <td class="amt amt-pos">${l.mandate ? fmt(l.mandate) : '—'}</td>
+      <td class="amt ${l.disponible < 0 ? 'amt-neg' : 'amt-pos'}">${fmt(l.disponible)}</td>
       <td>
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct*100,100)}%;background:${color}"></div></div>
-          <span class="progress-pct" style="color:${color}">${pctDisplay}%</span>
+        <div class="prog-wrap">
+          <div class="prog-bar"><div class="prog-fill" style="width:${Math.min(pct*100,100)}%;background:${color}"></div></div>
+          <span class="prog-pct" style="color:${color}">${pctDisp}%</span>
         </div>
       </td>
-      <td class="comment-cell ${comment ? '' : 'empty'}" onclick="openLineModal('${l.id}')" title="${comment}">${comment || 'Ajouter…'}</td>
-      <td><button class="action-btn" onclick="openLineModal('${l.id}')" title="Modifier">✏️</button></td>
+      <td>${subv}</td>
+      <td class="comment-cell ${com ? '' : 'empty'}" onclick="openLineModal('${l.id}')" title="${com}">${com || '+'}</td>
+      <td><button class="action-btn" onclick="openLineModal('${l.id}')">✏️</button></td>
     </tr>`;
   }).join('');
 }
 
-function renderBudgetStats() {
-  const lines = filteredLines;
-  const totalBudget = lines.reduce((s, l) => s + (l.budget || 0), 0);
-  const totalEngage = lines.reduce((s, l) => s + (l.engage || 0), 0);
-  const totalPaye = lines.reduce((s, l) => s + (l.paye || 0), 0);
-  const totalSubv = lines.reduce((s, l) => s + (l.subvention || 0), 0);
-  const reste = totalBudget - totalEngage;
-  const pct = totalBudget > 0 ? Math.round(totalEngage / totalBudget * 100) : 0;
-
-  document.getElementById('budget-stats').innerHTML = `
-    <div class="stat-card"><div class="label">Budget total</div><div class="value">${fmt(totalBudget)}</div><div class="sub">${lines.length} lignes</div></div>
-    <div class="stat-card accent"><div class="label">Engagé</div><div class="value">${fmt(totalEngage)}</div><div class="sub">${pct}% du budget</div></div>
-    <div class="stat-card success"><div class="label">Payé</div><div class="value">${fmt(totalPaye)}</div><div class="sub">${totalEngage ? Math.round(totalPaye/totalEngage*100) : 0}% de l'engagé</div></div>
-    <div class="stat-card"><div class="label">Subventions</div><div class="value" style="color:var(--primary)">${fmt(totalSubv)}</div><div class="sub">Net: ${fmt(totalBudget - totalSubv)}</div></div>
-    <div class="stat-card ${reste < 0 ? 'danger' : ''}"><div class="label">Reste disponible</div><div class="value ${reste < 0 ? '' : 'success'}">${fmt(reste)}</div><div class="sub">${reste < 0 ? '⚠️ Dépassement' : 'Disponible'}</div></div>
+function renderGlobalStats() {
+  const totalBudget = filtered.reduce((s,l) => s + l.budget, 0);
+  const totalRealise = filtered.reduce((s,l) => s + l.realise, 0);
+  const totalMandate = filtered.reduce((s,l) => s + l.mandate, 0);
+  const totalEns = filtered.reduce((s,l) => s + l.ens, 0);
+  const totalSubv = filtered.reduce((s,l) => s + (l.subvention||0), 0);
+  const pct = totalBudget > 0 ? Math.round(totalRealise / totalBudget * 100) : 0;
+  document.getElementById('global-stats').innerHTML = `
+    <div class="stat-card"><div class="label">Budget total</div><div class="value">${fmt(totalBudget)}</div><div class="sub">${filtered.filter(l=>l.budget>0).length} lignes actives</div></div>
+    <div class="stat-card"><div class="label">Réalisé (mandaté+ENS)</div><div class="value" style="color:var(--accent)">${fmt(totalRealise)}</div><div class="sub">${pct}% du budget</div></div>
+    <div class="stat-card"><div class="label">Mandaté</div><div class="value" style="color:var(--success)">${fmt(totalMandate)}</div><div class="sub">Payé effectivement</div></div>
+    <div class="stat-card"><div class="label">ENS (en cours)</div><div class="value" style="color:#b06000">${fmt(totalEns)}</div><div class="sub">Engagé non mandaté</div></div>
+    <div class="stat-card"><div class="label">Disponible</div><div class="value" style="color:${totalBudget-totalRealise<0?'var(--danger)':'var(--primary)'}">${fmt(totalBudget - totalRealise)}</div></div>
+    ${totalSubv ? `<div class="stat-card"><div class="label">Subventions saisies</div><div class="value" style="color:var(--success)">${fmt(totalSubv)}</div></div>` : ''}
   `;
 }
 
-// ─── CHANTIERS LIST ──────────────────────────────────────────────────────
-function renderChantiersList() {
-  const el = document.getElementById('chantiers-list');
-  if (!allChantiers.length) {
-    el.innerHTML = `<div class="empty-state"><div class="icon">🏗️</div><h3>Aucun chantier</h3><p>Créez votre premier chantier</p></div>`;
-    return;
-  }
-  el.innerHTML = allChantiers.map(c => {
-    const lines = allLines.filter(l => l.chantierId === c.id);
-    const budget = lines.reduce((s, l) => s + (l.budget || 0), 0);
-    const engage = lines.reduce((s, l) => s + (l.engage || 0), 0);
-    const pct = budget > 0 ? Math.round(engage / budget * 100) : 0;
-    const color = progressColor(budget > 0 ? engage / budget : 0);
-    return `<div class="chantier-card" ondblclick="openChantierModal('${c.id}')">
-      <div class="chantier-header">
+// ─── OPERATIONS TAB ───────────────────────────────────────────────────────
+function renderOpsTab() {
+  const ops = {};
+  allLines.forEach(l => {
+    if (!ops[l.operation]) ops[l.operation] = { code: l.operation, label: l.libelleOperation, fonction: l.libelleFonction, lines: [] };
+    ops[l.operation].lines.push(l);
+  });
+  const el = document.getElementById('ops-list');
+  el.innerHTML = Object.values(ops).sort((a,b) => a.code > b.code ? 1 : -1).map(op => {
+    const budget = op.lines.reduce((s,l) => s+l.budget,0);
+    const realise = op.lines.reduce((s,l) => s+l.realise,0);
+    const mandate = op.lines.reduce((s,l) => s+l.mandate,0);
+    const ens = op.lines.reduce((s,l) => s+l.ens,0);
+    const dispo = op.lines.reduce((s,l) => s+l.disponible,0);
+    const subv = op.lines.reduce((s,l) => s+(l.subvention||0),0);
+    const pct = budget > 0 ? Math.min(realise/budget,1.5) : (realise>0?1.5:0);
+    const pctD = budget > 0 ? Math.round(realise/budget*100) : (realise>0?'∞':0);
+    const color = pColor(budget>0?realise/budget:(realise>0?999:0));
+    const activeLines = op.lines.filter(l=>l.budget>0||l.realise>0);
+    const withComment = op.lines.filter(l=>l.comment);
+    return `<div class="op-detail">
+      <div class="op-detail-hdr" onclick="toggleOpDetail('op_${op.code}')">
         <div>
-          <div class="chantier-name">${c.name}</div>
-          <div class="chantier-meta">${c.ref ? c.ref + ' · ' : ''}${c.moa || ''} ${c.debut ? '· ' + c.debut : ''}</div>
+          <div><span style="font-size:.75rem;opacity:.8">${op.code}</span> — <strong>${op.label}</strong></div>
+          <div style="font-size:.75rem;opacity:.7;margin-top:3px">${op.fonction} · ${activeLines.length} ligne(s) active(s)</div>
         </div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-          <span style="font-size:.8rem;color:var(--gray)">${lines.length} ligne(s)</span>
-          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openChantierModal('${c.id}')">✏️ Modifier</button>
+        <div style="margin-left:auto;text-align:right;min-width:200px">
+          <div style="font-size:.85rem">${fmt(budget)} budgété · <span style="color:${color}">${fmt(realise)} réalisé (${pctD}%)</span></div>
+          <div style="margin-top:6px"><div style="background:rgba(255,255,255,.3);border-radius:4px;height:6px;overflow:hidden"><div style="width:${Math.min(pct*100,100)}%;height:100%;background:white;border-radius:4px"></div></div></div>
+        </div>
+        <span style="margin-left:16px;font-size:1.2rem" id="op_${op.code}_icon">▾</span>
+      </div>
+      <div id="op_${op.code}" style="display:none">
+        <div class="op-detail-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+            <div class="stat-card"><div class="label">Budget</div><div class="value" style="font-size:1.1rem">${fmt(budget)}</div></div>
+            <div class="stat-card"><div class="label">ENS</div><div class="value" style="font-size:1.1rem;color:#b06000">${fmt(ens)}</div></div>
+            <div class="stat-card"><div class="label">Mandaté</div><div class="value" style="font-size:1.1rem;color:var(--success)">${fmt(mandate)}</div></div>
+            <div class="stat-card"><div class="label">Disponible</div><div class="value" style="font-size:1.1rem;color:${dispo<0?'var(--danger)':'var(--primary)'}">${fmt(dispo)}</div></div>
+            ${subv ? `<div class="stat-card"><div class="label">Subventions</div><div class="value" style="font-size:1.1rem;color:var(--success)">${fmt(subv)}</div></div>` : ''}
+          </div>
+          <table style="font-size:.82rem">
+            <thead><tr><th>Nature</th><th>Antenne / Site</th><th style="text-align:right">Budgété</th><th style="text-align:right">ENS</th><th style="text-align:right">Mandaté</th><th style="text-align:right">Disponible</th><th>Avancement</th><th>Commentaire</th></tr></thead>
+            <tbody>${op.lines.filter(l=>l.budget>0||l.realise>0).map(l => {
+              const lp = l.budget>0?Math.min(l.realise/l.budget,1.5):(l.realise>0?1.5:0);
+              const lpd = l.budget>0?Math.round(l.realise/l.budget*100):(l.realise>0?'∞':0);
+              const lc = pColor(l.budget>0?l.realise/l.budget:(l.realise>0?999:0));
+              return `<tr ondblclick="openLineModal('${l.id}')">
+                <td><span class="code-tag">${l.nature}</span> <span style="font-size:.78rem;color:var(--gray)">${l.libelleNature}</span></td>
+                <td style="font-size:.78rem;color:var(--gray)">${l.libelleAntenne||'—'}</td>
+                <td class="amt">${fmt(l.budget)}</td>
+                <td class="amt" style="color:#b06000">${l.ens?fmt(l.ens):'—'}</td>
+                <td class="amt amt-pos">${l.mandate?fmt(l.mandate):'—'}</td>
+                <td class="amt ${l.disponible<0?'amt-neg':'amt-pos'}">${fmt(l.disponible)}</td>
+                <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(lp*100,100)}%;background:${lc}"></div></div><span class="prog-pct" style="color:${lc}">${lpd}%</span></div></td>
+                <td class="comment-cell ${l.comment?'':'empty'}" onclick="openLineModal('${l.id}')">${l.comment||'+'}</td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+          ${withComment.length ? `<div style="margin-top:12px"><div style="font-size:.75rem;font-weight:700;color:var(--gray);margin-bottom:6px">NOTES</div>${withComment.map(l=>`<div style="font-size:.82rem;padding:6px 10px;background:#f5f8ff;border-radius:6px;margin-bottom:4px"><strong>${l.libelleNature} — ${l.libelleAntenne}</strong><br>${l.comment}${l.echeance?`<br><span style="color:var(--accent)">📅 ${l.echeance}</span>`:''}</div>`).join('')}</div>` : ''}
         </div>
       </div>
-      ${budget ? `<div class="chantier-progress">
-        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--gray);margin-bottom:4px">
-          <span>Engagé: ${fmt(engage)} / ${fmt(budget)}</span><span style="color:${color};font-weight:700">${pct}%</span>
-        </div>
-        <div class="progress-bar" style="height:10px"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
-      </div>` : '<div style="font-size:.8rem;color:var(--gray);margin-top:4px">Aucune ligne budgétaire</div>'}
-      ${c.description ? `<div style="margin-top:10px;font-size:.82rem;color:var(--gray)">${c.description}</div>` : ''}
     </div>`;
   }).join('');
 }
 
-// ─── STATS ────────────────────────────────────────────────────────────────
-function renderStats() {
-  const totalBudget = allLines.reduce((s, l) => s + (l.budget || 0), 0);
-  const totalEngage = allLines.reduce((s, l) => s + (l.engage || 0), 0);
-  const totalPaye = allLines.reduce((s, l) => s + (l.paye || 0), 0);
-  const totalSubv = allLines.reduce((s, l) => s + (l.subvention || 0), 0);
+function toggleOpDetail(id) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById(id + '_icon');
+  if (el.style.display === 'none') { el.style.display = 'block'; icon.textContent = '▴'; }
+  else { el.style.display = 'none'; icon.textContent = '▾'; }
+}
+
+// ─── STATS TAB ────────────────────────────────────────────────────────────
+function renderStatsTab() {
+  const totalB = allLines.reduce((s,l)=>s+l.budget,0);
+  const totalR = allLines.reduce((s,l)=>s+l.realise,0);
+  const totalM = allLines.reduce((s,l)=>s+l.mandate,0);
+  const totalE = allLines.reduce((s,l)=>s+l.ens,0);
+  const totalD = allLines.reduce((s,l)=>s+l.disponible,0);
   document.getElementById('stats-global').innerHTML = `
-    <div class="stat-card"><div class="label">Budget global</div><div class="value">${fmt(totalBudget)}</div><div class="sub">${allChantiers.length} chantiers · ${allLines.length} lignes</div></div>
-    <div class="stat-card accent"><div class="label">Total engagé</div><div class="value">${fmt(totalEngage)}</div><div class="sub">${totalBudget ? Math.round(totalEngage/totalBudget*100) : 0}% du budget</div></div>
-    <div class="stat-card success"><div class="label">Total payé</div><div class="value">${fmt(totalPaye)}</div></div>
-    <div class="stat-card"><div class="label">Subventions totales</div><div class="value" style="color:var(--primary)">${fmt(totalSubv)}</div><div class="sub">Net: ${fmt(totalBudget-totalSubv)}</div></div>
+    <div class="stat-card"><div class="label">Budget global 2026</div><div class="value">${fmt(totalB)}</div><div class="sub">${allLines.filter(l=>l.budget>0).length} lignes actives / ${allLines.length} total</div></div>
+    <div class="stat-card"><div class="label">Total réalisé</div><div class="value" style="color:var(--accent)">${fmt(totalR)}</div><div class="sub">${totalB>0?Math.round(totalR/totalB*100):0}% du budget</div></div>
+    <div class="stat-card"><div class="label">Mandaté</div><div class="value" style="color:var(--success)">${fmt(totalM)}</div></div>
+    <div class="stat-card"><div class="label">ENS</div><div class="value" style="color:#b06000">${fmt(totalE)}</div></div>
+    <div class="stat-card"><div class="label">Disponible global</div><div class="value" style="color:${totalD<0?'var(--danger)':'var(--primary)'}">${fmt(totalD)}</div></div>
   `;
 
-  const tbody = document.getElementById('stats-by-chantier');
-  tbody.innerHTML = allChantiers.map(c => {
-    const lines = allLines.filter(l => l.chantierId === c.id);
-    const budget = lines.reduce((s,l) => s+(l.budget||0), 0);
-    const engage = lines.reduce((s,l) => s+(l.engage||0), 0);
-    const paye = lines.reduce((s,l) => s+(l.paye||0), 0);
-    const subv = lines.reduce((s,l) => s+(l.subvention||0), 0);
-    const reste = budget - engage;
-    const pct = budget > 0 ? Math.min(engage/budget,1.5) : 0;
-    const color = progressColor(budget > 0 ? engage/budget : 0);
+  const ops = {};
+  allLines.forEach(l => {
+    if (!ops[l.operation]) ops[l.operation] = { code: l.operation, label: l.libelleOperation, budget:0,realise:0,mandate:0,ens:0,dispo:0 };
+    ops[l.operation].budget += l.budget;
+    ops[l.operation].realise += l.realise;
+    ops[l.operation].mandate += l.mandate;
+    ops[l.operation].ens += l.ens;
+    ops[l.operation].dispo += l.disponible;
+  });
+
+  document.getElementById('stats-ops-body').innerHTML = Object.values(ops).sort((a,b)=>a.code>b.code?1:-1).map(op => {
+    const pct = op.budget>0?Math.min(op.realise/op.budget,1.5):(op.realise>0?1.5:0);
+    const pctD = op.budget>0?Math.round(op.realise/op.budget*100):(op.realise>0?'∞':0);
+    const color = pColor(op.budget>0?op.realise/op.budget:(op.realise>0?999:0));
     return `<tr>
-      <td style="font-weight:600">${c.name}</td>
-      <td class="amount-cell">${fmt(budget)}</td>
-      <td class="amount-cell ${engage>budget?'amount-neg':'amount-pos'}">${fmt(engage)}</td>
-      <td class="amount-cell">${fmt(paye)}</td>
-      <td class="amount-cell" style="color:var(--success)">${fmt(subv)}</td>
-      <td class="amount-cell ${reste<0?'amount-neg':'amount-pos'}">${fmt(reste)}</td>
-      <td><div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct*100,100)}%;background:${color}"></div></div><span class="progress-pct" style="color:${color}">${Math.round(pct*100)}%</span></div></td>
+      <td><span class="code-tag">${op.code}</span></td>
+      <td style="font-weight:600">${op.label}</td>
+      <td class="amt">${fmt(op.budget)}</td>
+      <td class="amt" style="color:#b06000">${fmt(op.ens)}</td>
+      <td class="amt amt-pos">${fmt(op.mandate)}</td>
+      <td class="amt ${op.realise>op.budget?'amt-neg':'amt-pos'}">${fmt(op.realise)}</td>
+      <td class="amt ${op.dispo<0?'amt-neg':'amt-pos'}">${fmt(op.dispo)}</td>
+      <td><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:${Math.min(pct*100,100)}%;background:${color}"></div></div><span class="prog-pct" style="color:${color}">${pctD}%</span></div></td>
     </tr>`;
-  }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:20px">Aucun chantier</td></tr>`;
+  }).join('');
 }
 
 // ─── TABS ─────────────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  document.getElementById('tab-budget').style.display = tab === 'budget' ? 'block' : 'none';
-  document.getElementById('tab-chantiers').style.display = tab === 'chantiers' ? 'block' : 'none';
+  document.getElementById('tab-lignes').style.display = tab === 'lignes' ? 'block' : 'none';
+  document.getElementById('tab-operations').style.display = tab === 'operations' ? 'block' : 'none';
   document.getElementById('tab-stats').style.display = tab === 'stats' ? 'block' : 'none';
-  if (tab === 'stats') renderStats();
+  if (tab === 'operations') renderOpsTab();
+  if (tab === 'stats') renderStatsTab();
 }
 
 // ─── LINE MODAL ───────────────────────────────────────────────────────────
 function openLineModal(id) {
-  editLineId = id || null;
-  const line = id ? allLines.find(l => l.id === id) : null;
-  document.getElementById('line-modal-title').textContent = line ? 'Modifier la ligne' : 'Nouvelle ligne';
-  document.getElementById('line-code').value = line?.code || '';
-  document.getElementById('line-libelle').value = line?.libelle || '';
-  document.getElementById('line-budget').value = line?.budget || '';
-  document.getElementById('line-engage').value = line?.engage || '';
-  document.getElementById('line-paye').value = line?.paye || '';
-  document.getElementById('line-subvention').value = line?.subvention || '';
-  document.getElementById('line-annee').value = line?.annee || new Date().getFullYear();
-  document.getElementById('line-comment').value = line?.comment || '';
-  if (line?.chantierId) document.getElementById('line-chantier-select').value = line.chantierId;
-  document.getElementById('line-delete-btn').style.display = line ? 'inline-flex' : 'none';
+  editId = id;
+  const l = allLines.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('line-modal-info').innerHTML =
+    `<strong>${l.operation} — ${l.libelleOperation}</strong><br>` +
+    `Nature ${l.nature} : ${l.libelleNature}<br>` +
+    `Site : ${l.libelleAntenne || '—'} · Budget : ${fmt(l.budget)} · Réalisé : ${fmt(l.realise)} · Disponible : ${fmt(l.disponible)}`;
+  document.getElementById('line-subvention').value = l.subvention || '';
+  document.getElementById('line-financeur').value = l.financeur || '';
+  document.getElementById('line-comment').value = l.comment || '';
+  document.getElementById('line-echeance').value = l.echeance || '';
   document.getElementById('line-modal').style.display = 'flex';
 }
 function closeLineModal() { document.getElementById('line-modal').style.display = 'none'; }
 
 async function saveLine() {
   const data = {
-    code: document.getElementById('line-code').value.trim(),
-    libelle: document.getElementById('line-libelle').value.trim(),
-    chantierId: document.getElementById('line-chantier-select').value,
-    budget: parseFloat(document.getElementById('line-budget').value) || 0,
-    engage: parseFloat(document.getElementById('line-engage').value) || 0,
-    paye: parseFloat(document.getElementById('line-paye').value) || 0,
-    subvention: parseFloat(document.getElementById('line-subvention').value) || 0,
-    annee: parseInt(document.getElementById('line-annee').value) || new Date().getFullYear(),
     comment: document.getElementById('line-comment').value.trim(),
+    subvention: parseFloat(document.getElementById('line-subvention').value) || 0,
+    financeur: document.getElementById('line-financeur').value.trim(),
+    echeance: document.getElementById('line-echeance').value.trim(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
-  const chantier = allChantiers.find(c => c.id === data.chantierId);
-  data.chantierName = chantier?.name || '';
-
-  try {
-    if (editLineId) {
-      await linesCol.doc(editLineId).update(data);
-      const idx = allLines.findIndex(l => l.id === editLineId);
-      if (idx >= 0) allLines[idx] = { id: editLineId, ...allLines[idx], ...data };
-    } else {
-      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      const ref = await linesCol.add(data);
-      allLines.push({ id: ref.id, ...data });
-    }
-    closeLineModal();
-    applyFilters();
-    renderChantiersList();
-    renderStats();
-    showNotif('Ligne enregistrée', 'success');
-  } catch(e) { showNotif('Erreur: ' + e.message, 'error'); }
-}
-
-async function deleteLine() {
-  if (!editLineId || !confirm('Supprimer cette ligne ?')) return;
-  try {
-    await linesCol.doc(editLineId).delete();
-    allLines = allLines.filter(l => l.id !== editLineId);
-    closeLineModal();
-    applyFilters();
-    renderChantiersList();
-    showNotif('Ligne supprimée');
-  } catch(e) { showNotif('Erreur: ' + e.message, 'error'); }
-}
-
-// ─── CHANTIER MODAL ───────────────────────────────────────────────────────
-function openChantierModal(id) {
-  editChantierId = id || null;
-  const c = id ? allChantiers.find(x => x.id === id) : null;
-  document.getElementById('chantier-modal-title').textContent = c ? 'Modifier le chantier' : 'Nouveau chantier';
-  document.getElementById('chantier-name').value = c?.name || '';
-  document.getElementById('chantier-ref').value = c?.ref || '';
-  document.getElementById('chantier-moa').value = c?.moa || '';
-  document.getElementById('chantier-debut').value = c?.debut || '';
-  document.getElementById('chantier-fin').value = c?.fin || '';
-  document.getElementById('chantier-description').value = c?.description || '';
-  document.getElementById('chantier-delete-btn').style.display = c ? 'inline-flex' : 'none';
-  document.getElementById('chantier-modal').style.display = 'flex';
-}
-function closeChantierModal() { document.getElementById('chantier-modal').style.display = 'none'; }
-
-async function saveChantier() {
-  const name = document.getElementById('chantier-name').value.trim();
-  if (!name) { showNotif('Nom requis', 'error'); return; }
-  const data = {
-    name, ref: document.getElementById('chantier-ref').value.trim(),
-    moa: document.getElementById('chantier-moa').value.trim(),
-    debut: document.getElementById('chantier-debut').value,
-    fin: document.getElementById('chantier-fin').value,
-    description: document.getElementById('chantier-description').value.trim(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-  };
-  try {
-    if (editChantierId) {
-      await chantiersCol.doc(editChantierId).update(data);
-      const idx = allChantiers.findIndex(c => c.id === editChantierId);
-      if (idx >= 0) allChantiers[idx] = { id: editChantierId, ...allChantiers[idx], ...data };
-    } else {
-      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      const ref = await chantiersCol.add(data);
-      allChantiers.push({ id: ref.id, ...data });
-    }
-    closeChantierModal();
-    populateChantierSelects();
-    renderChantiersList();
-    renderStats();
-    showNotif('Chantier enregistré', 'success');
-  } catch(e) { showNotif('Erreur: ' + e.message, 'error'); }
-}
-
-async function deleteChantier() {
-  if (!editChantierId || !confirm('Supprimer ce chantier et toutes ses lignes ?')) return;
-  try {
-    const batch = db.batch();
-    allLines.filter(l => l.chantierId === editChantierId).forEach(l => batch.delete(linesCol.doc(l.id)));
-    batch.delete(chantiersCol.doc(editChantierId));
-    await batch.commit();
-    allChantiers = allChantiers.filter(c => c.id !== editChantierId);
-    allLines = allLines.filter(l => l.chantierId !== editChantierId);
-    closeChantierModal();
-    populateChantierSelects();
-    applyFilters();
-    renderChantiersList();
-    showNotif('Chantier supprimé');
-  } catch(e) { showNotif('Erreur: ' + e.message, 'error'); }
+  annotations[editId] = { ...annotations[editId], ...data };
+  saveAnnotsLocal();
+  const idx = allLines.findIndex(l => l.id === editId);
+  if (idx >= 0) allLines[idx] = { ...allLines[idx], ...data };
+  closeLineModal();
+  applyFilters();
+  showNotif('Annotation enregistrée', 'success');
 }
 
 // ─── IMPORT ───────────────────────────────────────────────────────────────
 function showImportModal() {
-  populateChantierSelects();
-  document.getElementById('import-paste').value = '';
-  document.getElementById('import-preview').style.display = 'none';
-  document.getElementById('import-confirm-btn').disabled = true;
-  importParsed = [];
+  importedLines = null;
+  document.getElementById('import-status').textContent = '';
+  document.getElementById('import-confirm-btn').style.display = 'none';
+  document.getElementById('import-file').value = '';
   document.getElementById('import-modal').style.display = 'flex';
 }
 function closeImportModal() { document.getElementById('import-modal').style.display = 'none'; }
@@ -899,110 +698,49 @@ function handleImportFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => {
-    document.getElementById('import-paste').value = ev.target.result;
-    previewImport();
-  };
+  reader.onload = ev => parseXLS(ev.target.result);
   reader.readAsText(file);
 }
 
-// Drag & drop
-document.addEventListener('DOMContentLoaded', () => {
-  const area = document.getElementById('import-area');
-  if (area) {
-    area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
-    area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
-    area.addEventListener('drop', e => {
-      e.preventDefault(); area.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (file) { const r = new FileReader(); r.onload = ev => { document.getElementById('import-paste').value = ev.target.result; previewImport(); }; r.readAsText(file); }
+function parseXLS(text) {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'application/xml');
+    const ns = 'urn:schemas-microsoft-com:office:spreadsheet';
+    const rows = doc.querySelectorAll('Row');
+    const lines = [];
+    let isFirst = true;
+    rows.forEach(row => {
+      if (isFirst) { isFirst = false; return; }
+      const cells = row.querySelectorAll('Cell');
+      const v = [...cells].map(c => { const d = c.querySelector('Data'); return d ? d.textContent : ''; });
+      while (v.length < 24) v.push('');
+      const op = v[4].trim();
+      if (!op || op === 'TOTAL:') return;
+      const n = x => { try { return Math.round(parseFloat(x||'0')*100)/100; } catch(e) { return 0; } };
+      lines.push({
+        id: `${v[4].trim()}_${v[2].trim()}_${v[8].trim()}`,
+        operation: v[4].trim(), libelleOperation: v[5].trim(),
+        nature: v[2].trim(), libelleNature: v[3].trim(),
+        fonction: v[0].trim(), libelleFonction: v[1].trim(),
+        service: v[6].trim(), antenne: v[8].trim(), libelleAntenne: v[9].trim(),
+        budget: n(v[10]), realise: n(v[11]), mandate: n(v[19]), ens: n(v[20]), disponible: n(v[14]),
+        exercice: v[22].trim(),
+      });
     });
+    importedLines = lines;
+    document.getElementById('import-status').innerHTML = `<span style="color:var(--success)">✅ ${lines.length} lignes détectées, prêtes à importer.</span>`;
+    document.getElementById('import-confirm-btn').style.display = 'inline-flex';
+  } catch(e) {
+    document.getElementById('import-status').innerHTML = `<span style="color:var(--danger)">❌ Erreur de lecture: ${e.message}</span>`;
   }
-});
-
-function parseImportData(text) {
-  const rows = text.trim().split('\n').filter(r => r.trim());
-  if (!rows.length) return [];
-  // Detect separator: tab or semicolon or comma
-  const sep = rows[0].includes('\t') ? '\t' : rows[0].includes(';') ? ';' : ',';
-  const headers = rows[0].split(sep).map(h => h.trim().toLowerCase());
-  const colMap = {
-    code: headers.findIndex(h => h.includes('code') || h.includes('compte')),
-    libelle: headers.findIndex(h => h.includes('lib') || h.includes('intit') || h.includes('designation') || h.includes('dés')),
-    budget: headers.findIndex(h => h.includes('budget') || h.includes('dotation') || h.includes('prévu') || h.includes('prevu')),
-    engage: headers.findIndex(h => h.includes('engag') || h.includes('mandat') || h.includes('dépens') || h.includes('depend')),
-    paye: headers.findIndex(h => h.includes('pay') || h.includes('réalisé') || h.includes('realise')),
-    subvention: headers.findIndex(h => h.includes('subv') || h.includes('recette')),
-  };
-
-  const parsed = [];
-  for (let i = 1; i < rows.length; i++) {
-    const cols = rows[i].split(sep).map(c => c.trim().replace(/"/g, ''));
-    if (cols.every(c => !c)) continue;
-    const parsNum = (idx) => {
-      if (idx < 0 || idx >= cols.length) return 0;
-      return parseFloat(cols[idx].replace(/\s/g,'').replace(',','.')) || 0;
-    };
-    parsed.push({
-      code: colMap.code >= 0 ? cols[colMap.code] : '',
-      libelle: colMap.libelle >= 0 ? cols[colMap.libelle] : cols[1] || '',
-      budget: parsNum(colMap.budget),
-      engage: parsNum(colMap.engage),
-      paye: parsNum(colMap.paye),
-      subvention: parsNum(colMap.subvention),
-    });
-  }
-  return parsed;
-}
-
-function previewImport() {
-  const text = document.getElementById('import-paste').value;
-  if (!text.trim()) { showNotif('Collez des données d\'abord', 'error'); return; }
-  importParsed = parseImportData(text);
-  if (!importParsed.length) { showNotif('Impossible de lire le format', 'error'); return; }
-
-  const preview = document.getElementById('import-preview');
-  document.getElementById('import-preview-info').textContent = `${importParsed.length} ligne(s) détectée(s)`;
-  const table = document.getElementById('import-preview-table');
-  const max = Math.min(importParsed.length, 5);
-  table.innerHTML = `<thead><tr><th>Code</th><th>Libellé</th><th>Budget</th><th>Engagé</th><th>Payé</th><th>Subv.</th></tr></thead>
-    <tbody>${importParsed.slice(0, max).map(r => `<tr>
-      <td>${r.code}</td><td>${r.libelle.substring(0,40)}</td>
-      <td style="text-align:right">${fmt(r.budget)}</td>
-      <td style="text-align:right">${fmt(r.engage)}</td>
-      <td style="text-align:right">${fmt(r.paye)}</td>
-      <td style="text-align:right">${fmt(r.subvention)}</td>
-    </tr>`).join('')}
-    ${importParsed.length > max ? `<tr><td colspan="6" style="text-align:center;color:var(--gray)">… et ${importParsed.length - max} autres</td></tr>` : ''}
-    </tbody>`;
-  preview.style.display = 'block';
-  document.getElementById('import-confirm-btn').disabled = false;
 }
 
 async function confirmImport() {
-  if (!importParsed.length) return;
-  const chantierId = document.getElementById('import-chantier').value;
-  const chantier = allChantiers.find(c => c.id === chantierId);
-  if (!chantierId) { showNotif('Sélectionnez un chantier', 'error'); return; }
-
-  try {
-    const batch = db.batch();
-    const now = firebase.firestore.FieldValue.serverTimestamp();
-    const newLines = [];
-    importParsed.forEach(row => {
-      const ref = linesCol.doc();
-      const data = { ...row, chantierId, chantierName: chantier?.name || '', createdAt: now, updatedAt: now, comment: '' };
-      batch.set(ref, data);
-      newLines.push({ id: ref.id, ...data });
-    });
-    await batch.commit();
-    allLines.push(...newLines);
-    closeImportModal();
-    applyFilters();
-    renderChantiersList();
-    renderStats();
-    showNotif(`${importParsed.length} lignes importées`, 'success');
-  } catch(e) { showNotif('Erreur import: ' + e.message, 'error'); }
+  if (!importedLines) return;
+  mergeData(importedLines);
+  closeImportModal();
+  showNotif(`${importedLines.length} lignes importées`, 'success');
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────────
@@ -1015,6 +753,14 @@ function showNotif(msg, type = '') {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────
+document.getElementById('import-area').addEventListener('dragover', e => { e.preventDefault(); e.target.classList.add('drag-over'); });
+document.getElementById('import-area').addEventListener('dragleave', e => e.target.classList.remove('drag-over'));
+document.getElementById('import-area').addEventListener('drop', e => {
+  e.preventDefault(); e.target.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) { const r = new FileReader(); r.onload = ev => parseXLS(ev.target.result); r.readAsText(file); }
+});
+
 initPin();
 </script>
 </body>
