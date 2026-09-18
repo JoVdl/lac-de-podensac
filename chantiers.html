@@ -357,12 +357,17 @@ let sortKey = 'operation', sortAsc = true;
 let editId = null;
 let importedLines = null;
 
+const ANNOTS_KEY = 'chantiers_annotations';
+
+function saveAnnotsLocal() {
+  try { localStorage.setItem(ANNOTS_KEY, JSON.stringify(annotations)); } catch(_) {}
+}
+function loadAnnotsLocal() {
+  try { const r = localStorage.getItem(ANNOTS_KEY); return r ? JSON.parse(r) : {}; } catch(_) { return {}; }
+}
+
 async function loadData() {
-  try {
-    const snap = await col.get();
-    annotations = {};
-    snap.docs.forEach(d => { annotations[d.id] = d.data(); });
-  } catch(e) { console.warn('Firestore unavailable, using local only'); }
+  annotations = loadAnnotsLocal();
   mergeData(BASE_LINES);
 }
 
@@ -670,15 +675,13 @@ async function saveLine() {
     echeance: document.getElementById('line-echeance').value.trim(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
   };
-  try {
-    await col.doc(editId).set(data, { merge: true });
-    annotations[editId] = { ...annotations[editId], ...data };
-    const idx = allLines.findIndex(l => l.id === editId);
-    if (idx >= 0) allLines[idx] = { ...allLines[idx], ...data };
-    closeLineModal();
-    applyFilters();
-    showNotif('Annotation enregistrée', 'success');
-  } catch(e) { showNotif('Erreur: ' + e.message, 'error'); }
+  annotations[editId] = { ...annotations[editId], ...data };
+  saveAnnotsLocal();
+  const idx = allLines.findIndex(l => l.id === editId);
+  if (idx >= 0) allLines[idx] = { ...allLines[idx], ...data };
+  closeLineModal();
+  applyFilters();
+  showNotif('Annotation enregistrée', 'success');
 }
 
 // ─── IMPORT ───────────────────────────────────────────────────────────────
