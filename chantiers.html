@@ -173,6 +173,14 @@
           </select>
         </div>
         <div class="fg">
+          <label>Nature</label>
+          <select id="filter-nature" onchange="applyFilters()"><option value="">Toutes</option></select>
+        </div>
+        <div class="fg">
+          <label>Antenne / Site</label>
+          <select id="filter-antenne" onchange="applyFilters()"><option value="">Toutes</option></select>
+        </div>
+        <div class="fg">
           <label>Lignes à zéro</label>
           <select id="filter-zeros" onchange="applyFilters()">
             <option value="hide" selected>Masquer</option>
@@ -359,6 +367,8 @@ function applyType(type) {
   document.getElementById('filter-grp-label').textContent = type === 'investissement' ? 'Opération' : 'Chapitre';
   updateTableHead();
   populateGrpFilter();
+  populateNatureFilter();
+  populateAntenneFilter();
   applyFilters();
   renderStatsTab();
   const activeTab = document.querySelector('.tab.active')?.dataset.tab;
@@ -395,8 +405,27 @@ function populateGrpFilter() {
   }).join('');
 }
 
+function populateNatureFilter() {
+  const natures = [...new Map(allLines.map(l => [l.nature, l.libelleNature])).entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  const sel = document.getElementById('filter-nature');
+  sel.innerHTML = '<option value="">Toutes</option>' + natures.map(([code, lib]) =>
+    `<option value="${code}">${code}${lib ? ' — ' + lib.substring(0, 40) : ''}</option>`
+  ).join('');
+}
+
+function populateAntenneFilter() {
+  const antennes = [...new Map(allLines.map(l => [l.antenne, l.libelleAntenne])).entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  const sel = document.getElementById('filter-antenne');
+  sel.innerHTML = '<option value="">Toutes</option>' + antennes.map(([code, lib]) =>
+    `<option value="${code}">${code}${lib ? ' — ' + lib.substring(0, 40) : ''}</option>`
+  ).join('');
+}
+
 function applyFilters() {
   const grp = document.getElementById('filter-grp').value;
+  const nature = document.getElementById('filter-nature').value;
   const search = (document.getElementById('filter-search').value || '').toLowerCase();
   const status = document.getElementById('filter-status').value;
   const hideZeros = document.getElementById('filter-zeros').value === 'hide';
@@ -404,6 +433,9 @@ function applyFilters() {
 
   filtered = allLines.filter(l => {
     if (grp && (isInvest ? l.operation : l.chapitre) !== grp) return false;
+    if (nature && l.nature !== nature) return false;
+    const antenne = document.getElementById('filter-antenne').value;
+    if (antenne && l.antenne !== antenne) return false;
     if (hideZeros && l.budget === 0 && l.realise === 0) return false;
     const txt = isInvest
       ? `${l.libelleOperation} ${l.libelleNature} ${l.libelleAntenne} ${l.nature}`
