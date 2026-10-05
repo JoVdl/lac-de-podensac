@@ -95,13 +95,21 @@
 
     /* BY-MONTH BARS */
     .month-bars { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 24px; }
-    .month-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; }
+    .month-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; cursor: pointer; border-radius: 8px; padding: 2px 4px; transition: background .15s; }
+    .month-row:hover { background: var(--bg); }
+    .month-row.active { background: #e8f4f0; }
     .month-row:last-child { margin-bottom: 0; }
     .month-name { width: 32px; color: var(--gray); font-weight: 700; flex-shrink: 0; }
     .bar-track { flex: 1; background: var(--bg); border-radius: 6px; height: 22px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 6px; background: var(--primary); display: flex; align-items: center; padding: 0 8px; transition: width .4s; min-width: 0; }
     .bar-label { font-size: 0.72rem; font-weight: 700; color: #fff; white-space: nowrap; }
     .month-euro { width: 70px; text-align: right; font-weight: 700; color: var(--primary-dark); flex-shrink: 0; }
+    .month-detail { display: none; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .month-detail table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .month-detail th { background: #f5f7fa; padding: 6px 9px; text-align: left; font-size: .71rem; font-weight: 700; color: var(--gray); text-transform: uppercase; }
+    .month-detail td { padding: 6px 9px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .month-detail tr:last-child td { border-bottom: none; }
+    .month-detail .td-r { text-align: right; font-weight: 700; color: var(--primary-dark); }
 
     /* ACOMPTES TABLE */
     .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
@@ -520,6 +528,20 @@ function buildYearTabs() {
   ).join('');
 }
 
+window.toggleMonthDetail = function(i) {
+  const detail = document.getElementById('month-detail-'+i);
+  const row = document.getElementById('month-row-'+i);
+  if (!detail) return;
+  const open = detail.style.display === 'block';
+  // fermer tous les autres
+  document.querySelectorAll('.month-detail').forEach(d => d.style.display='none');
+  document.querySelectorAll('.month-row').forEach(r => r.classList.remove('active'));
+  if (!open) {
+    detail.style.display = 'block';
+    row.classList.add('active');
+  }
+};
+
 window.selectYear = function(y) {
   selectedYear = y;
   buildYearTabs();
@@ -553,27 +575,52 @@ function renderStats() {
   `;
 
   // Par mois
-  const byMonth = Array(12).fill(0).map(()=>({ca:0,nb:0}));
+  const byMonth = Array(12).fill(0).map(()=>({ca:0,nb:0,list:[]}));
   res.forEach(r => {
     const s = r.dateDebut||r.date||'';
     if (!s) return;
     const m = parseInt(s.slice(5,7))-1;
     byMonth[m].ca += calculatePrice(r);
     byMonth[m].nb++;
+    byMonth[m].list.push(r);
   });
   const maxCA = Math.max(...byMonth.map(m=>m.ca), 1);
   document.getElementById('month-bars').innerHTML = byMonth.map((m,i) => {
     const pct = Math.round(m.ca/maxCA*100);
-    return `<div class="month-row">
+    return `<div class="month-row" onclick="toggleMonthDetail(${i})" id="month-row-${i}">
       <div class="month-name">${MOIS_COURT[i]}</div>
       <div class="bar-track">
         <div class="bar-fill" style="width:${pct}%">
           ${m.nb>0?`<span class="bar-label">${m.nb} rés.</span>`:''}
         </div>
       </div>
-      <div class="month-euro">${m.ca>0?m.ca+'€':'—'}</div>
+      <div class="month-euro">${m.ca>0?Math.round(m.ca*100)/100+'€':'—'}</div>
+    </div>
+    <div class="month-detail" id="month-detail-${i}">
+      <table>
+        <thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Détail</th><th style="text-align:right">Montant</th></tr></thead>
+        <tbody>
+          ${m.list.sort((a,b)=>(a.dateDebut||a.date||'').localeCompare(b.dateDebut||b.date||'')).map(r => {
+            const price = calculatePrice(r);
+            const date = (r.dateDebut||r.date||'').slice(0,10).split('-').reverse().join('/');
+            const client = [r.prenom,r.nom].filter(Boolean).join(' ') || r.email || '—';
+            const type = TYPE_LABELS[r.type] || r.type || '—';
+            const detail = r.formule ? r.formule : (r.duree ? r.duree+' nuit(s)' : '');
+            const statut = r.status==='confirmed'?'<span style="color:#198754;font-weight:700">✓</span>':'<span style="color:#856404">⏳</span>';
+            return `<tr>
+              <td>${statut} ${date}</td>
+              <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${client}</td>
+              <td>${type}</td>
+              <td style="color:var(--gray);font-size:.72rem">${detail}</td>
+              <td class="td-r">${price>0?Math.round(price*100)/100+'€':'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
     </div>`;
   }).join('');
+
+  window._byMonth = byMonth;
 
   // CA par activité × mois
   const ACT_KEYS = ['peche-postes','peche-carnassier','bateau','canoe','campingcar','tente'];
