@@ -95,21 +95,18 @@
 
     /* BY-MONTH BARS */
     .month-bars { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 24px; }
-    .month-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; cursor: pointer; border-radius: 8px; padding: 2px 4px; transition: background .15s; }
-    .month-row:hover { background: var(--bg); }
-    .month-row.active { background: #e8f4f0; }
+    .month-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; border-radius: 8px; padding: 2px 4px; transition: background .15s; }
+    .month-row[onclick] { cursor: pointer; }
+    .month-row[onclick]:hover { background: var(--bg); }
     .month-row:last-child { margin-bottom: 0; }
     .month-name { width: 32px; color: var(--gray); font-weight: 700; flex-shrink: 0; }
     .bar-track { flex: 1; background: var(--bg); border-radius: 6px; height: 22px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 6px; background: var(--primary); display: flex; align-items: center; padding: 0 8px; transition: width .4s; min-width: 0; }
     .bar-label { font-size: 0.72rem; font-weight: 700; color: #fff; white-space: nowrap; }
     .month-euro { width: 70px; text-align: right; font-weight: 700; color: var(--primary-dark); flex-shrink: 0; }
-    .month-detail { display: none; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
-    .month-detail table { width: 100%; border-collapse: collapse; font-size: .78rem; }
-    .month-detail th { background: #f5f7fa; padding: 6px 9px; text-align: left; font-size: .71rem; font-weight: 700; color: var(--gray); text-transform: uppercase; }
-    .month-detail td { padding: 6px 9px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .month-detail tr:last-child td { border-bottom: none; }
-    .month-detail .td-r { text-align: right; font-weight: 700; color: var(--primary-dark); }
+
+    .drill-cell { cursor: pointer; }
+    .drill-cell:hover { background: #e8f4f0 !important; }
 
     /* ACOMPTES TABLE */
     .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
@@ -528,20 +525,6 @@ function buildYearTabs() {
   ).join('');
 }
 
-window.toggleMonthDetail = function(i) {
-  const detail = document.getElementById('month-detail-'+i);
-  const row = document.getElementById('month-row-'+i);
-  if (!detail) return;
-  const open = detail.style.display === 'block';
-  // fermer tous les autres
-  document.querySelectorAll('.month-detail').forEach(d => d.style.display='none');
-  document.querySelectorAll('.month-row').forEach(r => r.classList.remove('active'));
-  if (!open) {
-    detail.style.display = 'block';
-    row.classList.add('active');
-  }
-};
-
 window.selectYear = function(y) {
   selectedYear = y;
   buildYearTabs();
@@ -564,14 +547,21 @@ function renderStats() {
   const encaisse = res.reduce((s,r) => s+(r.acompte||0), 0);
   const solde = ca - encaisse;
 
+  window._kpiLists = {
+    total: all, confirmed: all.filter(r=>r.status==='confirmed'),
+    pending: all.filter(r=>!r.status||r.status==='pending'),
+    cancelled: all.filter(r=>r.status==='cancelled'),
+    ca: res, encaisse: res.filter(r=>(r.acompte||0)>0),
+    solde: res.filter(r=>calculatePrice(r)-(r.acompte||0)>0),
+  };
   document.getElementById('kpi-grid').innerHTML = `
-    <div class="kpi-card primary"><div class="kpi-value">${total}</div><div class="kpi-label">Total réservations</div></div>
-    <div class="kpi-card success"><div class="kpi-value">${confirmed}</div><div class="kpi-label">✓ Confirmées</div></div>
-    <div class="kpi-card warning"><div class="kpi-value">${pending}</div><div class="kpi-label">⏳ En attente</div></div>
-    <div class="kpi-card danger"><div class="kpi-value">${cancelled}</div><div class="kpi-label">✗ Annulées</div></div>
-    <div class="kpi-card accent"><div class="kpi-value">${ca}€</div><div class="kpi-label">💰 CA estimé</div></div>
-    <div class="kpi-card success"><div class="kpi-value">${encaisse}€</div><div class="kpi-label">💵 Encaissé (acomptes)</div></div>
-    <div class="kpi-card primary"><div class="kpi-value">${Math.round(solde)}€</div><div class="kpi-label">📋 Soldes restants</div></div>
+    <div class="kpi-card primary" style="cursor:pointer" onclick="openDrillList('Toutes réservations ${selectedYear}',null,'kpi','total')"><div class="kpi-value">${total}</div><div class="kpi-label">Total réservations</div></div>
+    <div class="kpi-card success" style="cursor:pointer" onclick="openDrillList('Confirmées ${selectedYear}',null,'kpi','confirmed')"><div class="kpi-value">${confirmed}</div><div class="kpi-label">✓ Confirmées</div></div>
+    <div class="kpi-card warning" style="cursor:pointer" onclick="openDrillList('En attente ${selectedYear}',null,'kpi','pending')"><div class="kpi-value">${pending}</div><div class="kpi-label">⏳ En attente</div></div>
+    <div class="kpi-card danger" style="cursor:pointer" onclick="openDrillList('Annulées ${selectedYear}',null,'kpi','cancelled')"><div class="kpi-value">${cancelled}</div><div class="kpi-label">✗ Annulées</div></div>
+    <div class="kpi-card accent" style="cursor:pointer" onclick="openDrillList('CA estimé ${selectedYear}',null,'kpi','ca')"><div class="kpi-value">${ca}€</div><div class="kpi-label">💰 CA estimé</div></div>
+    <div class="kpi-card success" style="cursor:pointer" onclick="openDrillList('Acomptes encaissés ${selectedYear}',null,'kpi','encaisse')"><div class="kpi-value">${encaisse}€</div><div class="kpi-label">💵 Encaissé (acomptes)</div></div>
+    <div class="kpi-card primary" style="cursor:pointer" onclick="openDrillList('Soldes restants ${selectedYear}',null,'kpi','solde')"><div class="kpi-value">${Math.round(solde)}€</div><div class="kpi-label">📋 Soldes restants</div></div>
   `;
 
   // Par mois
@@ -587,7 +577,8 @@ function renderStats() {
   const maxCA = Math.max(...byMonth.map(m=>m.ca), 1);
   document.getElementById('month-bars').innerHTML = byMonth.map((m,i) => {
     const pct = Math.round(m.ca/maxCA*100);
-    return `<div class="month-row" onclick="toggleMonthDetail(${i})" id="month-row-${i}">
+    const clickable = m.nb > 0 ? `onclick="openDrillList('${MOIS_COURT[i]} ${selectedYear}',${i},'month')" style="cursor:pointer"` : '';
+    return `<div class="month-row" ${clickable}>
       <div class="month-name">${MOIS_COURT[i]}</div>
       <div class="bar-track">
         <div class="bar-fill" style="width:${pct}%">
@@ -595,28 +586,6 @@ function renderStats() {
         </div>
       </div>
       <div class="month-euro">${m.ca>0?Math.round(m.ca*100)/100+'€':'—'}</div>
-    </div>
-    <div class="month-detail" id="month-detail-${i}">
-      <table>
-        <thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Détail</th><th style="text-align:right">Montant</th></tr></thead>
-        <tbody>
-          ${m.list.sort((a,b)=>(a.dateDebut||a.date||'').localeCompare(b.dateDebut||b.date||'')).map(r => {
-            const price = calculatePrice(r);
-            const date = (r.dateDebut||r.date||'').slice(0,10).split('-').reverse().join('/');
-            const client = [r.prenom,r.nom].filter(Boolean).join(' ') || r.email || '—';
-            const type = TYPE_LABELS[r.type] || r.type || '—';
-            const detail = r.formule ? r.formule : (r.duree ? r.duree+' nuit(s)' : '');
-            const statut = r.status==='confirmed'?'<span style="color:#198754;font-weight:700">✓</span>':'<span style="color:#856404">⏳</span>';
-            return `<tr>
-              <td>${statut} ${date}</td>
-              <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${client}</td>
-              <td>${type}</td>
-              <td style="color:var(--gray);font-size:.72rem">${detail}</td>
-              <td class="td-r">${price>0?Math.round(price*100)/100+'€':'—'}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
     </div>`;
   }).join('');
 
@@ -626,6 +595,7 @@ function renderStats() {
   const ACT_KEYS = ['peche-postes','peche-carnassier','bateau','canoe','campingcar','tente'];
   const ACT_SHORT = {'peche-postes':'🎣 Pêche postes','peche-carnassier':'🐟 Carnassier', bateau:'🔥 Bateau', canoe:'🛶 Canoé', campingcar:'🚐 Camp.-car', tente:'⛺ Tente'};
   const matrix = Array.from({length:12}, () => Object.fromEntries(ACT_KEYS.map(k=>[k,0])));
+  const matrixList = Array.from({length:12}, () => Object.fromEntries(ACT_KEYS.map(k=>[k,[]])));
   res.forEach(r => {
     const s = r.dateDebut||r.date||'';
     if (!s) return;
@@ -633,9 +603,11 @@ function renderStats() {
     let k = null;
     if (r.type === 'peche') k = isCarnassier(r) ? 'peche-carnassier' : 'peche-postes';
     else if (['bateau','canoe','campingcar','tente'].includes(r.type)) k = r.type;
-    if (k != null) matrix[m][k] += calculatePrice(r);
+    if (k != null) { matrix[m][k] += calculatePrice(r); matrixList[m][k].push(r); }
   });
+  window._matrixList = matrixList;
   const colTotals = Object.fromEntries(ACT_KEYS.map(k=>[k, matrix.reduce((s,m)=>s+m[k],0)]));
+  const colLists  = Object.fromEntries(ACT_KEYS.map(k=>[k, matrixList.reduce((a,m)=>a.concat(m[k]),[]) ]));
   const rowTotals = matrix.map(m => ACT_KEYS.reduce((s,k)=>s+m[k],0));
   const grandTotal = rowTotals.reduce((s,v)=>s+v,0);
   const activeCols = ACT_KEYS.filter(k=>colTotals[k]>0);
@@ -652,15 +624,17 @@ function renderStats() {
           <td>${MOIS_COURT[i]}</td>
           ${activeCols.map(k=>{
             const v=Math.round(m[k]);
-            return v>0?`<td class="cell-pos">${v} €</td>`:`<td class="cell-0">—</td>`;
+            return v>0
+              ? `<td class="cell-pos drill-cell" onclick="openDrillList('${MOIS_COURT[i]} — ${ACT_SHORT[k]}',${i},'matrix','${k}')" title="Voir les réservations">${v} €</td>`
+              : `<td class="cell-0">—</td>`;
           }).join('')}
-          <td class="cell-total">${row>0?Math.round(row)+' €':'—'}</td>
+          <td class="cell-total${row>0?' drill-cell':''}" ${row>0?`onclick="openDrillList('${MOIS_COURT[i]} — tous types',${i},'month')" title="Voir les réservations"`:''}>${row>0?Math.round(row)+' €':'—'}</td>
         </tr>`;
       }).join('')}
       <tr>
         <td>Total</td>
-        ${activeCols.map(k=>`<td class="cell-total">${Math.round(colTotals[k])} €</td>`).join('')}
-        <td class="cell-total">${Math.round(grandTotal)} €</td>
+        ${activeCols.map(k=>`<td class="cell-total drill-cell" onclick="openDrillList('${ACT_SHORT[k]} — année',null,'col','${k}')" title="Voir les réservations">${Math.round(colTotals[k])} €</td>`).join('')}
+        <td class="cell-total drill-cell" onclick="openDrillList('Toutes activités — ${selectedYear}',null,'all')" title="Voir les réservations">${Math.round(grandTotal)} €</td>
       </tr>
     </tbody>`;
 
@@ -718,12 +692,16 @@ function renderStats() {
     byPoste[k].ca+=calculatePrice(r);
   });
   const postes = typeof POSTES!=='undefined'?POSTES:[];
+  window._byPoste = byPoste;
+  window._byPosteList = {};
+  peche.forEach(r=>{ const k=r.posteId||'?'; if(!window._byPosteList[k])window._byPosteList[k]=[]; window._byPosteList[k].push(r); });
   document.getElementById('poste-table').innerHTML = `
     <thead><tr><th>Poste</th><th class="td-num">Séjours</th><th class="td-num">Nuits/sessions</th><th class="td-euro">CA</th></tr></thead>
     <tbody>${Object.entries(byPoste).sort((a,b)=>b[1].ca-a[1].ca).map(([id,d])=>{
       const p=postes.find(x=>String(x.id)===String(id));
-      return `<tr>
-        <td>${p?`${p.icon||'🎣'} ${p.nom}`:`Poste ${id}`}</td>
+      const label = p?`${p.icon||'🎣'} ${p.nom}`:`Poste ${id}`;
+      return `<tr style="cursor:pointer" onclick="openDrillList('${label.replace(/'/g,"\\'")}',null,'poste','${id}')" title="Voir les réservations">
+        <td>${label}</td>
         <td class="td-num">${d.nb}</td>
         <td class="td-num">${d.nuits}</td>
         <td class="td-euro">${d.ca}€</td>
@@ -768,13 +746,11 @@ function fmtDate(s) {
   return `${d} ${MOIS_COURT_D[parseInt(m)-1]} ${y}`;
 }
 
-window.openDrill = function(cat) {
-  const label = (window._catLabels||{})[cat] || cat;
-  const res = (window._resByCat||{})[cat] || [];
-  const sorted = [...res].sort((a,b)=>(a.dateDebut||a.date||'').localeCompare(b.dateDebut||b.date||''));
-  document.getElementById('drill-title').textContent = label + ` — ${res.length} réservation${res.length!==1?'s':''}`;
+function drillOpen(label, list) {
+  const sorted = [...list].sort((a,b)=>(a.dateDebut||a.date||'').localeCompare(b.dateDebut||b.date||''));
+  document.getElementById('drill-title').textContent = label + ` — ${sorted.length} réservation${sorted.length!==1?'s':''}`;
   document.getElementById('drill-body').innerHTML = sorted.map(r => {
-    const name = `${r.prenom||''} ${(r.nom||'').toUpperCase()}`.trim() || '—';
+    const name = ((r.prenom||'')+' '+(r.nom||'').toUpperCase()).trim() || '—';
     const date = fmtDate(r.dateDebut||r.date||'');
     const duree = r.duree ? `${r.duree} nuit${r.duree>1?'s':''}` : '—';
     const ca = calculatePrice(r);
@@ -784,11 +760,26 @@ window.openDrill = function(cat) {
       <td>${date}</td>
       <td>${duree}</td>
       <td>${STATUS_BADGE[status]||''}</td>
-      <td style="text-align:right;font-weight:700;color:var(--primary-dark)">${ca>0?ca+'€':'—'}</td>
-      <td><a class="drill-edit-btn" href="admin.html?edit=${r.id}" target="_blank">✏️ Modifier</a></td>
+      <td style="text-align:right;font-weight:700;color:var(--primary-dark)">${ca>0?Math.round(ca*100)/100+'€':'—'}</td>
+      <td><a class="drill-edit-btn" href="admin.html?edit=${r.id}" target="_blank">✏️</a></td>
     </tr>`;
   }).join('') || '<tr><td colspan="6" style="padding:14px;text-align:center;color:var(--gray)">Aucune réservation</td></tr>';
   document.getElementById('drill-overlay').classList.add('open');
+}
+
+window.openDrill = function(cat) {
+  drillOpen((window._catLabels||{})[cat]||cat, (window._resByCat||{})[cat]||[]);
+};
+
+window.openDrillList = function(label, monthIdx, source, key) {
+  let list = [];
+  if (source === 'month') list = (window._byMonth||[])[monthIdx]?.list || [];
+  else if (source === 'matrix') list = (window._matrixList||[])[monthIdx]?.[key] || [];
+  else if (source === 'col') list = (window._matrixList||[]).reduce((a,m)=>a.concat(m[key]||[]),[]);
+  else if (source === 'all') list = (window._byMonth||[]).reduce((a,m)=>a.concat(m.list),[]);
+  else if (source === 'kpi') list = (window._kpiLists||{})[key] || [];
+  else if (source === 'poste') list = (window._byPosteList||{})[key] || [];
+  drillOpen(label, list);
 };
 
 window.closeDrill = function() {
