@@ -774,6 +774,7 @@ function drillOpen(label, list) {
 document.addEventListener('click', function(e) {
   const el = e.target.closest('.drill-trigger');
   if (!el) return;
+  alert('DEBUG: clic détecté sur ' + (el.dataset.src||'?') + ' / ' + (el.dataset.key||el.dataset.idx||'?'));
   const src = el.dataset.src;
   const key = el.dataset.key;
   const idx = el.dataset.idx !== undefined ? parseInt(el.dataset.idx) : null;
