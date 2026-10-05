@@ -105,8 +105,9 @@
     .bar-label { font-size: 0.72rem; font-weight: 700; color: #fff; white-space: nowrap; }
     .month-euro { width: 70px; text-align: right; font-weight: 700; color: var(--primary-dark); flex-shrink: 0; }
 
-    .drill-cell { cursor: pointer; }
-    .drill-cell:hover { background: #e8f4f0 !important; }
+    .drill-trigger { cursor: pointer; }
+    td.drill-trigger:hover, tr.drill-trigger:hover td { background: #e8f4f0 !important; }
+    div.drill-trigger:hover { opacity: 0.85; }
 
     /* ACOMPTES TABLE */
     .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
@@ -555,13 +556,13 @@ function renderStats() {
     solde: res.filter(r=>calculatePrice(r)-(r.acompte||0)>0),
   };
   document.getElementById('kpi-grid').innerHTML = `
-    <div class="kpi-card primary" style="cursor:pointer" onclick="openDrillList('Toutes réservations ${selectedYear}',null,'kpi','total')"><div class="kpi-value">${total}</div><div class="kpi-label">Total réservations</div></div>
-    <div class="kpi-card success" style="cursor:pointer" onclick="openDrillList('Confirmées ${selectedYear}',null,'kpi','confirmed')"><div class="kpi-value">${confirmed}</div><div class="kpi-label">✓ Confirmées</div></div>
-    <div class="kpi-card warning" style="cursor:pointer" onclick="openDrillList('En attente ${selectedYear}',null,'kpi','pending')"><div class="kpi-value">${pending}</div><div class="kpi-label">⏳ En attente</div></div>
-    <div class="kpi-card danger" style="cursor:pointer" onclick="openDrillList('Annulées ${selectedYear}',null,'kpi','cancelled')"><div class="kpi-value">${cancelled}</div><div class="kpi-label">✗ Annulées</div></div>
-    <div class="kpi-card accent" style="cursor:pointer" onclick="openDrillList('CA estimé ${selectedYear}',null,'kpi','ca')"><div class="kpi-value">${ca}€</div><div class="kpi-label">💰 CA estimé</div></div>
-    <div class="kpi-card success" style="cursor:pointer" onclick="openDrillList('Acomptes encaissés ${selectedYear}',null,'kpi','encaisse')"><div class="kpi-value">${encaisse}€</div><div class="kpi-label">💵 Encaissé (acomptes)</div></div>
-    <div class="kpi-card primary" style="cursor:pointer" onclick="openDrillList('Soldes restants ${selectedYear}',null,'kpi','solde')"><div class="kpi-value">${Math.round(solde)}€</div><div class="kpi-label">📋 Soldes restants</div></div>
+    <div class="kpi-card primary drill-trigger" data-src="kpi" data-key="total" data-label="Toutes réservations ${selectedYear}"><div class="kpi-value">${total}</div><div class="kpi-label">Total réservations</div></div>
+    <div class="kpi-card success drill-trigger" data-src="kpi" data-key="confirmed" data-label="Confirmées ${selectedYear}"><div class="kpi-value">${confirmed}</div><div class="kpi-label">✓ Confirmées</div></div>
+    <div class="kpi-card warning drill-trigger" data-src="kpi" data-key="pending" data-label="En attente ${selectedYear}"><div class="kpi-value">${pending}</div><div class="kpi-label">⏳ En attente</div></div>
+    <div class="kpi-card danger drill-trigger" data-src="kpi" data-key="cancelled" data-label="Annulées ${selectedYear}"><div class="kpi-value">${cancelled}</div><div class="kpi-label">✗ Annulées</div></div>
+    <div class="kpi-card accent drill-trigger" data-src="kpi" data-key="ca" data-label="CA estimé ${selectedYear}"><div class="kpi-value">${ca}€</div><div class="kpi-label">💰 CA estimé</div></div>
+    <div class="kpi-card success drill-trigger" data-src="kpi" data-key="encaisse" data-label="Acomptes encaissés ${selectedYear}"><div class="kpi-value">${encaisse}€</div><div class="kpi-label">💵 Encaissé (acomptes)</div></div>
+    <div class="kpi-card primary drill-trigger" data-src="kpi" data-key="solde" data-label="Soldes restants ${selectedYear}"><div class="kpi-value">${Math.round(solde)}€</div><div class="kpi-label">📋 Soldes restants</div></div>
   `;
 
   // Par mois
@@ -577,8 +578,8 @@ function renderStats() {
   const maxCA = Math.max(...byMonth.map(m=>m.ca), 1);
   document.getElementById('month-bars').innerHTML = byMonth.map((m,i) => {
     const pct = Math.round(m.ca/maxCA*100);
-    const clickable = m.nb > 0 ? `onclick="openDrillList('${MOIS_COURT[i]} ${selectedYear}',${i},'month')" style="cursor:pointer"` : '';
-    return `<div class="month-row" ${clickable}>
+    const drill = m.nb > 0 ? `class="month-row drill-trigger" data-src="month" data-idx="${i}" data-label="${MOIS_COURT[i]} ${selectedYear}"` : 'class="month-row"';
+    return `<div ${drill}>
       <div class="month-name">${MOIS_COURT[i]}</div>
       <div class="bar-track">
         <div class="bar-fill" style="width:${pct}%">
@@ -625,16 +626,18 @@ function renderStats() {
           ${activeCols.map(k=>{
             const v=Math.round(m[k]);
             return v>0
-              ? `<td class="cell-pos drill-cell" onclick="openDrillList('${MOIS_COURT[i]} — ${ACT_SHORT[k]}',${i},'matrix','${k}')" title="Voir les réservations">${v} €</td>`
+              ? `<td class="cell-pos drill-trigger" data-src="matrix" data-idx="${i}" data-key="${k}" data-label="${MOIS_COURT[i]} — ${ACT_SHORT[k]}">${v} €</td>`
               : `<td class="cell-0">—</td>`;
           }).join('')}
-          <td class="cell-total${row>0?' drill-cell':''}" ${row>0?`onclick="openDrillList('${MOIS_COURT[i]} — tous types',${i},'month')" title="Voir les réservations"`:''}>${row>0?Math.round(row)+' €':'—'}</td>
+          ${row>0
+            ? `<td class="cell-total drill-trigger" data-src="month" data-idx="${i}" data-label="${MOIS_COURT[i]} — tous types">${Math.round(row)} €</td>`
+            : `<td class="cell-total">—</td>`}
         </tr>`;
       }).join('')}
       <tr>
         <td>Total</td>
-        ${activeCols.map(k=>`<td class="cell-total drill-cell" onclick="openDrillList('${ACT_SHORT[k]} — année',null,'col','${k}')" title="Voir les réservations">${Math.round(colTotals[k])} €</td>`).join('')}
-        <td class="cell-total drill-cell" onclick="openDrillList('Toutes activités — ${selectedYear}',null,'all')" title="Voir les réservations">${Math.round(grandTotal)} €</td>
+        ${activeCols.map(k=>`<td class="cell-total drill-trigger" data-src="col" data-key="${k}" data-label="${ACT_SHORT[k]} — année">${Math.round(colTotals[k])} €</td>`).join('')}
+        <td class="cell-total drill-trigger" data-src="all" data-label="Toutes activités — ${selectedYear}">${Math.round(grandTotal)} €</td>
       </tr>
     </tbody>`;
 
@@ -671,7 +674,7 @@ function renderStats() {
   document.getElementById('type-table').innerHTML = `
     <thead><tr><th>Catégorie</th><th class="td-num">Réservations</th><th class="td-num">Confirmées</th><th class="td-euro">CA</th><th class="td-euro">Acomptes</th><th></th></tr></thead>
     <tbody>${Object.entries(byType).sort((a,b)=>b[1].ca-a[1].ca).map(([cat,d])=>`
-      <tr onclick="openDrill('${cat}')" title="Voir les réservations">
+      <tr class="drill-trigger" data-src="cat" data-key="${cat}">
         <td>${CAT_LABELS[cat]||cat}</td>
         <td class="td-num">${d.nb}</td>
         <td class="td-num">${d.nbConf}</td>
@@ -700,7 +703,7 @@ function renderStats() {
     <tbody>${Object.entries(byPoste).sort((a,b)=>b[1].ca-a[1].ca).map(([id,d])=>{
       const p=postes.find(x=>String(x.id)===String(id));
       const label = p?`${p.icon||'🎣'} ${p.nom}`:`Poste ${id}`;
-      return `<tr style="cursor:pointer" onclick="openDrillList('${label.replace(/'/g,"\\'")}',null,'poste','${id}')" title="Voir les réservations">
+      return `<tr class="drill-trigger" data-src="poste" data-key="${id}" data-label="${label.replace(/"/g,'&quot;')}">
         <td>${label}</td>
         <td class="td-num">${d.nb}</td>
         <td class="td-num">${d.nuits}</td>
@@ -767,19 +770,27 @@ function drillOpen(label, list) {
   document.getElementById('drill-overlay').classList.add('open');
 }
 
+// Event delegation — un seul listener pour tous les drill-triggers
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('.drill-trigger');
+  if (!el) return;
+  const src = el.dataset.src;
+  const key = el.dataset.key;
+  const idx = el.dataset.idx !== undefined ? parseInt(el.dataset.idx) : null;
+  const label = el.dataset.label || key || '';
+  let list = [];
+  if (src === 'month') list = (window._byMonth||[])[idx]?.list || [];
+  else if (src === 'matrix') list = (window._matrixList||[])[idx]?.[key] || [];
+  else if (src === 'col') list = (window._matrixList||[]).reduce((a,m)=>a.concat(m[key]||[]),[]);
+  else if (src === 'all') list = (window._byMonth||[]).reduce((a,m)=>a.concat(m.list),[]);
+  else if (src === 'kpi') list = (window._kpiLists||{})[key] || [];
+  else if (src === 'poste') list = (window._byPosteList||{})[key] || [];
+  else if (src === 'cat') { list = (window._resByCat||{})[key]||[]; }
+  drillOpen(label, list);
+});
+
 window.openDrill = function(cat) {
   drillOpen((window._catLabels||{})[cat]||cat, (window._resByCat||{})[cat]||[]);
-};
-
-window.openDrillList = function(label, monthIdx, source, key) {
-  let list = [];
-  if (source === 'month') list = (window._byMonth||[])[monthIdx]?.list || [];
-  else if (source === 'matrix') list = (window._matrixList||[])[monthIdx]?.[key] || [];
-  else if (source === 'col') list = (window._matrixList||[]).reduce((a,m)=>a.concat(m[key]||[]),[]);
-  else if (source === 'all') list = (window._byMonth||[]).reduce((a,m)=>a.concat(m.list),[]);
-  else if (source === 'kpi') list = (window._kpiLists||{})[key] || [];
-  else if (source === 'poste') list = (window._byPosteList||{})[key] || [];
-  drillOpen(label, list);
 };
 
 window.closeDrill = function() {
