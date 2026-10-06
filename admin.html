@@ -989,6 +989,9 @@
       font-size: 0.84rem; font-weight: 600; transition: all 0.15s; user-select: none;
     }
     .nrm-status-opt input[type="radio"] { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+    .nrm-moyen-row { display: flex; gap: 8px; margin-top: 10px; }
+    .nrm-moyen-btn { flex: 1; padding: 9px 6px; border-radius: 9px; border: 2px solid var(--border); background: none; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--primary-dark); transition: all 0.15s; }
+    .nrm-moyen-btn.active { border-color: var(--primary); background: rgba(61,138,128,0.12); color: var(--primary); }
     .nrm-checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; user-select: none; }
     .nrm-checkbox-row input { width: 15px; height: 15px; accent-color: var(--primary); flex-shrink: 0; }
     .nrm-checkbox-row span { font-size: 0.84rem; font-weight: 600; color: var(--primary-dark); }
@@ -1571,6 +1574,12 @@
             <label class="nrm-label">Reste à payer</label>
             <div class="nrm-reste-box" id="nrm-reste">—</div>
           </div>
+        </div>
+        <div class="nrm-moyen-row">
+          <button type="button" class="nrm-moyen-btn" data-moyen="especes" onclick="nrmSetMoyen('especes')">💵 Espèces</button>
+          <button type="button" class="nrm-moyen-btn" data-moyen="tpe" onclick="nrmSetMoyen('tpe')">💳 TPE</button>
+          <button type="button" class="nrm-moyen-btn" data-moyen="lien" onclick="nrmSetMoyen('lien')">🔗 Lien</button>
+          <button type="button" class="nrm-moyen-btn" data-moyen="virement" onclick="nrmSetMoyen('virement')">🏦 Virement</button>
         </div>
 
         <!-- ── STATUT ── -->
@@ -3123,6 +3132,10 @@
     }).join('');
   };
 
+  window.nrmSetMoyen = function(moyen) {
+    document.querySelectorAll('.nrm-moyen-btn').forEach(b => b.classList.toggle('active', b.dataset.moyen === moyen));
+  };
+
   window.nrmClearOverride = function() {
     document.getElementById('nrm-price-override').value = '';
     nrmUpdatePrice();
@@ -3236,6 +3249,7 @@
     document.getElementById('nrm-acompte').value = 0;
     document.getElementById('nrm-price-override').value = '';
     document.querySelector('input[name="nrm-status"][value="pending"]').checked = true;
+    document.querySelectorAll('.nrm-moyen-btn').forEach(b => b.classList.remove('active'));
 
     if (type === 'peche') {
       document.getElementById('nrm-date-debut').value = dateStr || '';
@@ -3314,6 +3328,8 @@
     document.getElementById('nrm-note-interne').value = r.noteInterne || '';
     document.getElementById('nrm-acompte').value = r.acompte || 0;
     document.getElementById('nrm-price-override').value = (r.totalPrice != null) ? r.totalPrice : '';
+    if (r.moyenPaiement) nrmSetMoyen(r.moyenPaiement);
+    else document.querySelectorAll('.nrm-moyen-btn').forEach(b => b.classList.remove('active'));
     const statusInput = document.querySelector(`input[name="nrm-status"][value="${r.status||'pending'}"]`);
     if (statusInput) statusInput.checked = true;
 
@@ -3493,6 +3509,11 @@
         const totalPrice=tarif*nbNuits+(elec?3*nbNuits:0);
         Object.assign(data,{type:'tente',emplacement:document.getElementById('nrm-tente-emplacement').value,tarifNuit:tarif,electricite:elec||null,dateDebut,dateFin,dates:makeDates(dateDebut,nbNuits),duree:nbNuits,totalPrice});
       }
+
+      // Moyen de paiement
+      const activeM = document.querySelector('.nrm-moyen-btn.active');
+      if (activeM) data.moyenPaiement = activeM.dataset.moyen;
+      else if (nrmEditId) data.moyenPaiement = firebase.firestore.FieldValue.delete();
 
       // Price override
       const priceOverride = document.getElementById('nrm-price-override').value.trim();
