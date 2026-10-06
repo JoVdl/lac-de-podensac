@@ -733,6 +733,8 @@ function renderStats() {
       <td class="td-euro" style="color:var(--accent);font-weight:800">${r._solde}€</td>
     </tr>`).join('')}
     </tbody>`;
+
+  setupDrillListeners();
 }
 
 // ── DRILL-DOWN ──
@@ -770,25 +772,25 @@ function drillOpen(label, list) {
   document.getElementById('drill-overlay').classList.add('open');
 }
 
-// Event delegation — un seul listener pour tous les drill-triggers
-document.addEventListener('click', function(e) {
-  const el = e.target.closest('.drill-trigger');
-  if (!el) return;
-  alert('DEBUG: clic détecté sur ' + (el.dataset.src||'?') + ' / ' + (el.dataset.key||el.dataset.idx||'?'));
-  const src = el.dataset.src;
-  const key = el.dataset.key;
-  const idx = el.dataset.idx !== undefined ? parseInt(el.dataset.idx) : null;
-  const label = el.dataset.label || key || '';
-  let list = [];
-  if (src === 'month') list = (window._byMonth||[])[idx]?.list || [];
-  else if (src === 'matrix') list = (window._matrixList||[])[idx]?.[key] || [];
-  else if (src === 'col') list = (window._matrixList||[]).reduce((a,m)=>a.concat(m[key]||[]),[]);
-  else if (src === 'all') list = (window._byMonth||[]).reduce((a,m)=>a.concat(m.list),[]);
-  else if (src === 'kpi') list = (window._kpiLists||{})[key] || [];
-  else if (src === 'poste') list = (window._byPosteList||{})[key] || [];
-  else if (src === 'cat') { list = (window._resByCat||{})[key]||[]; }
-  drillOpen(label, list);
-});
+function setupDrillListeners() {
+  document.querySelectorAll('.drill-trigger').forEach(function(el) {
+    el.addEventListener('click', function() {
+      const src = el.dataset.src;
+      const key = el.dataset.key;
+      const idx = el.dataset.idx !== undefined ? parseInt(el.dataset.idx) : null;
+      const label = el.dataset.label || key || '';
+      let list = [];
+      if (src === 'month') list = (window._byMonth||[])[idx]?.list || [];
+      else if (src === 'matrix') list = (window._matrixList||[])[idx]?.[key] || [];
+      else if (src === 'col') list = (window._matrixList||[]).reduce((a,m)=>a.concat(m[key]||[]),[]);
+      else if (src === 'all') list = (window._byMonth||[]).reduce((a,m)=>a.concat(m.list),[]);
+      else if (src === 'kpi') list = (window._kpiLists||{})[key] || [];
+      else if (src === 'poste') list = (window._byPosteList||{})[key] || [];
+      else if (src === 'cat') list = (window._resByCat||{})[key]||[];
+      drillOpen(label, list);
+    });
+  });
+}
 
 window.openDrill = function(cat) {
   drillOpen((window._catLabels||{})[cat]||cat, (window._resByCat||{})[cat]||[]);
