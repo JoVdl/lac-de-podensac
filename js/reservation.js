@@ -821,6 +821,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Ouverture des bateaux barbecue : pré-réservations à partir de cette date (à ajuster)
+  const BOAT_OPENING_DATE = '2027-04-01';
+  function BOAT_OPENING_DATE_MIN() {
+    const today = new Date().toISOString().split('T')[0];
+    return today > BOAT_OPENING_DATE ? today : BOAT_OPENING_DATE;
+  }
+
   // ── Soumission formulaire bateau (bateau.html) ────────────────
   const boatForm = el('boat-booking-form');
   if (boatForm) {
@@ -856,10 +863,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       try {
         if (typeof LacDB !== 'undefined') await LacDB.addReservation(booking);
-        showToast(`🔥 Réservation enregistrée ! ${BLABELS[formule]} — ${total} € (${nbPers} pers.). Confirmation à ${email}.`, 'success', '🔥');
+        showToast(`🔥 Demande enregistrée ! ${BLABELS[formule]} — ${total} € (${nbPers} pers.). Nous vous confirmons la date par email ou téléphone sous 24 h.`, 'success', '🔥');
         boatForm.reset();
         const bdate = el('bf-date');
-        if (bdate) bdate.min = new Date().toISOString().split('T')[0];
+        if (bdate) bdate.min = BOAT_OPENING_DATE_MIN();
       } catch (err) {
         console.error('[Réservation bateau]', err);
         showToast('Erreur de connexion. Veuillez réessayer ou nous appeler.', 'error', '⚠️');
@@ -869,7 +876,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const bdateInput = el('bf-date');
-    if (bdateInput) bdateInput.min = new Date().toISOString().split('T')[0];
+    if (bdateInput) bdateInput.min = BOAT_OPENING_DATE_MIN();
   }
 
   // Mise à jour récapitulatif bateau (bateau.html)
