@@ -855,7 +855,17 @@ document.addEventListener('DOMContentLoaded', function () {
       const total        = basePrice + optionsTotal;
       const selectedOpts = Array.from(optCbs).map(cb => cb.id);
 
-      const codePartenaire = (el('bf-code')?.value || '').trim().toUpperCase();
+      // Code partenaire : normalisé et vérifié (si la vérification est impossible, la demande part quand même)
+      const codePartenaire = (typeof PartenairesRules !== 'undefined')
+        ? PartenairesRules.normalize(el('bf-code')?.value)
+        : (el('bf-code')?.value || '').trim().toUpperCase();
+      if (codePartenaire && typeof PartenairesRules !== 'undefined') {
+        const chk = await PartenairesRules.check(codePartenaire);
+        if (chk.status === 'invalid') {
+          showToast('Code partenaire non reconnu. Corrigez-le ou videz le champ.', 'error', '⚠️');
+          return;
+        }
+      }
       const booking = { type:'bateau', status:'pending', prenom, nom, email, tel, bateau, formule, date, nb: nbPers, options: selectedOpts, optionsPrice: optionsTotal, totalPrice: total, codePartenaire };
 
       const submitBtn = boatForm.querySelector('[type="submit"]');
