@@ -855,7 +855,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const total        = basePrice + optionsTotal;
       const selectedOpts = Array.from(optCbs).map(cb => cb.id);
 
-      const booking = { type:'bateau', status:'pending', prenom, nom, email, tel, bateau, formule, date, nb: nbPers, options: selectedOpts, optionsPrice: optionsTotal, totalPrice: total };
+      const codePartenaire = (el('bf-code')?.value || '').trim().toUpperCase();
+      const booking = { type:'bateau', status:'pending', prenom, nom, email, tel, bateau, formule, date, nb: nbPers, options: selectedOpts, optionsPrice: optionsTotal, totalPrice: total, codePartenaire };
 
       const submitBtn = boatForm.querySelector('[type="submit"]');
       const origHtml  = submitBtn?.innerHTML;
