@@ -10,6 +10,12 @@
 //       allow read: if true;
 //       allow update, delete: if request.auth != null;
 //     }
+//     // Offre partenaires (voir js/partenaires.js) : le site vérifie UN code précis,
+//     // seul l'admin connecté peut lister / créer / modifier / supprimer.
+//     match /partenaires/{code} {
+//       allow get: if true;
+//       allow list, create, update, delete: if request.auth != null;
+//     }
 //   }
 // }
 // ================================================================

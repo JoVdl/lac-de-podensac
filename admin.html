@@ -1115,6 +1115,7 @@
       </div>
       <div class="admin-nav__right">
         <span class="admin-user" id="admin-user-email"></span>
+        <button class="btn-logout" id="partners-btn" onclick="openPartnersModal()">🤝 Partenaires</button>
         <a href="chantiers.html" class="btn-logout" style="text-decoration:none;">🏗️ Chantiers</a>
         <a href="stats.html" class="btn-logout" style="text-decoration:none;">📊 Stats</a>
         <a href="index.html" class="btn-logout" style="text-decoration:none;">← Site</a>
@@ -1611,6 +1612,38 @@
   </div>
 
   <!-- TOASTS -->
+  <!-- PARTENAIRES MODAL -->
+  <div id="partners-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:26px;max-width:860px;width:96%;box-shadow:0 8px 40px rgba(0,0,0,0.18);position:relative;max-height:92vh;overflow-y:auto;">
+      <button onclick="closePartnersModal()" aria-label="Fermer" style="position:absolute;top:12px;right:14px;border:none;background:none;font-size:1.5rem;cursor:pointer;color:#666;">×</button>
+      <h3 style="margin:0 0 4px;font-size:1.15rem;">🤝 Partenaires &amp; codes</h3>
+      <p style="font-size:0.83rem;color:#666;margin:0 0 14px;">Un code par partenaire. Le site vérifie le code saisi dans le formulaire bateau, et le compteur ci-dessous suit les demandes qui l'utilisent. Pensez à demander la preuve d'achat avant d'envoyer le lien SumUp remisé.</p>
+
+      <div id="partners-error" style="display:none;background:#fff3f0;border:1px solid #f1b9ae;color:#8a2a1a;border-radius:10px;padding:12px 14px;font-size:0.82rem;margin-bottom:14px;"></div>
+
+      <div id="partners-list" style="margin-bottom:18px;"></div>
+
+      <div style="border-top:1px solid #eee;padding-top:14px;">
+        <div style="font-size:0.88rem;font-weight:700;margin-bottom:8px;">Ajouter un partenaire</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;align-items:end;">
+          <label style="font-size:0.78rem;color:#555;">Nom du partenaire
+            <input id="partner-nom" type="text" placeholder="Ex. Domaine des Graves" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;margin-top:3px;">
+          </label>
+          <label style="font-size:0.78rem;color:#555;">Code (lettres, chiffres, tirets)
+            <span style="display:flex;gap:6px;margin-top:3px;">
+              <input id="partner-code" type="text" maxlength="30" placeholder="Ex. DOMAINE482" style="flex:1;min-width:0;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;text-transform:uppercase;">
+              <button type="button" onclick="generatePartnerCode()" title="Générer un code à partir du nom" style="padding:0 10px;border:1px solid #3d8a80;border-radius:8px;background:#f0faf9;color:#3d8a80;cursor:pointer;font-size:0.8rem;">Générer</button>
+            </span>
+          </label>
+          <label style="font-size:0.78rem;color:#555;">Note (facultatif)
+            <input id="partner-note" type="text" placeholder="Contact, téléphone, accord…" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;margin-top:3px;">
+          </label>
+        </div>
+        <button type="button" onclick="addPartner()" style="margin-top:12px;padding:9px 18px;border:none;border-radius:8px;background:#1a4e8a;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">+ Ajouter le partenaire</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-admin"></div>
 
   <!-- SCRIPTS -->
@@ -1619,6 +1652,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/postes.js"></script>
+  <script src="js/partenaires.js"></script>
   <script>
   // ================================================================
   // Admin JS
@@ -2025,6 +2059,7 @@
         <div class="res-detail-row"><span class="label">Formule</span><span class="value">${formuleLabel}</span></div>
         <div class="res-detail-row"><span class="label">Date</span><span class="value">${formatDate(r.date)}${r.heure ? ' à ' + r.heure : ''}</span></div>
         <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb || 1} pers.</span></div>
+        ${partnerDetailRow(r)}
       `;
     } else if (r.type === 'campingcar') {
       const nbNuits = r.duree || 1;
@@ -2929,7 +2964,8 @@
         <div class="res-detail-row"><span class="label">Formule</span><span class="value">${fLabel}</span></div>
         <div class="res-detail-row"><span class="label">Date</span><span class="value">${formatDate(r.date)}</span></div>
         <div class="res-detail-row"><span class="label">Personnes</span><span class="value">${r.nb||1} pers.</span></div>
-        ${r.options&&r.options.length?`<div class="res-detail-row"><span class="label">Options</span><span class="value">${r.options.join(', ')}</span></div>`:''}`;
+        ${r.options&&r.options.length?`<div class="res-detail-row"><span class="label">Options</span><span class="value">${r.options.join(', ')}</span></div>`:''}
+        ${partnerDetailRow(r)}`;
     } else if (r.type === 'canoe') {
       const fLabel = {demi:'Demi-journée', jour:'Journée'}[r.formule] || r.formule;
       const datesDisplay = r.dateDebut && r.dateFin && r.dateDebut !== r.dateFin
@@ -4410,6 +4446,192 @@
     const sources = getIcsSources().filter(s => s.url);
     if (sources.length) setTimeout(() => runIcsSync(true), 4000);
   });
+  </script>
+  <script>
+  // ================================================================
+  // Partenaires & codes (collection Firestore "partenaires", id = code)
+  // ================================================================
+  let PARTNERS = [];
+  let PARTNERS_BY_CODE = {};
+  let unsubPartners = null;
+  let partnersError = null;
+
+  const PARTNER_RULES_TEXT =
+`match /partenaires/{code} {
+  allow get: if true;
+  allow list, create, update, delete: if request.auth != null;
+}`;
+
+  function pEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function startPartnersListener() {
+    if (unsubPartners) return;
+    unsubPartners = db.collection('partenaires').onSnapshot(snap => {
+      partnersError = null;
+      PARTNERS = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => String(a.nom || '').localeCompare(String(b.nom || ''), 'fr'));
+      PARTNERS_BY_CODE = Object.fromEntries(PARTNERS.map(p => [p.id, p]));
+      renderPartners();
+      if (typeof renderAll === 'function' && allReservations.length) renderAll();
+    }, err => {
+      partnersError = err.code || err.message;
+      renderPartners();
+    });
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      startPartnersListener();
+    } else if (unsubPartners) {
+      unsubPartners(); unsubPartners = null; PARTNERS = []; PARTNERS_BY_CODE = {};
+    }
+  });
+
+  function partnerUsage(code) {
+    const rs = (allReservations || []).filter(r => r.type === 'bateau' && r.codePartenaire === code && r.status !== 'cancelled');
+    return { total: rs.length, confirmed: rs.filter(r => r.status === 'confirmed').length };
+  }
+
+  function openPartnersModal() {
+    document.getElementById('partners-modal').style.display = 'flex';
+    renderPartners();
+  }
+  function closePartnersModal() {
+    document.getElementById('partners-modal').style.display = 'none';
+  }
+  document.getElementById('partners-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('partners-modal')) closePartnersModal();
+  });
+
+  function renderPartners() {
+    const errBox = document.getElementById('partners-error');
+    const list = document.getElementById('partners-list');
+    if (!errBox || !list) return;
+
+    if (partnersError) {
+      const denied = /permission/i.test(partnersError);
+      errBox.style.display = 'block';
+      errBox.innerHTML = denied
+        ? `<strong>Accès refusé à la collection « partenaires ».</strong> Dans la console Firebase (Firestore Database → Règles), ajoutez ce bloc à l'intérieur de <code>match /databases/{database}/documents { … }</code>, puis publiez :<pre style="background:#fff;border:1px solid #f1b9ae;border-radius:8px;padding:10px;margin:8px 0;overflow:auto;font-size:0.78rem;">${pEsc(PARTNER_RULES_TEXT)}</pre><button type="button" onclick="navigator.clipboard.writeText(PARTNER_RULES_TEXT).then(()=>toast('Règle copiée'))" style="padding:6px 12px;border:1px solid #c0392b;border-radius:8px;background:#fff;color:#c0392b;cursor:pointer;font-size:0.78rem;">Copier la règle</button>`
+        : `Erreur de chargement des partenaires : ${pEsc(partnersError)}`;
+    } else {
+      errBox.style.display = 'none';
+    }
+
+    if (!PARTNERS.length) {
+      list.innerHTML = '<div style="padding:18px;text-align:center;color:#888;font-size:0.85rem;border:1px dashed #ddd;border-radius:10px;">Aucun partenaire pour l\'instant. Ajoutez le premier ci-dessous.</div>';
+      return;
+    }
+
+    list.innerHTML = `
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+        <thead><tr style="text-align:left;color:#666;border-bottom:2px solid #eee;">
+          <th style="padding:8px 6px;">Partenaire</th><th style="padding:8px 6px;">Code</th>
+          <th style="padding:8px 6px;text-align:center;">Demandes</th><th style="padding:8px 6px;">Statut</th><th style="padding:8px 6px;"></th>
+        </tr></thead>
+        <tbody>
+        ${PARTNERS.map(p => {
+          const u = partnerUsage(p.id);
+          const actif = p.actif !== false;
+          return `<tr style="border-bottom:1px solid #f0f0f0;${actif ? '' : 'opacity:0.55;'}">
+            <td style="padding:9px 6px;"><strong>${pEsc(p.nom)}</strong>${p.note ? `<div style="font-size:0.75rem;color:#888;">${pEsc(p.note)}</div>` : ''}</td>
+            <td style="padding:9px 6px;font-family:monospace;font-weight:700;letter-spacing:0.03em;">${pEsc(p.id)}</td>
+            <td style="padding:9px 6px;text-align:center;" title="Demandes non annulées utilisant ce code">${u.total}${u.total ? ` <span style="color:#1e8a4a;font-size:0.75rem;">(${u.confirmed} conf.)</span>` : ''}</td>
+            <td style="padding:9px 6px;">${actif ? '<span style="color:#1e8a4a;font-weight:600;">Actif</span>' : '<span style="color:#999;">Désactivé</span>'}</td>
+            <td style="padding:9px 6px;white-space:nowrap;text-align:right;">
+              <button type="button" onclick="copyPartnerCode('${pEsc(p.id)}')" style="padding:4px 9px;border:1px solid #ccc;border-radius:7px;background:#fff;cursor:pointer;font-size:0.75rem;">Copier</button>
+              <button type="button" onclick="togglePartner('${pEsc(p.id)}')" style="padding:4px 9px;border:1px solid #ccc;border-radius:7px;background:#fff;cursor:pointer;font-size:0.75rem;">${actif ? 'Désactiver' : 'Réactiver'}</button>
+              <button type="button" data-code="${pEsc(p.id)}" onclick="deletePartner(this)" style="padding:4px 9px;border:1px solid #e0b4ac;border-radius:7px;background:#fff;color:#c0392b;cursor:pointer;font-size:0.75rem;">Supprimer</button>
+            </td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table></div>`;
+  }
+
+  function copyPartnerCode(code) {
+    navigator.clipboard.writeText(code).then(() => toast('Code copié : ' + code), () => toast('Copie impossible', 'error'));
+  }
+
+  function generatePartnerCode() {
+    const nom = document.getElementById('partner-nom').value || '';
+    let base = nom.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    base = (base || 'PARTENAIRE').slice(0, 8);
+    let code = '';
+    for (let i = 0; i < 20; i++) {
+      code = base + String(Math.floor(100 + Math.random() * 900));
+      if (!PARTNERS_BY_CODE[code]) break;
+    }
+    document.getElementById('partner-code').value = code;
+  }
+
+  async function addPartner() {
+    const nom = document.getElementById('partner-nom').value.trim();
+    const note = document.getElementById('partner-note').value.trim();
+    let code = PartenairesRules.normalize(document.getElementById('partner-code').value);
+    if (!nom) { toast('Indiquez le nom du partenaire', 'error'); return; }
+    if (!code) { generatePartnerCode(); code = PartenairesRules.normalize(document.getElementById('partner-code').value); }
+    if (code.length < 4) { toast('Le code doit faire au moins 4 caractères', 'error'); return; }
+    try {
+      const ref = db.collection('partenaires').doc(code);
+      const existing = await ref.get();
+      if (existing.exists) { toast('Ce code existe déjà : choisissez-en un autre', 'error'); return; }
+      await ref.set({ nom, code, note, actif: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      document.getElementById('partner-nom').value = '';
+      document.getElementById('partner-code').value = '';
+      document.getElementById('partner-note').value = '';
+      toast('Partenaire ajouté : ' + code);
+    } catch (err) {
+      console.error('[Partenaires] ajout', err);
+      toast('Ajout impossible : ' + (err.code || err.message), 'error');
+    }
+  }
+
+  async function togglePartner(code) {
+    const p = PARTNERS_BY_CODE[code];
+    if (!p) return;
+    try {
+      await db.collection('partenaires').doc(code).update({ actif: p.actif === false });
+    } catch (err) {
+      toast('Modification impossible : ' + (err.code || err.message), 'error');
+    }
+  }
+
+  // Suppression en deux clics (sans fenêtre de confirmation)
+  function deletePartner(btn) {
+    const code = btn.dataset.code;
+    if (btn.dataset.armed !== '1') {
+      btn.dataset.armed = '1';
+      btn.textContent = 'Confirmer ?';
+      btn.style.background = '#c0392b'; btn.style.color = '#fff';
+      setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ''; btn.textContent = 'Supprimer'; btn.style.background = '#fff'; btn.style.color = '#c0392b'; } }, 4000);
+      return;
+    }
+    db.collection('partenaires').doc(code).delete()
+      .then(() => toast('Partenaire supprimé : ' + code))
+      .catch(err => toast('Suppression impossible : ' + (err.code || err.message), 'error'));
+  }
+
+  // Ligne « Code partenaire » dans le détail d'une demande de bateau
+  function partnerDetailRow(r) {
+    if (!r.codePartenaire) return '';
+    const p = PARTNERS_BY_CODE[r.codePartenaire];
+    let txt = `<strong>${pEsc(r.codePartenaire)}</strong>`;
+    if (!p) {
+      txt += ' <span style="color:#c0392b;">— code absent de la liste</span>';
+    } else {
+      txt += ` — ${pEsc(p.nom)}${p.actif === false ? ' <span style="color:#c0392b;">(désactivé)</span>' : ''}`;
+      const pct = PartenairesRules.remisePct(r.date, r.formule);
+      const px = PartenairesRules.prixRemise(r.formule, pct);
+      if (pct != null && px != null) {
+        txt += `<br><span style="color:#1e8a4a;">Remise ${pct} % : ${PartenairesRules.fmtEuro(PartenairesRules.PRIX[r.formule])} → ${PartenairesRules.fmtEuro(px)} (location, hors options)</span>`;
+      }
+    }
+    return `<div class="res-detail-row"><span class="label">Code partenaire</span><span class="value">${txt}<br><span style="font-size:0.75rem;color:#888;">Preuve d'achat à vérifier avant le lien SumUp</span></span></div>`;
+  }
   </script>
 </body>
 </html>
