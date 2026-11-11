@@ -1731,22 +1731,29 @@
 
       const duree = r.duree || 1;
       let base = 0;
-      if (r.formule === 'nuit') {
+      const isNuitFormule = r.formule && r.formule.startsWith('nuit-');
+      if (isNuitFormule) {
         const tarifs = { 1:35, 2:70, 3:90, 4:110, 5:130, 6:150, 7:170 };
-        base = tarifs[duree] || duree * 35;
+        const nuits = parseInt((r.formule||'').split('-')[1]) || duree;
+        base = tarifs[nuits] || nuits * 35;
       } else {
         base = (r.formule === 'demi' ? 15 : 20) * duree;
       }
       // Options
       const nbAccomp = r.nbAccompagnants || 0;
-      const accompTarif = { demi:5, jour:10, nuit:10 };
-      const accomp = (accompTarif[r.formule] || 10) * (r.formule === 'nuit' ? duree : 1) * nbAccomp;
+      const accompTarif = { demi:5, jour:10 };
+      const accomp = (accompTarif[r.formule] || 10) * (isNuitFormule ? duree : 1) * nbAccomp;
       let canne4 = 0;
       if (r.canne4) {
-        if (r.formule === 'jour') canne4 = 10;
-        else if (r.formule === 'nuit') canne4 = Math.max(20, duree * 10);
+        if (isNuitFormule) canne4 = Math.max(20, duree * 10);
+        else if (r.formule !== 'demi') canne4 = 10;
       }
-      return base + accomp + canne4;
+      // Barque (fallback pour anciennes réservations sans totalPrice)
+      let barque = 0;
+      if (r.barque && !r.totalPrice) {
+        barque = duree >= 3 ? 45 : duree === 2 ? 40 : 30;
+      }
+      return base + accomp + canne4 + barque;
     }
     if (r.type === 'bateau') {
       if (r.totalPrice) return r.totalPrice;
@@ -3169,7 +3176,8 @@
   };
 
   window.nrmSetMoyen = function(moyen) {
-    document.querySelectorAll('.nrm-moyen-btn').forEach(b => b.classList.toggle('active', b.dataset.moyen === moyen));
+    const already = document.querySelector('.nrm-moyen-btn.active')?.dataset.moyen === moyen;
+    document.querySelectorAll('.nrm-moyen-btn').forEach(b => b.classList.toggle('active', !already && b.dataset.moyen === moyen));
   };
 
   window.nrmClearOverride = function() {
@@ -3193,7 +3201,9 @@
       const accomp = parseInt(document.getElementById('nrm-accomp').value)||0;
       const aT = formule === 'demi' ? 5 : 10;
       calcPrice += aT * accomp;
-      if (document.getElementById('nrm-canne4').checked && formule !== 'demi') calcPrice += 10;
+      if (document.getElementById('nrm-canne4').checked && formule !== 'demi') {
+        calcPrice += isNuit ? Math.max(20, nuits * 10) : 10;
+      }
       // Barque checkbox: shown for postes (all formulas); hidden for carnassier-barque (auto-included)
       const barqueRow = document.getElementById('nrm-barque-row');
       const isCarnBarque = activity === 'carnassier-barque';
@@ -3483,7 +3493,7 @@
         const aT = formule==='demi' ? 5 : 10;
         totalPrice += aT * accomp;
         const canne4=document.getElementById('nrm-canne4').checked;
-        if(canne4 && formule!=='demi') totalPrice+=10;
+        if(canne4 && formule!=='demi') totalPrice += isNuit ? Math.max(20, nuits * 10) : 10;
         const nrmActivity = document.getElementById('nrm-activity').value;
         const isCarnassier = nrmActivity.startsWith('carnassier');
         const isCarnBarque = nrmActivity === 'carnassier-barque';
