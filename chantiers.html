@@ -289,8 +289,13 @@
 <script>
 
 // ─── PIN ──────────────────────────────────────────────────────────────────
-const CORRECT_PIN = '1234';
+// Hash SHA-256 du PIN (ne pas stocker le PIN en clair)
+const PIN_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // SHA-256('1234')
 const PIN_KEY = 'chantiers_pin_ok';
+async function hashPin(pin) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
 function initPin() {
   if (sessionStorage.getItem(PIN_KEY) === '1') { unlock(); return; }
   const digits = document.querySelectorAll('.pin-digit');
@@ -304,10 +309,11 @@ function initPin() {
   });
   digits[0].focus();
 }
-function checkPin() {
+async function checkPin() {
   const digits = document.querySelectorAll('.pin-digit');
   const entered = [...digits].map(d => d.value).join('');
-  if (entered === CORRECT_PIN) { sessionStorage.setItem(PIN_KEY, '1'); unlock(); }
+  const h = await hashPin(entered);
+  if (h === PIN_HASH) { sessionStorage.setItem(PIN_KEY, '1'); unlock(); }
   else {
     document.getElementById('pin-error').textContent = 'Code incorrect.';
     digits.forEach(d => { d.value = ''; d.style.borderColor = 'var(--danger)'; });

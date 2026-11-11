@@ -340,17 +340,24 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/postes.js"></script>
 <script>
-const STATS_PIN = '2022';
+// Hash SHA-256 du PIN stats (ne pas stocker le PIN en clair)
+const STATS_PIN_HASH = 'b1ab1e892617f210425f658cf1d361b5489028c8771b56d845fe1c62c1fbc8b0'; // SHA-256('2022')
 const PIN_KEY = 'stats_unlocked';
 let allReservations = [];
 let selectedYear = new Date().getFullYear();
 
+async function hashPin(pin) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 // ── PIN AUTH ──
 function isUnlocked() { return sessionStorage.getItem(PIN_KEY) === '1'; }
-document.getElementById('login-form').addEventListener('submit', e => {
+document.getElementById('login-form').addEventListener('submit', async e => {
   e.preventDefault();
   const val = document.getElementById('s-pin').value;
-  if (val === STATS_PIN) {
+  const h = await hashPin(val);
+  if (h === STATS_PIN_HASH) {
     sessionStorage.setItem(PIN_KEY, '1');
     showApp();
   } else {
@@ -545,7 +552,7 @@ function renderStats() {
   const pending = all.filter(r => !r.status||r.status==='pending').length;
   const cancelled = all.filter(r => r.status==='cancelled').length;
   const ca = res.reduce((s,r) => s+calculatePrice(r), 0);
-  const encaisse = res.reduce((s,r) => s+(r.acompte||0), 0);
+  const encaisse = res.reduce((s,r) => s+Number(r.acompte||0), 0);
   const solde = ca - encaisse;
 
   window._kpiLists = {
@@ -901,7 +908,7 @@ function renderAnalysis() {
   const res = sortedResults();
   const total = res.length;
   const ca = res.filter(r => r.status !== 'cancelled').reduce((s,r) => s + calculatePrice(r), 0);
-  const encaisse = res.filter(r => r.status !== 'cancelled').reduce((s,r) => s + (r.acompte||0), 0);
+  const encaisse = res.filter(r => r.status !== 'cancelled').reduce((s,r) => s + Number(r.acompte||0), 0);
   const nonPayes = res.filter(r => r.status !== 'cancelled' && calculatePrice(r) > (r.acompte||0)).length;
 
   document.getElementById('analysis-summary').style.display = 'flex';
